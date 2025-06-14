@@ -43,6 +43,9 @@ html,
 body {
     max-width: 100vw;
     overflow-x: hidden;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
 }
 
 body {
@@ -51,17 +54,6 @@ body {
     font-family: "SDSamliphopangche_Outline", Arial, Helvetica, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-}
-
-a {
-    color: inherit;
-    text-decoration: none;
 }
 
 @media (prefers-color-scheme: dark) {
