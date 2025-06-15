@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import HomePresenter from "@/app/presenter/home/HomePresenter";
 import { GameKind } from "@/app/type/home/HomeType";

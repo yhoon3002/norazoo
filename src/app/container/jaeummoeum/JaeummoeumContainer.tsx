@@ -1,4 +1,4 @@
-// JaeummoeumContainer.tsx
+"use client";
 
 import { useEffect, useState } from "react";
 import JaeummoeumPresenter from "@/app/presenter/jaeummoeum/JaeummoeumPresenter";
