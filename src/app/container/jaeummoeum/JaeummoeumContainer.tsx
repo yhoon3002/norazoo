@@ -43,7 +43,7 @@ export default function JaeummoeumContainer(props: JaeummoeumContainerProps) {
     const [keyboardStatus, setKeyboardStatus] = useState<{
         [key: string]: "correct" | "exist" | "none" | undefined;
     }>({});
-    const [randomWord, setRandomWord] = useState<string[]>(
+    const [randomWord, _] = useState<string[]>(
         wordList[Math.floor(Math.random() * wordList.length)]
     );
 
@@ -66,10 +66,10 @@ export default function JaeummoeumContainer(props: JaeummoeumContainerProps) {
 
     // 판정 함수
     function judge(tryArr: string[], answerArr: string[]) {
-        let result: ("correct" | "exist" | "none")[] = new Array(
+        const result: ("correct" | "exist" | "none")[] = new Array(
             tryArr.length
         ).fill("none");
-        let answerRemain = [...answerArr];
+        const answerRemain = [...answerArr];
 
         // 1. 위치/자모 모두 맞음
         for (let i = 0; i < tryArr.length; i++) {

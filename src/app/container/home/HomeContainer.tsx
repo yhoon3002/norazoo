@@ -1,6 +1,4 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import HomePresenter from "@/app/presenter/home/HomePresenter";
 import { GameKind } from "@/app/type/home/HomeType";
 import JaeummoeumContainer from "../jaeummoeum/JaeummoeumContainer";
