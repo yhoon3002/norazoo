@@ -43,9 +43,7 @@ export default function JaeummoeumContainer(props: JaeummoeumContainerProps) {
     const [keyboardStatus, setKeyboardStatus] = useState<{
         [key: string]: "correct" | "exist" | "none" | undefined;
     }>({});
-    const [randomWord, _] = useState<string[]>(
-        wordList[Math.floor(Math.random() * wordList.length)]
-    );
+    const randomWord = wordList[Math.floor(Math.random() * wordList.length)];
 
     useEffect(() => {
         props.handleGameLoad();
