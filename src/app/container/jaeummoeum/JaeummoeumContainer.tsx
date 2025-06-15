@@ -6,9 +6,17 @@ import { JaeummoeumContainerProps } from "@/app/type/jaeummoeum/JaeummoeumType";
 
 export default function JaeummoeumContainer(props: JaeummoeumContainerProps) {
     const wordList = [
-        ["ㅇ", "ㅏ", "ㄴ", "ㄴ", "ㅕ", "ㅇ"],
+        ["ㄱ", "ㅗ", "ㄱ", "ㅁ", "ㅜ", "ㄹ"],
+        ["ㄴ", "ㅗ", "ㅇ", "ㅇ", "ㅓ", "ㅂ"],
+        ["ㅂ", "ㅏ", "ㄴ", "ㅏ", "ㄴ", "ㅏ"],
+        ["ㅂ", "ㅏ", "ㅇ", "ㅂ", "ㅓ", "ㅂ"],
+        ["ㅅ", "ㅣ", "ㄴ", "ㅁ", "ㅜ", "ㄴ"],
+        ["ㅇ", "ㅜ", "ㄴ", "ㄷ", "ㅗ", "ㅇ"],
+        ["ㅈ", "ㅓ", "ㄴ", "ㅎ", "ㅗ", "ㅏ"],
+        ["ㅋ", "ㅔ", "ㅇ", "ㅣ", "ㅋ", "ㅡ"],
         ["ㅎ", "ㅐ", "ㅇ", "ㅂ", "ㅗ", "ㄱ"],
     ];
+    const randomWord = wordList[Math.floor(Math.random() * wordList.length)];
     const keyboardList1 = [
         "ㅂ",
         "ㅈ",
@@ -43,13 +51,9 @@ export default function JaeummoeumContainer(props: JaeummoeumContainerProps) {
     const [keyboardStatus, setKeyboardStatus] = useState<{
         [key: string]: "correct" | "exist" | "none" | undefined;
     }>({});
-    const randomWord = wordList[Math.floor(Math.random() * wordList.length)];
+    const [allCorrect, setAllCorrect] = useState(false);
 
-    useEffect(() => {
-        props.handleGameLoad();
-    }, []);
-
-    // 입력 처리
+    // 사용자 입력 로그
     const handleInput = (
         e: React.ChangeEvent<HTMLInputElement>,
         idx: number
@@ -62,21 +66,19 @@ export default function JaeummoeumContainer(props: JaeummoeumContainerProps) {
         setInputs(newInputs);
     };
 
-    // 판정 함수
+    // 정답과 입력 비교하기
     function judge(tryArr: string[], answerArr: string[]) {
         const result: ("correct" | "exist" | "none")[] = new Array(
             tryArr.length
         ).fill("none");
         const answerRemain = [...answerArr];
 
-        // 1. 위치/자모 모두 맞음
         for (let i = 0; i < tryArr.length; i++) {
             if (tryArr[i] === answerArr[i]) {
                 result[i] = "correct";
-                answerRemain[i] = ""; // 중복 방지
+                answerRemain[i] = "";
             }
         }
-        // 2. 위치만 다름(존재만)
         for (let i = 0; i < tryArr.length; i++) {
             if (result[i] !== "correct" && answerRemain.includes(tryArr[i])) {
                 result[i] = "exist";
@@ -86,12 +88,12 @@ export default function JaeummoeumContainer(props: JaeummoeumContainerProps) {
         return result;
     }
 
-    // 키보드 상태 업데이트
-    function updateKeyboardStatus(
+    // 하단 키보드 상태 바꾸기
+    const updateKeyboardStatus = (
         prev: typeof keyboardStatus,
         tryArr: string[],
         judgeResult: ("correct" | "exist" | "none")[]
-    ) {
+    ) => {
         const next = { ...prev };
         tryArr.forEach((char, idx) => {
             if (judgeResult[idx] === "correct") {
@@ -106,22 +108,38 @@ export default function JaeummoeumContainer(props: JaeummoeumContainerProps) {
             }
         });
         return next;
-    }
+    };
 
-    // 전송
+    // 정답 보내기
     const handleSend = () => {
         if (inputs.some((i) => i === "")) {
             alert("빈 칸을 모두 채워주세요!");
             return;
         }
         const result = judge(inputs, randomWord);
+
+        if (result.filter((el) => el === "correct").length === 6) {
+            setAllCorrect(true);
+        }
+
         setGuessList((prev) => [...prev, inputs]);
         setJudgeList((prev) => [...prev, result]);
         setKeyboardStatus((prev) => updateKeyboardStatus(prev, inputs, result));
         setInputs(Array(6).fill(""));
     };
 
-    // (isLoaded props 예시는 그대로 사용)
+    // 다시하기
+    const playAgain = () => {
+        setGuessList([]);
+        setGuessList([]);
+        setJudgeList([]);
+        setAllCorrect(false);
+    };
+
+    useEffect(() => {
+        props.handleGameLoad();
+    }, []);
+
     return (
         <>
             {props.isLoaded ? (
@@ -131,11 +149,12 @@ export default function JaeummoeumContainer(props: JaeummoeumContainerProps) {
                     keyboardList2={keyboardList2}
                     keyboardList3={keyboardList3}
                     inputs={inputs}
-                    handleInput={handleInput}
-                    handleSend={handleSend}
                     guessList={guessList}
                     judgeList={judgeList}
                     keyboardStatus={keyboardStatus}
+                    allCorrect={allCorrect}
+                    handleInput={handleInput}
+                    handleSend={handleSend}
                 />
             ) : (
                 <div className="flex flex-col items-center justify-center h-full gap-4 animate-pulse">

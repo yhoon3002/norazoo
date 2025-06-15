@@ -12,6 +12,7 @@ export interface JaeummoeumPresenterProps {
     guessList: string[][];
     judgeList: string[][];
     keyboardStatus: { [key: string]: "correct" | "exist" | "none" | undefined };
+    allCorrect: boolean;
     handleInput: (e: React.ChangeEvent<HTMLInputElement>, idx: number) => void;
     handleSend: () => void;
 }
