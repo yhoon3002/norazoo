@@ -16,7 +16,10 @@ export default function JaeummoeumContainer(props: JaeummoeumContainerProps) {
         ["ㅋ", "ㅔ", "ㅇ", "ㅣ", "ㅋ", "ㅡ"],
         ["ㅎ", "ㅐ", "ㅇ", "ㅂ", "ㅗ", "ㄱ"],
     ];
-    const randomWord = wordList[Math.floor(Math.random() * wordList.length)];
+    const [randomWord, setRandomWord] = useState<string[]>(
+        wordList[Math.floor(Math.random() * wordList.length)]
+    );
+
     const keyboardList1 = [
         "ㅂ",
         "ㅈ",
@@ -131,9 +134,11 @@ export default function JaeummoeumContainer(props: JaeummoeumContainerProps) {
     // 다시하기
     const playAgain = () => {
         setGuessList([]);
-        setGuessList([]);
         setJudgeList([]);
+        setKeyboardStatus({});
         setAllCorrect(false);
+        setInputs(Array(6).fill(""));
+        setRandomWord(wordList[Math.floor(Math.random() * wordList.length)]);
     };
 
     useEffect(() => {
@@ -155,6 +160,7 @@ export default function JaeummoeumContainer(props: JaeummoeumContainerProps) {
                     allCorrect={allCorrect}
                     handleInput={handleInput}
                     handleSend={handleSend}
+                    playAgain={playAgain}
                 />
             ) : (
                 <div className="flex flex-col items-center justify-center h-full gap-4 animate-pulse">

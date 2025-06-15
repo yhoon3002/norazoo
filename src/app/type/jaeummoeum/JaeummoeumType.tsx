@@ -15,4 +15,5 @@ export interface JaeummoeumPresenterProps {
     allCorrect: boolean;
     handleInput: (e: React.ChangeEvent<HTMLInputElement>, idx: number) => void;
     handleSend: () => void;
+    playAgain: () => void;
 }
