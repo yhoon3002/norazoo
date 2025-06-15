@@ -1,4 +1,4 @@
-export type Game = {
+type Game = {
     name: string;
     desc: string;
 };

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import HomePresenter from "@/app/presenter/home/HomePresenter";
 import { GameKind } from "@/app/type/home/HomeType";
 import JaeummoeumContainer from "../jaeummoeum/JaeummoeumContainer";
+import ModalTitle from "@/app/common/ModalTitle";
 
 export default function HomeContainer() {
     const [openModal, setOpenModal] = useState(false);
@@ -43,19 +44,11 @@ export default function HomeContainer() {
             {openModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-8">
                     <div className="bg-white rounded-2xl shadow-2xl p-8 min-w-[320px] max-w-[90vw] w-full h-full divide-y-2 divide-solid">
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-xl font-bold">
-                                {currentGame?.name}
-                            </h2>
-                            <button
-                                className="text-gray-500 hover:text-gray-900 text-2xl"
-                                onClick={handleCloseModal}
-                                aria-label="Close"
-                            >
-                                &times;
-                            </button>
-                        </div>
-                        <div className="flex flex-col items-center justify-center h-full">
+                        <ModalTitle
+                            currentGame={currentGame}
+                            handleCloseModal={handleCloseModal}
+                        ></ModalTitle>
+                        <div className="flex flex-col h-full">
                             {currentGame?.name === "Jaeum Moeum" && (
                                 <JaeummoeumContainer
                                     handleGameLoad={() => setGameLoaded(true)}
