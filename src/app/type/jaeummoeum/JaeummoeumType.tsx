@@ -1,5 +1,6 @@
 export interface JaeummoeumContainerProps {
     handleGameLoad: () => void;
+    handleCloseModal: () => void;
     isLoaded: boolean;
 }
 
@@ -16,4 +17,5 @@ export interface JaeummoeumPresenterProps {
     handleInput: (e: React.ChangeEvent<HTMLInputElement>, idx: number) => void;
     handleSend: () => void;
     playAgain: () => void;
+    handleCloseModal: () => void;
 }

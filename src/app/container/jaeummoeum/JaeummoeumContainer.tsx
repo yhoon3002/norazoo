@@ -161,6 +161,7 @@ export default function JaeummoeumContainer(props: JaeummoeumContainerProps) {
                     handleInput={handleInput}
                     handleSend={handleSend}
                     playAgain={playAgain}
+                    handleCloseModal={props.handleCloseModal}
                 />
             ) : (
                 <div className="flex flex-col items-center justify-center h-full gap-4 animate-pulse">
