@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import JaeummoeumPresenter from "@/app/presenter/jaeummoeum/JaeummoeumPresenter";
 import { JaeummoeumContainerProps } from "@/app/type/jaeummoeum/JaeummoeumType";
 
@@ -55,6 +55,7 @@ export default function JaeummoeumContainer(props: JaeummoeumContainerProps) {
         [key: string]: "correct" | "exist" | "none" | undefined;
     }>({});
     const [allCorrect, setAllCorrect] = useState(false);
+    const guessScrollRef = useRef<HTMLDivElement>(null);
 
     // 사용자 입력 로그
     const handleInput = (
@@ -145,6 +146,12 @@ export default function JaeummoeumContainer(props: JaeummoeumContainerProps) {
         props.handleGameLoad();
     }, []);
 
+    useEffect(() => {
+        if (guessScrollRef.current) {
+            guessScrollRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [guessList.length]);
+
     return (
         <>
             {props.isLoaded ? (
@@ -158,6 +165,7 @@ export default function JaeummoeumContainer(props: JaeummoeumContainerProps) {
                     judgeList={judgeList}
                     keyboardStatus={keyboardStatus}
                     allCorrect={allCorrect}
+                    guessScrollRef={guessScrollRef}
                     handleInput={handleInput}
                     handleSend={handleSend}
                     playAgain={playAgain}

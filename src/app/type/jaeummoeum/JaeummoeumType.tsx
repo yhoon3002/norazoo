@@ -1,3 +1,5 @@
+import { RefObject } from "react";
+
 export interface JaeummoeumContainerProps {
     handleGameLoad: () => void;
     handleCloseModal: () => void;
@@ -14,6 +16,7 @@ export interface JaeummoeumPresenterProps {
     judgeList: string[][];
     keyboardStatus: { [key: string]: "correct" | "exist" | "none" | undefined };
     allCorrect: boolean;
+    guessScrollRef: RefObject<HTMLDivElement | null>;
     handleInput: (e: React.ChangeEvent<HTMLInputElement>, idx: number) => void;
     handleSend: () => void;
     playAgain: () => void;

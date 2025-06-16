@@ -90,6 +90,7 @@ export default function JaeummoeumPresenter(props: JaeummoeumPresenterProps) {
                                             {char}
                                         </div>
                                     ))}
+                                    <div ref={props.guessScrollRef}></div>
                                 </div>
                             ))
                         )}
