@@ -16,7 +16,7 @@ export default function HomeContainer() {
         setMinTimePassed(false);
         setGameLoaded(false);
 
-        setTimeout(() => setMinTimePassed(true), 200);
+        setTimeout(() => setMinTimePassed(true), 2000);
     };
 
     const handleCloseModal = () => {
