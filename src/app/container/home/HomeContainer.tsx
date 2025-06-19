@@ -32,8 +32,8 @@ export default function HomeContainer() {
             desc: "숨겨진 한글 단어를 맞혀보세요!\n자모(자음, 모음)를 입력하면 정답과 얼마나 맞았는지 알려줍니다.\n정답에 가까운 조합을 찾아가며 단어를 완성해보세요!",
         },
         {
-            name: "추가 예정1",
-            desc: "추가 예정1",
+            name: "Subak Game",
+            desc: "수박 게임",
         },
         {
             name: "추가 예정2",
