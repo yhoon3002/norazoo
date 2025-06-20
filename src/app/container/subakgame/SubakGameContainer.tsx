@@ -79,7 +79,7 @@ export default function SubakGameContainer() {
         Runner.run(runner, engine);
 
         let currentBody: Body | null = null;
-        let currentFruit: { radius: any; name?: string } | null = null;
+        let currentFruit: { radius: number; name?: string } | null = null;
         let disableAction = false;
         let interval: ReturnType<typeof setInterval> | undefined = undefined;
 
