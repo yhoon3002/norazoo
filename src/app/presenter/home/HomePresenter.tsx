@@ -1,8 +1,8 @@
 import JaeummoeumContainer from "@/app/container/jaeummoeum/JaeummoeumContainer";
+import SubakGameContainer from "@/app/container/subakgame/SubakGameContainer";
 import Card from "@/app/common/Card";
 import ModalTitle from "@/app/common/ModalTitle";
 import { HomePresenterProps } from "@/app/type/home/HomeType";
-import SubakGameContainer from "@/app/container/subakgame/SubakGameContainer";
 
 export default function HomePresenter(props: HomePresenterProps) {
     return (
