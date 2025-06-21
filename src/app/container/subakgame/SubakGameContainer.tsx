@@ -2,13 +2,14 @@
 
 import { useEffect, useRef } from "react";
 import { Bodies, Body, Engine, Events, Render, Runner, World } from "matter-js";
+import type { JoystickManager } from "nipplejs";
 import SubakGamePresenter from "@/app/presenter/subakgame/SubakGamePresenter";
 import { FRUITS } from "@/app/common/Fruits";
 
 export default function SubakGameContainer() {
     const matterRef = useRef<HTMLDivElement | null>(null);
     const joystickRef = useRef<HTMLDivElement | null>(null);
-    const joystickManagerRef = useRef<any>(null);
+    const joystickManagerRef = useRef<JoystickManager | null>(null);
 
     function isTouchDevice() {
         return (
@@ -298,7 +299,14 @@ export default function SubakGameContainer() {
 
                     manager.on(
                         "move",
-                        (_: any, data: { direction: { angle: any } }) => {
+                        (
+                            _: unknown,
+                            data: {
+                                direction?: {
+                                    angle: "left" | "right" | "up" | "down";
+                                };
+                            }
+                        ) => {
                             if (!data || !data.direction) return;
                             const dir = data.direction.angle;
                             if (dir === lastDirection) return;
