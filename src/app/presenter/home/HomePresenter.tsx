@@ -35,7 +35,7 @@ export default function HomePresenter(props: HomePresenterProps) {
                                 handleCloseModal={props.handleCloseModal}
                             ></ModalTitle>
 
-                            <div className="h-full flex flex-col">
+                            <div className="h-full max-h-[100dvh] flex flex-col">
                                 {props.currentGame?.name === "Jaeum Moeum" && (
                                     <JaeummoeumContainer
                                         handleGameLoad={() =>
