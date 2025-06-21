@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef } from "react";
 import { Bodies, Body, Engine, Events, Render, Runner, World } from "matter-js";
 import SubakGamePresenter from "@/app/presenter/subakgame/SubakGamePresenter";
@@ -5,6 +7,15 @@ import { FRUITS } from "@/app/common/Fruits";
 
 export default function SubakGameContainer() {
     const matterRef = useRef<HTMLDivElement | null>(null);
+    const joystickRef = useRef<HTMLDivElement | null>(null);
+    const joystickManagerRef = useRef<any>(null);
+
+    function isTouchDevice() {
+        return (
+            typeof window !== "undefined" &&
+            ("ontouchstart" in window || navigator.maxTouchPoints > 0)
+        );
+    }
 
     useEffect(() => {
         if (!matterRef.current) return;
@@ -224,18 +235,117 @@ export default function SubakGameContainer() {
 
         addFruit();
 
+        if (
+            typeof window !== "undefined" &&
+            isTouchDevice() &&
+            joystickRef.current
+        ) {
+            import("nipplejs").then((nipplejs) => {
+                let lastDirection: string | null = null;
+                let joystickInterval:
+                    | ReturnType<typeof setInterval>
+                    | undefined = undefined;
+
+                if (joystickRef.current) {
+                    if (joystickManagerRef.current) {
+                        joystickManagerRef.current.destroy();
+                        joystickManagerRef.current = null;
+                    }
+
+                    joystickManagerRef.current = nipplejs.create({
+                        zone: joystickRef.current,
+                        mode: "dynamic",
+                        color: "green",
+                        size: 80,
+                        multitouch: false,
+                    });
+
+                    const manager = joystickManagerRef.current;
+                    if (!manager) return;
+
+                    const handleDirection = (
+                        dir: "left" | "right" | "down" | null
+                    ) => {
+                        if (joystickInterval) {
+                            clearInterval(joystickInterval);
+                            joystickInterval = undefined;
+                        }
+                        if (dir === "left" || dir === "right") {
+                            window.dispatchEvent(
+                                new KeyboardEvent("keyup", {
+                                    code: dir === "left" ? "KeyD" : "KeyA",
+                                })
+                            );
+                            window.dispatchEvent(
+                                new KeyboardEvent("keydown", {
+                                    code: dir === "left" ? "KeyA" : "KeyD",
+                                })
+                            );
+                            joystickInterval = setInterval(() => {
+                                window.dispatchEvent(
+                                    new KeyboardEvent("keydown", {
+                                        code: dir === "left" ? "KeyA" : "KeyD",
+                                    })
+                                );
+                            }, 100);
+                        }
+                        if (dir === "down") {
+                            window.dispatchEvent(
+                                new KeyboardEvent("keydown", { code: "KeyS" })
+                            );
+                        }
+                    };
+
+                    manager.on(
+                        "move",
+                        (_: any, data: { direction: { angle: any } }) => {
+                            if (!data || !data.direction) return;
+                            const dir = data.direction.angle;
+                            if (dir === lastDirection) return;
+                            lastDirection = dir;
+                            if (dir === "left") handleDirection("left");
+                            else if (dir === "right") handleDirection("right");
+                            else if (dir === "down") handleDirection("down");
+                            else handleDirection(null);
+                        }
+                    );
+
+                    manager.on("end", () => {
+                        clearInterval(joystickInterval);
+                        joystickInterval = undefined;
+                        window.dispatchEvent(
+                            new KeyboardEvent("keyup", { code: "KeyA" })
+                        );
+                        window.dispatchEvent(
+                            new KeyboardEvent("keyup", { code: "KeyD" })
+                        );
+                        lastDirection = null;
+                    });
+                }
+            });
+        }
+
         return () => {
             Render.stop(render);
             Runner.stop(runner);
+
             if (render.canvas && render.canvas.parentNode) {
                 render.canvas.parentNode.removeChild(render.canvas);
+            }
+
+            if (joystickManagerRef.current) {
+                joystickManagerRef.current.destroy();
+                joystickManagerRef.current = null;
             }
         };
     }, []);
 
     return (
         <>
-            <SubakGamePresenter matterRef={matterRef} />
+            <SubakGamePresenter
+                matterRef={matterRef}
+                joystickRef={joystickRef}
+            />
         </>
     );
 }
