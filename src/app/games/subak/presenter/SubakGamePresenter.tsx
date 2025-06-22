@@ -1,4 +1,4 @@
-import { SubakGamePresenterProps } from "../types/SubakGameType";
+import { SubakGamePresenterProps } from "../types/SubakGameTypes";
 
 export default function SubakGamePresenter(props: SubakGamePresenterProps) {
     return (

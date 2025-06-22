@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { Bodies, Body, Engine, Events, Render, Runner, World } from "matter-js";
 import type { JoystickManager } from "nipplejs";
 import SubakGamePresenter from "../presenter/SubakGamePresenter";
-import { SubakGameContainerProps } from "../types/SubakGameType";
+import { SubakGameContainerProps } from "../types/SubakGameTypes";
 import { FRUITS } from "../data/Fruits";
 import GameLoading from "@/app/common/GameLoading";
 

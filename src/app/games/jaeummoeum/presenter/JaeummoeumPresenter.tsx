@@ -1,5 +1,5 @@
 import { TbSend } from "react-icons/tb";
-import { JaeummoeumPresenterProps } from "../types/JaeummoeumType";
+import { JaeummoeumPresenterProps } from "../types/JaeummoeumTypes";
 import { keyboardList1, keyboardList2, keyboardList3 } from "../data/keyboard";
 import keyboardBackground from "../data/keyboardBackground";
 import statusColor from "../data/statusColor";

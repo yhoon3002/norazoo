@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import JaeummoeumPresenter from "../presenter/JaeummoeumPresenter";
-import { JaeummoeumContainerProps } from "../types/JaeummoeumType";
+import { JaeummoeumContainerProps } from "../types/JaeummoeumTypes";
 import GameLoading from "@/app/common/GameLoading";
 import answerList from "../data/answerList";
 
