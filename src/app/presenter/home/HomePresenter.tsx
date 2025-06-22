@@ -28,7 +28,7 @@ export default function HomePresenter(props: HomePresenterProps) {
 
             {props.openModal && (
                 <>
-                    <div className="w-screen min-h-[100dvh] flex flex-none justify-center items-center p-10 fixed z-50 inset-0 bg-black bg-opacity-40">
+                    <div className="w-screen min-h-mobile-safe flex flex-none justify-center items-center p-10 fixed z-50 inset-0 bg-black bg-opacity-40 overflow-auto">
                         <div className="w-full h-full min-w-[320px] flex flex-col p-8 bg-white rounded-2xl shadow-2xl divide-y-2 divide-solid">
                             <ModalTitle
                                 currentGame={props.currentGame}
