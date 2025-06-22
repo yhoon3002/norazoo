@@ -1,17 +1,8 @@
 import { TbSend } from "react-icons/tb";
 import { JaeummoeumPresenterProps } from "../types/JaeummoeumType";
-
-const statusColor: { [key: string]: string } = {
-    correct: "border-green-500",
-    exist: "border-yellow-400",
-    none: "border-red-500",
-};
-
-const keyboardBg: { [key: string]: string } = {
-    correct: "bg-green-400 text-white",
-    exist: "bg-yellow-300 text-black",
-    none: "bg-red-300 text-white",
-};
+import { keyboardList1, keyboardList2, keyboardList3 } from "../data/keyboard";
+import keyboardBackground from "../data/keyboardBackground";
+import statusColor from "../data/statusColor";
 
 export default function JaeummoeumPresenter(props: JaeummoeumPresenterProps) {
     return (
@@ -129,16 +120,13 @@ export default function JaeummoeumPresenter(props: JaeummoeumPresenterProps) {
                         </div>
 
                         <div className="h-3/4 flex flex-col justify-center items-center pb-8 gap-2">
-                            {[
-                                props.keyboardList1,
-                                props.keyboardList2,
-                                props.keyboardList3,
-                            ].map((row, i) => (
-                                <div className="flex gap-2" key={i}>
-                                    {row.map((key) => (
-                                        <div
-                                            key={key}
-                                            className={`w-6 h-8
+                            {[keyboardList1, keyboardList2, keyboardList3].map(
+                                (row, i) => (
+                                    <div className="flex gap-2" key={i}>
+                                        {row.map((key) => (
+                                            <div
+                                                key={key}
+                                                className={`w-6 h-8
                                                         sm:w-8 sm:h-10
                                                         md:w-10 md:h-12
                                                         lg:w-12 lg:h-14
@@ -146,17 +134,18 @@ export default function JaeummoeumPresenter(props: JaeummoeumPresenterProps) {
                                                         2xl:w-16 2xl:h-18
                                                         rounded-xl border bg-white text-xl font-bold shadow flex items-center justify-center
                                         ${
-                                            keyboardBg[
+                                            keyboardBackground[
                                                 props.keyboardStatus[key] ?? ""
                                             ]
                                         }
                                     `}
-                                        >
-                                            {key}
-                                        </div>
-                                    ))}
-                                </div>
-                            ))}
+                                            >
+                                                {key}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )
+                            )}
                         </div>
                     </div>
                 </div>

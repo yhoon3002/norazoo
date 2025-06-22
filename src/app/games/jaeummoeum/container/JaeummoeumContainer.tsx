@@ -4,47 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import JaeummoeumPresenter from "../presenter/JaeummoeumPresenter";
 import { JaeummoeumContainerProps } from "../types/JaeummoeumType";
 import GameLoading from "@/app/common/GameLoading";
+import answerList from "../data/answerList";
 
 export default function JaeummoeumContainer(props: JaeummoeumContainerProps) {
-    const wordList = [
-        ["ㄱ", "ㅗ", "ㄱ", "ㅁ", "ㅜ", "ㄹ"],
-        ["ㄴ", "ㅗ", "ㅇ", "ㅇ", "ㅓ", "ㅂ"],
-        ["ㅂ", "ㅏ", "ㄴ", "ㅏ", "ㄴ", "ㅏ"],
-        ["ㅂ", "ㅏ", "ㅇ", "ㅂ", "ㅓ", "ㅂ"],
-        ["ㅅ", "ㅣ", "ㄴ", "ㅁ", "ㅜ", "ㄴ"],
-        ["ㅇ", "ㅜ", "ㄴ", "ㄷ", "ㅗ", "ㅇ"],
-        ["ㅈ", "ㅓ", "ㄴ", "ㅎ", "ㅗ", "ㅏ"],
-        ["ㅋ", "ㅔ", "ㅇ", "ㅣ", "ㅋ", "ㅡ"],
-        ["ㅎ", "ㅐ", "ㅇ", "ㅂ", "ㅗ", "ㄱ"],
-    ];
     const [randomWord, setRandomWord] = useState<string[]>(
-        wordList[Math.floor(Math.random() * wordList.length)]
+        answerList[Math.floor(Math.random() * answerList.length)]
     );
-
-    const keyboardList1 = [
-        "ㅂ",
-        "ㅈ",
-        "ㄷ",
-        "ㄱ",
-        "ㅅ",
-        "ㅛ",
-        "ㅕ",
-        "ㅑ",
-        "ㅐ",
-        "ㅔ",
-    ];
-    const keyboardList2 = [
-        "ㅁ",
-        "ㄴ",
-        "ㅇ",
-        "ㄹ",
-        "ㅎ",
-        "ㅗ",
-        "ㅓ",
-        "ㅏ",
-        "ㅣ",
-    ];
-    const keyboardList3 = ["ㅋ", "ㅌ", "ㅊ", "ㅍ", "ㅠ", "ㅜ", "ㅡ"];
 
     const jaMoReg = /^[ㄱ-ㅎㅏ-ㅣ]$/;
     const [inputs, setInputs] = useState<string[]>(Array(6).fill(""));
@@ -140,7 +105,9 @@ export default function JaeummoeumContainer(props: JaeummoeumContainerProps) {
         setKeyboardStatus({});
         setAllCorrect(false);
         setInputs(Array(6).fill(""));
-        setRandomWord(wordList[Math.floor(Math.random() * wordList.length)]);
+        setRandomWord(
+            answerList[Math.floor(Math.random() * answerList.length)]
+        );
     };
 
     useEffect(() => {
@@ -158,9 +125,6 @@ export default function JaeummoeumContainer(props: JaeummoeumContainerProps) {
             {props.isLoaded ? (
                 <JaeummoeumPresenter
                     randomWord={randomWord}
-                    keyboardList1={keyboardList1}
-                    keyboardList2={keyboardList2}
-                    keyboardList3={keyboardList3}
                     inputs={inputs}
                     guessList={guessList}
                     judgeList={judgeList}

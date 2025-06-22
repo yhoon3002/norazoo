@@ -8,9 +8,6 @@ export interface JaeummoeumContainerProps {
 
 export interface JaeummoeumPresenterProps {
     randomWord: string[];
-    keyboardList1: string[];
-    keyboardList2: string[];
-    keyboardList3: string[];
     inputs: string[];
     guessList: string[][];
     judgeList: string[][];
