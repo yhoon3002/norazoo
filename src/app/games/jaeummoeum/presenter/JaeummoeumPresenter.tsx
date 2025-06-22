@@ -1,5 +1,5 @@
-import { JaeummoeumPresenterProps } from "@/app/type/jaeummoeum/JaeummoeumType";
 import { TbSend } from "react-icons/tb";
+import { JaeummoeumPresenterProps } from "../types/JaeummoeumType";
 
 const statusColor: { [key: string]: string } = {
     correct: "border-green-500",

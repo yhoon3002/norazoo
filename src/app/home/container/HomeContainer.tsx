@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import HomePresenter from "@/app/presenter/home/HomePresenter";
-import { GameKind } from "@/app/type/home/HomeType";
+import { useEffect, useState } from "react";
+import HomePresenter from "../presenter/HomePresenter";
+import { GameKind } from "../types/HomeType";
 
 export default function HomeContainer() {
     const [openModal, setOpenModal] = useState(false);
@@ -60,6 +60,11 @@ export default function HomeContainer() {
             desc: "추가 예정7",
         },
     ];
+
+    useEffect(() => {
+        console.log(minTimePassed);
+        console.log(gameLoaded);
+    }, [minTimePassed, gameLoaded]);
 
     return (
         <>

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import JaeummoeumPresenter from "@/app/presenter/jaeummoeum/JaeummoeumPresenter";
-import { JaeummoeumContainerProps } from "@/app/type/jaeummoeum/JaeummoeumType";
+import JaeummoeumPresenter from "../presenter/JaeummoeumPresenter";
+import { JaeummoeumContainerProps } from "../types/JaeummoeumType";
 import GameLoading from "@/app/common/GameLoading";
 
 export default function JaeummoeumContainer(props: JaeummoeumContainerProps) {

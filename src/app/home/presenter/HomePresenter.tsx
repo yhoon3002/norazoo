@@ -1,8 +1,8 @@
-import JaeummoeumContainer from "@/app/container/jaeummoeum/JaeummoeumContainer";
-import SubakGameContainer from "@/app/container/subakgame/SubakGameContainer";
+import JaeummoeumContainer from "@/app/games/jaeummoeum/container/JaeummoeumContainer";
+import SubakGameContainer from "@/app/games/subak/container/SubakGameContainer";
+import { HomePresenterProps } from "../types/HomeType";
 import Card from "@/app/common/Card";
 import ModalTitle from "@/app/common/ModalTitle";
-import { HomePresenterProps } from "@/app/type/home/HomeType";
 
 export default function HomePresenter(props: HomePresenterProps) {
     return (
@@ -38,21 +38,29 @@ export default function HomePresenter(props: HomePresenterProps) {
                             <div className="h-full flex flex-col">
                                 {props.currentGame?.name === "Jaeum Moeum" && (
                                     <JaeummoeumContainer
+                                        isLoaded={
+                                            props.minTimePassed &&
+                                            props.gameLoaded
+                                        }
                                         handleGameLoad={() =>
                                             props.setGameLoaded(true)
                                         }
                                         handleCloseModal={
                                             props.handleCloseModal
                                         }
-                                        isLoaded={
-                                            props.minTimePassed &&
-                                            props.gameLoaded
-                                        }
                                     />
                                 )}
 
                                 {props.currentGame?.name === "Subak Game" && (
-                                    <SubakGameContainer />
+                                    <SubakGameContainer
+                                        isLoaded={
+                                            props.minTimePassed &&
+                                            props.gameLoaded
+                                        }
+                                        handleGameLoad={() =>
+                                            props.setGameLoaded(true)
+                                        }
+                                    />
                                 )}
                             </div>
                         </div>
