@@ -4,11 +4,9 @@ import { useEffect, useRef } from "react";
 import { Bodies, Body, Engine, Events, Render, Runner, World } from "matter-js";
 import type { JoystickManager } from "nipplejs";
 import SubakGamePresenter from "../presenter/SubakGamePresenter";
-import { SubakGameContainerProps } from "../types/SubakGameTypes";
 import { FRUITS } from "../data/Fruits";
-import GameLoading from "@/app/common/GameLoading";
 
-export default function SubakGameContainer(props: SubakGameContainerProps) {
+export default function SubakGameContainer() {
     const matterRef = useRef<HTMLDivElement | null>(null);
     const joystickRef = useRef<HTMLDivElement | null>(null);
     const joystickManagerRef = useRef<JoystickManager | null>(null);
@@ -352,14 +350,10 @@ export default function SubakGameContainer(props: SubakGameContainerProps) {
 
     return (
         <>
-            {/* {props.isLoaded ? ( */}
             <SubakGamePresenter
                 matterRef={matterRef}
                 joystickRef={joystickRef}
             />
-            {/* ) : (
-                <GameLoading />
-            )} */}
         </>
     );
 }
