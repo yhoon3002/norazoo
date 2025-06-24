@@ -352,14 +352,14 @@ export default function SubakGameContainer(props: SubakGameContainerProps) {
 
     return (
         <>
-            {props.isLoaded ? (
-                <SubakGamePresenter
-                    matterRef={matterRef}
-                    joystickRef={joystickRef}
-                />
-            ) : (
+            {/* {props.isLoaded ? ( */}
+            <SubakGamePresenter
+                matterRef={matterRef}
+                joystickRef={joystickRef}
+            />
+            {/* ) : (
                 <GameLoading />
-            )}
+            )} */}
         </>
     );
 }
