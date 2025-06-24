@@ -52,15 +52,7 @@ export default function HomePresenter(props: HomePresenterProps) {
                                 )}
 
                                 {props.currentGame?.name === "Subak Game" && (
-                                    <SubakGameContainer
-                                        isLoaded={
-                                            props.minTimePassed &&
-                                            props.gameLoaded
-                                        }
-                                        handleGameLoad={() =>
-                                            props.setGameLoaded(true)
-                                        }
-                                    />
+                                    <SubakGameContainer />
                                 )}
                             </div>
                         </div>
