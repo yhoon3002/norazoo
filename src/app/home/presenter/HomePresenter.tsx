@@ -3,6 +3,7 @@ import SubakGameContainer from "@/app/games/subak/container/SubakGameContainer";
 import { HomePresenterProps } from "../types/HomeType";
 import Card from "@/app/common/Card";
 import ModalTitle from "@/app/common/ModalTitle";
+import PinballContainer from "@/app/games/pinball/container/PinballContainer";
 
 export default function HomePresenter(props: HomePresenterProps) {
     return (
@@ -53,6 +54,10 @@ export default function HomePresenter(props: HomePresenterProps) {
 
                                 {props.currentGame?.name === "Subak Game" && (
                                     <SubakGameContainer />
+                                )}
+
+                                {props.currentGame?.name === "Pinball" && (
+                                    <PinballContainer />
                                 )}
                             </div>
                         </div>
