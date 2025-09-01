@@ -13,7 +13,7 @@ import {
     SLOT_H,
 } from "../data/constants";
 import updatePhysics from "../utils/updatePhysics";
-import useFitCanvas from "@/app/hooks/useFitCanvas";
+import useFitCanvas from "../hooks/useFitCanvas";
 
 export default function PinballPresenter(props: PinballPresenterProps) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);

@@ -1,5 +1,11 @@
 import { AudioPing } from "../types/PinballTypes";
 
+declare global {
+    interface Window {
+        webkitAudioContext?: typeof AudioContext;
+    }
+}
+
 export default function useAudio(enabled: boolean): AudioPing {
     let ctx: AudioContext | null = null;
 
@@ -8,8 +14,7 @@ export default function useAudio(enabled: boolean): AudioPing {
 
         try {
             if (!ctx) {
-                ctx = new (window.AudioContext ||
-                    (window as any).webkitAudioContext)();
+                ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const o = ctx.createOscillator();
                 const g = ctx.createGain();
                 o.type = "triangle";
