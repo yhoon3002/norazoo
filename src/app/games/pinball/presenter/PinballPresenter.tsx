@@ -231,11 +231,9 @@ export default function PinballPresenter(props: PinballPresenterProps) {
         <>
             <div className="w-full h-full flex flex-col gap-4">
                 <h1 className="text-2xl font-bold tracking-tight">
-                    멀티 벌칙 핀볼
+                    당첨자 고르기
                 </h1>
-                <p className="text-sm opacity-80">
-                    여러 명 중에서 시각적으로 공정하게 벌칙자를 뽑는 미니 게임
-                </p>
+                <p className="text-sm opacity-80">진짜 공정해요 ..</p>
 
                 {/* 행 래퍼: 가로 전부 사용, 동일 높이로 늘림 */}
                 <div className="flex flex-col lg:flex-row gap-6 w-full flex-1 min-h-0 items-stretch">
