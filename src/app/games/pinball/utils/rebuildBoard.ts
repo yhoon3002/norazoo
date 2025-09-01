@@ -42,8 +42,8 @@ export default function rebuildBoard(
     // 가로/세로 peg 개수 결정
     // - fillToEdges=true면, 간격을 "정확히" 재분배해서 첫 peg=left, 마지막 peg=right에 오도록 함
     // - 최소 3개 이상 보장
-    let cols = Math.max(3, Math.floor(innerW / gapXTarget) + 1);
-    let rows = Math.max(5, Math.floor(innerH / gapYTarget) + 1);
+    const cols = Math.max(3, Math.floor(innerW / gapXTarget) + 1);
+    const rows = Math.max(5, Math.floor(innerH / gapYTarget) + 1);
 
     // 실제 간격 (가장자리에 정확히 맞추도록 재계산)
     const gapX = fillToEdges ? innerW / (cols - 1) : gapXTarget;

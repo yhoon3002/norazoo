@@ -20,7 +20,7 @@ export default function PinballPresenter(props: PinballPresenterProps) {
     const wrapRef = useRef<HTMLDivElement | null>(null); // 패딩/보더 없는 순수 측정 박스
 
     const [name, setName] = useState("");
-    const [running, setRunning] = useState(false);
+    const [, setRunning] = useState(false);
     const [result, setResult] = useState<number | null>(null);
     const [speed, setSpeed] = useState(1);
     const [sound, setSound] = useState(false);
@@ -213,7 +213,7 @@ export default function PinballPresenter(props: PinballPresenterProps) {
                     props.pushHistory({
                         round: props.round,
                         name: props.players[slotIdx],
-                        seed: null, // ✅ 항상 랜덤이므로 재현용 시드 기록하지 않음
+                        seed: null, // 항상 랜덤이므로 재현용 시드 기록하지 않음
                     });
                 },
                 audioPing
