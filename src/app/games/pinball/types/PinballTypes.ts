@@ -40,13 +40,28 @@ export interface BoardState {
 export type AudioPing = () => void;
 
 export interface PinballPresenterProps {
+    canvasRef: React.RefObject<HTMLCanvasElement>;
+    wrapRef: React.RefObject<HTMLDivElement>;
+
     players: string[];
-    history: HistoryEntry[];
+    name: string;
+    history: { round: number; name: string; seed: number | null }[];
     round: number;
-    setRound: React.Dispatch<React.SetStateAction<number>>;
-    addPlayer: (name: string) => void;
-    removePlayer: (i: number) => void;
-    movePlayer: (i: number, dir: -1 | 1) => void;
-    pushHistory: (entry: HistoryEntry) => void;
+    result: number | null;
+    speed: number;
+    sound: boolean;
+    running: boolean;
+
+    setName: (name: string) => void;
+    setSpeed: (speed: number) => void;
+    setSound: (sound: boolean) => void;
+
+    startRun: () => void;
+    stopReset: () => void;
+    newRound: () => void;
+    addPlayer: () => void;
+    removePlayer: (index: number) => void;
+    movePlayer: (index: number, direction: -1 | 1) => void;
     clearHistory: () => void;
+    handleNameKeyDown: (e: React.KeyboardEvent) => void;
 }
