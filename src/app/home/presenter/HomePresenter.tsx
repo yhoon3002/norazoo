@@ -4,6 +4,7 @@ import { HomePresenterProps } from "../types/HomeType";
 import Card from "@/app/common/Card";
 import ModalTitle from "@/app/common/ModalTitle";
 import PinballContainer from "@/app/games/pinball/container/PinballContainer";
+import MazeContainer from "@/app/games/maze/container/MazeContainer";
 
 export default function HomePresenter(props: HomePresenterProps) {
     return (
@@ -58,6 +59,10 @@ export default function HomePresenter(props: HomePresenterProps) {
 
                                 {props.currentGame?.name === "Pinball" && (
                                     <PinballContainer />
+                                )}
+
+                                {props.currentGame?.name === "Maze Escape" && (
+                                    <MazeContainer />
                                 )}
                             </div>
                         </div>

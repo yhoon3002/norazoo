@@ -13,20 +13,12 @@ import {
     CANVAS_WALL,
     CANVAS_WIDTH,
     GRID_DENSITY,
+    initialPlayers,
     PEG_R,
     SLOT_H,
 } from "../data/constants";
 
 export default function PinballContainer() {
-    const initialPlayers = [
-        "박민호",
-        "이지은",
-        "임영훈",
-        "장민규",
-        "정연호",
-        "정종호",
-    ];
-
     const canvasRef = useRef<HTMLCanvasElement>(null!);
     const wrapRef = useRef<HTMLDivElement>(null!);
 

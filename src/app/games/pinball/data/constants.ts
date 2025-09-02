@@ -18,3 +18,13 @@ export const PEG_R = 4.5;
 export const GRID_DENSITY = 1.45;
 
 export const SLOT_H = 72;
+
+// 참여자
+export const initialPlayers = [
+    "박민호",
+    "이지은",
+    "임영훈",
+    "장민규",
+    "정연호",
+    "정종호",
+];
