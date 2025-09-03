@@ -5,6 +5,7 @@ import Card from "@/app/common/Card";
 import ModalTitle from "@/app/common/ModalTitle";
 import PinballContainer from "@/app/games/pinball/container/PinballContainer";
 import MazeContainer from "@/app/games/maze/container/MazeContainer";
+import MarbleDrop from "@/app/games/marbledrop/container/MarbleDropContainer";
 
 export default function HomePresenter(props: HomePresenterProps) {
     return (
@@ -63,6 +64,10 @@ export default function HomePresenter(props: HomePresenterProps) {
 
                                 {props.currentGame?.name === "Maze Escape" && (
                                     <MazeContainer />
+                                )}
+
+                                {props.currentGame?.name === "Race" && (
+                                    <MarbleDrop />
                                 )}
                             </div>
                         </div>

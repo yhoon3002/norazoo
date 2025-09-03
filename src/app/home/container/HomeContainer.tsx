@@ -44,8 +44,8 @@ export default function HomeContainer() {
             desc: "오늘의 당첨자는 ?",
         },
         {
-            name: "추가 예정4",
-            desc: "추가 예정4",
+            name: "Race",
+            desc: "오늘의 당첨자는 ?",
         },
         {
             name: "추가 예정5",
