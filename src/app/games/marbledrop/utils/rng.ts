@@ -56,6 +56,7 @@ export async function sha256Hex(s: string): Promise<string> {
         const arr = Array.from(new Uint8Array(digest));
         return arr.map((b) => b.toString(16).padStart(2, "0")).join("");
     } catch (error) {
+        console.log(error);
         // Fallback if SHA-256 fails
         let hash = 0;
         for (let i = 0; i < s.length; i++) {

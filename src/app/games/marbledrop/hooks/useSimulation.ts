@@ -42,7 +42,7 @@ export function useSimulation(
                 p.stackCount = 0;
             });
         }
-    }, [phase, seed]);
+    }, [phase, seed, marbles, players]);
 
     useFrame((_, dt) => {
         if (phase !== "PLAY") return;

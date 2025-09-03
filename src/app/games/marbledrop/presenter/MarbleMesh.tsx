@@ -25,7 +25,12 @@ export function MarbleMesh({ marbles }: MarblesMeshProps) {
             colors[i * 3 + 2] = c.b;
         }
         const colorAttr = new THREE.InstancedBufferAttribute(colors, 3);
-        (ref.current as any).instanceColor = colorAttr;
+        // Three.js의 InstancedMesh는 instanceColor를 동적으로 할당할 수 있습니다
+        (
+            ref.current as THREE.InstancedMesh & {
+                instanceColor: THREE.InstancedBufferAttribute;
+            }
+        ).instanceColor = colorAttr;
     }, [marbles.length]);
 
     useFrame(() => {
