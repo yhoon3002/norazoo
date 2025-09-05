@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import HomePresenter from "../presenter/HomePresenter";
 import { GameKind } from "../types/HomeType";
 

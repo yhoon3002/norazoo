@@ -220,7 +220,7 @@ export default function BattleArena() {
             mount.removeChild(renderer.domElement);
             renderer.dispose();
         };
-    }, []);
+    }, [arenaSize]);
 
     // GLB 로더
     const loadGLB = async (loader: GLTFLoader, filename: string) => {
@@ -443,7 +443,7 @@ export default function BattleArena() {
             window.removeEventListener("mouseup", handleMouseUp);
             socket.disconnect();
         };
-    }, []);
+    }, [applyWorld]);
 
     // 플레이어 비주얼
     function ensurePlayerVisual(
