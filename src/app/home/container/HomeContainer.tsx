@@ -48,8 +48,8 @@ export default function HomeContainer() {
             desc: "오늘의 당첨자는 ?",
         },
         {
-            name: "추가 예정5",
-            desc: "추가 예정5",
+            name: "Battle Arena",
+            desc: "배틀 아레나",
         },
         {
             name: "추가 예정6",
@@ -60,11 +60,6 @@ export default function HomeContainer() {
             desc: "추가 예정7",
         },
     ];
-
-    useEffect(() => {
-        console.log(minTimePassed);
-        console.log(gameLoaded);
-    }, [minTimePassed, gameLoaded]);
 
     return (
         <>
