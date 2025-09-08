@@ -300,7 +300,7 @@ export default function BattleArenaAbly() {
         };
     }, []);
 
-    // Ably 연결 (any 타입 제거)
+    // Ably 연결 (clientId 불일치 문제 해결)
     useEffect(() => {
         let disposed = false;
         let sendTimer: NodeJS.Timeout | null = null;
@@ -310,8 +310,11 @@ export default function BattleArenaAbly() {
         const clientId = `player_${Math.random().toString(36).substr(2, 9)}`;
 
         const initAbly = async () => {
+            // clientId를 URL 파라미터로 전달하여 토큰과 연결 시 동일한 clientId 사용
             realtime = new Ably.Realtime({
-                key: process.env.ABLY_API_KEY!,
+                authUrl: `/api/ably-token?clientId=${encodeURIComponent(
+                    clientId
+                )}`,
                 clientId: clientId,
             });
 

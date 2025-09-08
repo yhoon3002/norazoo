@@ -1,7 +1,6 @@
 import * as Ably from "ably";
 import { NextRequest, NextResponse } from "next/server";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(request: NextRequest) {
     try {
         if (!process.env.ABLY_API_KEY) {
@@ -12,16 +11,32 @@ export async function GET(request: NextRequest) {
             );
         }
 
+        // URL에서 clientId 파라미터 가져오기
+        const url = new URL(request.url);
+        const clientId = url.searchParams.get("clientId");
+
+        console.log("Token request for clientId:", clientId); // 디버깅용
+
         const client = new Ably.Realtime({
             key: process.env.ABLY_API_KEY,
         });
 
-        const tokenRequest = await client.auth.createTokenRequest({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const tokenRequestOptions: any = {
             capability: {
                 "arena:*": ["publish", "subscribe", "presence"],
             },
             ttl: 60 * 60 * 1000, // 1시간
-        });
+        };
+
+        // clientId가 제공되면 토큰에 포함
+        if (clientId) {
+            tokenRequestOptions.clientId = clientId;
+        }
+
+        const tokenRequest = await client.auth.createTokenRequest(
+            tokenRequestOptions
+        );
 
         return NextResponse.json(tokenRequest);
     } catch (error) {
@@ -34,6 +49,5 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-    // POST 요청도 지원하려면 동일한 로직
     return GET(request);
 }
