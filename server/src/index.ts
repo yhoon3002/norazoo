@@ -241,20 +241,32 @@ server.listen(PORT, () =>
 //
 //
 // Ably 이용 시
-import * as Ably from "ably";
-import { v4 as uuidv4 } from "uuid";
-import { PlayerState, BulletState, WorldState, ClientInput } from "./types";
 import * as dotenv from "dotenv";
 import * as path from "path";
 
+// 프로젝트 루트의 .env 파일 로드
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+
+import * as Ably from "ably";
+import { v4 as uuidv4 } from "uuid";
+import { PlayerState, BulletState, WorldState, ClientInput } from "./types";
+
+// 충돌 감지를 위한 타입 정의
+interface Box3D {
+    min: { x: number; y: number; z: number };
+    max: { x: number; y: number; z: number };
+}
+
+interface Ray {
+    origin: { x: number; y: number; z: number };
+    direction: { x: number; y: number; z: number };
+}
 
 // Ably 연결
 const realtime = new Ably.Realtime({
     key: process.env.ABLY_API_KEY!,
 });
 
-// 연결 상태 확인
 realtime.connection.on("connected", () => {
     console.log("Ably connected successfully");
 });
@@ -263,11 +275,9 @@ realtime.connection.on("failed", (stateChange) => {
     console.error("Ably connection failed:", stateChange.reason);
 });
 
-// 채널 구성
 const inputsCh = realtime.channels.get("arena:inputs");
 const stateCh = realtime.channels.get("arena:state");
 
-// 채널 연결
 Promise.all([inputsCh.attach(), stateCh.attach()])
     .then(() => console.log("Channels attached"))
     .catch((err) => console.error("Channel attach failed:", err));
@@ -278,8 +288,8 @@ const HALF = ARENA_SIZE / 2;
 const PLAYER_SPEED = 7;
 const PLAYER_RADIUS = 0.6;
 const BULLET_SPEED = 16;
-const BULLET_RADIUS = 0.2;
-const FIRE_COOLDOWN_MS = 300;
+const BULLET_RADIUS = 0.02; // 더 작은 총알
+const FIRE_COOLDOWN_MS = 100; // 연사 속도에 맞춤
 const BULLET_LIFETIME_MS = 2500;
 const TICK_RATE = 30;
 const HIT_DISTANCE = PLAYER_RADIUS + BULLET_RADIUS;
@@ -288,9 +298,189 @@ const START_HP = 1;
 const players = new Map<string, PlayerState>();
 const bullets = new Map<string, BulletState>();
 const lastFireAt = new Map<string, number>();
-// 수정: 타입 오류 수정 - Maps -> Map
 const inputs = new Map<string, ClientInput>();
 let tick = 0;
+
+// 엄폐물 정의 (클라이언트와 동일한 위치에 배치)
+const coverObjects: Box3D[] = [];
+
+// 엄폐물 초기화 함수
+function initializeCoverObjects() {
+    coverObjects.length = 0; // 배열 초기화
+
+    // 나무 상자들 (클라이언트와 동일한 로직)
+    for (let i = 0; i < 8; i++) {
+        const width = 1 + Math.random() * 0.5;
+        const height = 0.8 + Math.random() * 0.4;
+        const depth = 1 + Math.random() * 0.5;
+
+        const angle = (i / 8) * Math.PI * 2;
+        const radius = 8 + Math.random() * 10;
+        const x = Math.cos(angle) * radius;
+        const z = Math.sin(angle) * radius;
+
+        coverObjects.push({
+            min: {
+                x: x - width / 2,
+                y: 0,
+                z: z - depth / 2,
+            },
+            max: {
+                x: x + width / 2,
+                y: height,
+                z: z + depth / 2,
+            },
+        });
+    }
+
+    // 벽 엄폐물
+    for (let i = 0; i < 4; i++) {
+        const angle = (i / 4) * Math.PI * 2 + Math.PI / 4;
+        const radius = 15;
+        const x = Math.cos(angle) * radius;
+        const z = Math.sin(angle) * radius;
+
+        const wallWidth = 3;
+        const wallHeight = 1.5;
+        const wallThickness = 0.2;
+
+        // 벽의 회전을 고려한 바운딩 박스
+        const halfWidth = wallWidth / 2;
+        const halfThickness = wallThickness / 2;
+
+        coverObjects.push({
+            min: {
+                x: x - halfWidth,
+                y: 0,
+                z: z - halfThickness,
+            },
+            max: {
+                x: x + halfWidth,
+                y: wallHeight,
+                z: z + halfThickness,
+            },
+        });
+    }
+
+    // 원형 엄폐물들
+    for (let i = 0; i < 6; i++) {
+        const angle = (i / 6) * Math.PI * 2;
+        const radius = 5 + Math.random() * 8;
+        const x = Math.cos(angle) * radius;
+        const z = Math.sin(angle) * radius;
+
+        const cylinderRadius = 0.5;
+        const cylinderHeight = 1.2;
+
+        coverObjects.push({
+            min: {
+                x: x - cylinderRadius,
+                y: 0,
+                z: z - cylinderRadius,
+            },
+            max: {
+                x: x + cylinderRadius,
+                y: cylinderHeight,
+                z: z + cylinderRadius,
+            },
+        });
+    }
+
+    // 경계 벽들
+    const wallHeight = 3;
+    const wallThickness = 0.5;
+
+    coverObjects.push(
+        // 북쪽 벽
+        {
+            min: { x: -HALF, y: 0, z: -HALF - wallThickness / 2 },
+            max: { x: HALF, y: wallHeight, z: -HALF + wallThickness / 2 },
+        },
+        // 남쪽 벽
+        {
+            min: { x: -HALF, y: 0, z: HALF - wallThickness / 2 },
+            max: { x: HALF, y: wallHeight, z: HALF + wallThickness / 2 },
+        },
+        // 서쪽 벽
+        {
+            min: { x: -HALF - wallThickness / 2, y: 0, z: -HALF },
+            max: { x: -HALF + wallThickness / 2, y: wallHeight, z: HALF },
+        },
+        // 동쪽 벽
+        {
+            min: { x: HALF - wallThickness / 2, y: 0, z: -HALF },
+            max: { x: HALF + wallThickness / 2, y: wallHeight, z: HALF },
+        }
+    );
+
+    console.log(`Initialized ${coverObjects.length} cover objects`);
+}
+
+// 레이-박스 교차 검사
+function rayBoxIntersection(ray: Ray, box: Box3D): number | null {
+    const tMin = (box.min.x - ray.origin.x) / ray.direction.x;
+    const tMax = (box.max.x - ray.origin.x) / ray.direction.x;
+
+    let tNear = Math.min(tMin, tMax);
+    let tFar = Math.max(tMin, tMax);
+
+    const tMinY = (box.min.y - ray.origin.y) / ray.direction.y;
+    const tMaxY = (box.max.y - ray.origin.y) / ray.direction.y;
+
+    tNear = Math.max(tNear, Math.min(tMinY, tMaxY));
+    tFar = Math.min(tFar, Math.max(tMinY, tMaxY));
+
+    const tMinZ = (box.min.z - ray.origin.z) / ray.direction.z;
+    const tMaxZ = (box.max.z - ray.origin.z) / ray.direction.z;
+
+    tNear = Math.max(tNear, Math.min(tMinZ, tMaxZ));
+    tFar = Math.min(tFar, Math.max(tMinZ, tMaxZ));
+
+    if (tNear <= tFar && tFar >= 0) {
+        return tNear >= 0 ? tNear : tFar;
+    }
+
+    return null;
+}
+
+// 총알 경로에 장애물이 있는지 확인
+function checkBulletCollision(
+    start: { x: number; y: number; z: number },
+    end: { x: number; y: number; z: number }
+): boolean {
+    const direction = {
+        x: end.x - start.x,
+        y: end.y - start.y,
+        z: end.z - start.z,
+    };
+
+    const distance = Math.sqrt(
+        direction.x * direction.x +
+            direction.y * direction.y +
+            direction.z * direction.z
+    );
+
+    if (distance === 0) return false;
+
+    // 방향 정규화
+    direction.x /= distance;
+    direction.y /= distance;
+    direction.z /= distance;
+
+    const ray: Ray = {
+        origin: start,
+        direction: direction,
+    };
+
+    for (const box of coverObjects) {
+        const t = rayBoxIntersection(ray, box);
+        if (t !== null && t >= 0 && t <= distance) {
+            return true; // 충돌 발생
+        }
+    }
+
+    return false; // 충돌 없음
+}
 
 const clamp = (v: number, min: number, max: number) =>
     Math.max(min, Math.min(max, v));
@@ -301,6 +491,9 @@ function spawnPosition() {
     const z = Math.random() * (ARENA_SIZE - margin * 2) - (HALF - margin);
     return { x, y: 0, z };
 }
+
+// 엄폐물 초기화
+initializeCoverObjects();
 
 // Presence로 접속/퇴장 관리
 stateCh.presence.subscribe("enter", (msg) => {
@@ -340,7 +533,6 @@ stateCh.presence.subscribe("leave", (msg) => {
     inputs.delete(id);
     lastFireAt.delete(id);
 
-    // 해당 플레이어의 총알 제거
     for (const [bid, b] of bullets) {
         if (b.ownerId === id) bullets.delete(bid);
     }
@@ -356,10 +548,8 @@ inputsCh.subscribe("input", (message) => {
         return;
     }
 
-    // 최신 입력 저장
     inputs.set(id, inp);
 
-    // 플레이어가 아직 없다면 생성
     if (!players.has(id)) {
         const spawn = spawnPosition();
         players.set(id, {
@@ -450,7 +640,6 @@ const gameLoop = async () => {
                     pos: {
                         x: p.pos.x + dirx * (PLAYER_RADIUS + 0.2),
                         y: 1.2,
-                        // 수정: dirz 뒤에 * 연산자 누락 수정
                         z: p.pos.z + dirz * (PLAYER_RADIUS + 0.2),
                     },
                     vel: {
@@ -466,13 +655,15 @@ const gameLoop = async () => {
         }
     }
 
-    // 총알 업데이트
+    // 총알 업데이트 (충돌 감지 포함)
     for (const [bid, b] of [...bullets]) {
         const age = now - b.bornAt;
         if (age > BULLET_LIFETIME_MS) {
             bullets.delete(bid);
             continue;
         }
+
+        const oldPos = { ...b.pos };
 
         b.pos.x += b.vel.x * dt;
         b.pos.y += b.vel.y * dt;
@@ -489,7 +680,13 @@ const gameLoop = async () => {
             continue;
         }
 
-        // 충돌 검사
+        // 엄폐물 충돌 체크
+        if (checkBulletCollision(oldPos, b.pos)) {
+            bullets.delete(bid);
+            continue;
+        }
+
+        // 플레이어 충돌 검사
         for (const [pid, p] of players) {
             if (pid === b.ownerId) continue;
 
@@ -501,23 +698,37 @@ const gameLoop = async () => {
             const inHeight = b.pos.y >= p.pos.y && b.pos.y <= p.pos.y + 1.8;
 
             if (distance3D <= HIT_DISTANCE && inHeight) {
-                bullets.delete(bid);
-                p.hp -= 1;
+                // 총알과 플레이어 사이에 엄폐물이 있는지 추가 확인
+                const bulletStart = {
+                    x: b.pos.x - b.vel.x * dt,
+                    y: b.pos.y - b.vel.y * dt,
+                    z: b.pos.z - b.vel.z * dt,
+                };
+                const playerPos = {
+                    x: p.pos.x,
+                    y: p.pos.y + 0.8,
+                    z: p.pos.z,
+                };
 
-                if (p.hp <= 0) {
-                    const shooter = players.get(b.ownerId);
-                    if (shooter) {
-                        shooter.score += 1;
+                if (!checkBulletCollision(bulletStart, playerPos)) {
+                    bullets.delete(bid);
+                    p.hp -= 1;
+
+                    if (p.hp <= 0) {
+                        const shooter = players.get(b.ownerId);
+                        if (shooter) {
+                            shooter.score += 1;
+                        }
+
+                        // 리스폰
+                        const sp = spawnPosition();
+                        p.pos.x = sp.x;
+                        p.pos.z = sp.z;
+                        p.rotY = 0;
+                        p.hp = START_HP;
                     }
-
-                    // 리스폰
-                    const sp = spawnPosition();
-                    p.pos.x = sp.x;
-                    p.pos.z = sp.z;
-                    p.rotY = 0;
-                    p.hp = START_HP;
+                    break;
                 }
-                break;
             }
         }
     }
@@ -537,12 +748,12 @@ const gameLoop = async () => {
     }
 };
 
-// 게임 루프 시작
 setInterval(gameLoop, 1000 / TICK_RATE);
 
-console.log("Authoritative game server is running with Ably Realtime");
+console.log(
+    "Authoritative game server with collision detection running with Ably Realtime"
+);
 
-// 프로세스 종료 시 정리
 process.on("SIGINT", () => {
     console.log("Shutting down server...");
     realtime.close();

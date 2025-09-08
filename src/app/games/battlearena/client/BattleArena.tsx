@@ -14,9 +14,10 @@ const CDN_BASE = (process.env.NEXT_PUBLIC_ASSET_CDN ?? "").replace(/\/$/, "");
 // Config
 const PLAYER_COLOR_ME = 0x7ad7f0;
 const PLAYER_COLOR_OTHERS = 0xf0a87a;
-const BULLET_COLOR = 0xfff06a;
+const BULLET_COLOR = 0xffd700;
 const FLOOR_COLOR = 0x90ee90;
 const WALL_COLOR = 0xb0b0b0;
+const COVER_COLOR = 0x8b4513;
 
 const FILES = {
     character: "character.glb",
@@ -33,9 +34,14 @@ const ASSET_BASE_CANDIDATES = Array.from(
     ])
 );
 
-// 1인칭 관련
+// FPS 게임 관련 상수
 const eyeHeight = 1.6;
 const MODEL_YAW_OFFSET = Math.PI;
+const MAGAZINE_SIZE = 30;
+const RELOAD_TIME = 2000; // 2초
+const AUTO_FIRE_RATE = 100; // 100ms 간격 (600 RPM)
+const ZOOM_FOV = 30; // 줌 시 시야각
+const NORMAL_FOV = 75; // 일반 시야각
 
 type InputState = {
     up: boolean;
@@ -43,6 +49,7 @@ type InputState = {
     left: boolean;
     right: boolean;
     mouseDown: boolean;
+    rightMouseDown: boolean;
     yaw: number;
     pitch: number;
 };
@@ -50,10 +57,19 @@ type InputState = {
 type PlayerVisual = {
     root: THREE.Object3D;
     mixer: THREE.AnimationMixer | null;
-    actions: Partial<Record<"idle" | "run" | "shoot", THREE.AnimationAction>>;
-    playing: "idle" | "run" | "shoot";
+    actions: Partial<
+        Record<"idle" | "run" | "shoot" | "reload", THREE.AnimationAction>
+    >;
+    playing: "idle" | "run" | "shoot" | "reload";
     lastPos: THREE.Vector3;
     isCapsuleFallback: boolean;
+    weapon?: THREE.Object3D; // 무기 오브젝트
+};
+
+type WeaponState = {
+    ammo: number;
+    isReloading: boolean;
+    lastShotTime: number;
 };
 
 export default function BattleArenaAbly() {
@@ -65,13 +81,27 @@ export default function BattleArenaAbly() {
         left: false,
         right: false,
         mouseDown: false,
+        rightMouseDown: false,
         yaw: 0,
         pitch: 0,
     });
+
+    // 무기 상태 관리
+    const weaponState = useRef<WeaponState>({
+        ammo: MAGAZINE_SIZE,
+        isReloading: false,
+        lastShotTime: 0,
+    });
+
     const fireFlag = useRef(false);
+    const autoFireTimer = useRef<NodeJS.Timeout | null>(null);
     const [connected, setConnected] = useState(false);
     const [myId, setMyId] = useState<string | null>(null);
     const [arenaSize] = useState(40);
+    const [isZoomed, setIsZoomed] = useState(false);
+    const [ammoCount, setAmmoCount] = useState(MAGAZINE_SIZE);
+    const [isReloading, setIsReloading] = useState(false);
+
     const [assetStatus, setAssetStatus] = useState({
         base: false,
         idle: false,
@@ -93,25 +123,29 @@ export default function BattleArenaAbly() {
 
     // 3D 모델 및 애니메이션
     const baseModelRef = useRef<THREE.Object3D | null>(null);
+    // const weaponModelRef = useRef<THREE.Object3D | null>(null);
     const clipsRef = useRef<
-        Partial<Record<"idle" | "run" | "shoot", THREE.AnimationClip>>
+        Partial<
+            Record<"idle" | "run" | "shoot" | "reload", THREE.AnimationClip>
+        >
     >({});
     const visualsRef = useRef<Map<string, PlayerVisual>>(new Map());
     const prevTimeRef = useRef<number>(performance.now());
     const requestRef = useRef<number | null>(null);
 
-    // 총알 geometry 및 material 재사용
+    // 총알 geometry 및 material 재사용 (더 작고 현실적으로)
     const bulletGeometryRef = useRef<THREE.CapsuleGeometry | null>(null);
     const bulletMaterialRef = useRef<THREE.MeshStandardMaterial | null>(null);
 
     // 컴포넌트 마운트 시 한 번만 생성
     useEffect(() => {
-        bulletGeometryRef.current = new THREE.CapsuleGeometry(0.1, 0.4, 4, 8);
+        // 더 작고 현실적인 총알
+        bulletGeometryRef.current = new THREE.CapsuleGeometry(0.02, 0.15, 4, 8);
         bulletMaterialRef.current = new THREE.MeshStandardMaterial({
             color: BULLET_COLOR,
-            emissive: new THREE.Color(0x333300),
-            metalness: 0.7,
-            roughness: 0.3,
+            emissive: new THREE.Color(0x444400),
+            metalness: 0.8,
+            roughness: 0.2,
         });
 
         return () => {
@@ -123,6 +157,163 @@ export default function BattleArenaAbly() {
     const createBulletGeometry = () => bulletGeometryRef.current;
     const createBulletMaterial = () => bulletMaterialRef.current;
 
+    // 무기 생성 함수
+    const createWeapon = () => {
+        const weaponGroup = new THREE.Group();
+
+        // 총신
+        const barrelGeometry = new THREE.CylinderGeometry(0.02, 0.025, 0.4, 8);
+        const barrelMaterial = new THREE.MeshStandardMaterial({
+            color: 0x333333,
+            metalness: 0.8,
+            roughness: 0.2,
+        });
+        const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
+        barrel.rotation.z = Math.PI / 2;
+        barrel.position.set(0.2, 0, 0);
+
+        // 총몸
+        const bodyGeometry = new THREE.BoxGeometry(0.3, 0.1, 0.05);
+        const bodyMaterial = new THREE.MeshStandardMaterial({
+            color: 0x222222,
+            metalness: 0.6,
+            roughness: 0.4,
+        });
+        const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+        body.position.set(0, 0, 0);
+
+        // 손잡이
+        const gripGeometry = new THREE.BoxGeometry(0.05, 0.15, 0.03);
+        const gripMaterial = new THREE.MeshStandardMaterial({
+            color: 0x444444,
+            metalness: 0.3,
+            roughness: 0.7,
+        });
+        const grip = new THREE.Mesh(gripGeometry, gripMaterial);
+        grip.position.set(-0.1, -0.1, 0);
+
+        weaponGroup.add(barrel, body, grip);
+        weaponGroup.position.set(0.3, -0.2, 0.1);
+        weaponGroup.rotation.y = Math.PI / 2;
+
+        return weaponGroup;
+    };
+
+    // 엄폐물 생성 함수
+    const createCoverObjects = (scene: THREE.Scene) => {
+        const coverMaterial = new THREE.MeshStandardMaterial({
+            color: COVER_COLOR,
+            roughness: 0.8,
+            metalness: 0.1,
+        });
+
+        // 나무 상자들
+        for (let i = 0; i < 8; i++) {
+            const boxGeometry = new THREE.BoxGeometry(
+                1 + Math.random() * 0.5,
+                0.8 + Math.random() * 0.4,
+                1 + Math.random() * 0.5
+            );
+            const box = new THREE.Mesh(boxGeometry, coverMaterial);
+
+            const angle = (i / 8) * Math.PI * 2;
+            const radius = 8 + Math.random() * 10;
+            box.position.set(
+                Math.cos(angle) * radius,
+                0.5,
+                Math.sin(angle) * radius
+            );
+            box.rotation.y = Math.random() * Math.PI;
+            box.castShadow = true;
+            box.receiveShadow = true;
+            scene.add(box);
+        }
+
+        // 벽 엄폐물
+        for (let i = 0; i < 4; i++) {
+            const wallGeometry = new THREE.BoxGeometry(3, 1.5, 0.2);
+            const wall = new THREE.Mesh(wallGeometry, coverMaterial);
+
+            const angle = (i / 4) * Math.PI * 2 + Math.PI / 4;
+            const radius = 15;
+            wall.position.set(
+                Math.cos(angle) * radius,
+                0.75,
+                Math.sin(angle) * radius
+            );
+            wall.rotation.y = angle + Math.PI / 2;
+            wall.castShadow = true;
+            wall.receiveShadow = true;
+            scene.add(wall);
+        }
+
+        // 원형 엄폐물들
+        for (let i = 0; i < 6; i++) {
+            const cylinderGeometry = new THREE.CylinderGeometry(
+                0.5,
+                0.5,
+                1.2,
+                8
+            );
+            const cylinder = new THREE.Mesh(cylinderGeometry, coverMaterial);
+
+            const angle = (i / 6) * Math.PI * 2;
+            const radius = 5 + Math.random() * 8;
+            cylinder.position.set(
+                Math.cos(angle) * radius,
+                0.6,
+                Math.sin(angle) * radius
+            );
+            cylinder.castShadow = true;
+            cylinder.receiveShadow = true;
+            scene.add(cylinder);
+        }
+    };
+
+    // 발사 함수
+    const handleFire = () => {
+        const now = Date.now();
+        if (
+            weaponState.current.isReloading ||
+            weaponState.current.ammo <= 0 ||
+            now - weaponState.current.lastShotTime < AUTO_FIRE_RATE
+        ) {
+            return false;
+        }
+
+        weaponState.current.ammo--;
+        weaponState.current.lastShotTime = now;
+        setAmmoCount(weaponState.current.ammo);
+        fireFlag.current = true;
+
+        // 탄창이 비었으면 자동 재장전
+        if (weaponState.current.ammo <= 0) {
+            startReload();
+        }
+
+        return true;
+    };
+
+    // 재장전 함수
+    const startReload = () => {
+        if (
+            weaponState.current.isReloading ||
+            weaponState.current.ammo >= MAGAZINE_SIZE
+        ) {
+            return;
+        }
+
+        weaponState.current.isReloading = true;
+        setIsReloading(true);
+
+        setTimeout(() => {
+            weaponState.current.ammo = MAGAZINE_SIZE;
+            weaponState.current.isReloading = false;
+            setAmmoCount(MAGAZINE_SIZE);
+            setIsReloading(false);
+        }, RELOAD_TIME);
+    };
+
     // Three.js mounting
     useEffect(() => {
         const mount = mountRef.current!;
@@ -130,7 +321,7 @@ export default function BattleArenaAbly() {
         scene.background = new THREE.Color(0x87ceeb);
 
         const camera = new THREE.PerspectiveCamera(
-            75,
+            NORMAL_FOV,
             mount.clientWidth / mount.clientHeight,
             0.01,
             1000
@@ -146,21 +337,31 @@ export default function BattleArenaAbly() {
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         mount.appendChild(renderer.domElement);
 
-        // 조명
-        const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
+        // 조명 개선
+        const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 0.8);
         hemi.position.set(0, 50, 0);
         scene.add(hemi);
 
-        const dir = new THREE.DirectionalLight(0xffffff, 0.8);
-        dir.position.set(10, 20, 10);
+        const dir = new THREE.DirectionalLight(0xffffff, 1.0);
+        dir.position.set(20, 30, 20);
         dir.castShadow = true;
-        dir.shadow.mapSize.width = 2048;
-        dir.shadow.mapSize.height = 2048;
+        dir.shadow.mapSize.width = 4096;
+        dir.shadow.mapSize.height = 4096;
+        dir.shadow.camera.near = 0.1;
+        dir.shadow.camera.far = 100;
+        dir.shadow.camera.left = -50;
+        dir.shadow.camera.right = 50;
+        dir.shadow.camera.top = 50;
+        dir.shadow.camera.bottom = -50;
         scene.add(dir);
 
         // 바닥
         const floorGeo = new THREE.PlaneGeometry(arenaSize, arenaSize);
-        const floorMat = new THREE.MeshStandardMaterial({ color: FLOOR_COLOR });
+        const floorMat = new THREE.MeshStandardMaterial({
+            color: FLOOR_COLOR,
+            roughness: 0.8,
+            metalness: 0.1,
+        });
         const floor = new THREE.Mesh(floorGeo, floorMat);
         floor.rotation.x = -Math.PI / 2;
         floor.receiveShadow = true;
@@ -168,9 +369,13 @@ export default function BattleArenaAbly() {
         floorRef.current = floor;
 
         // 벽
-        const wallHeight = 2;
+        const wallHeight = 3;
         const wallThick = 0.5;
-        const wallMat = new THREE.MeshStandardMaterial({ color: WALL_COLOR });
+        const wallMat = new THREE.MeshStandardMaterial({
+            color: WALL_COLOR,
+            roughness: 0.6,
+            metalness: 0.2,
+        });
         const wallGeo1 = new THREE.BoxGeometry(
             arenaSize,
             wallHeight,
@@ -192,8 +397,13 @@ export default function BattleArenaAbly() {
         walls.forEach(({ geo, pos }) => {
             const wall = new THREE.Mesh(geo, wallMat);
             wall.position.set(pos[0], pos[1], pos[2]);
+            wall.castShadow = true;
+            wall.receiveShadow = true;
             scene.add(wall);
         });
+
+        // 엄폐물 추가
+        createCoverObjects(scene);
 
         sceneRef.current = scene;
         cameraRef.current = camera;
@@ -310,7 +520,6 @@ export default function BattleArenaAbly() {
         const clientId = `player_${Math.random().toString(36).substr(2, 9)}`;
 
         const initAbly = async () => {
-            // clientId를 URL 파라미터로 전달하여 토큰과 연결 시 동일한 clientId 사용
             realtime = new Ably.Realtime({
                 authUrl: `/api/ably-token?clientId=${encodeURIComponent(
                     clientId
@@ -325,15 +534,12 @@ export default function BattleArenaAbly() {
             setMyId(myClientId);
             myIdRef.current = myClientId;
 
-            // 채널들
             stateCh = realtime.channels.get("arena:state");
             const inputsCh = realtime.channels.get("arena:inputs");
             await Promise.all([stateCh.attach(), inputsCh.attach()]);
 
-            // presence 들어가면 서버가 플레이어 생성
             await stateCh.presence.enter({});
 
-            // 서버 → 상태 수신
             stateCh.subscribe("state", (msg) => {
                 const world = msg.data as WorldState;
                 applyWorld(world);
@@ -349,7 +555,6 @@ export default function BattleArenaAbly() {
                 setConnected(true);
             });
 
-            // 30Hz 입력 송신
             let seq = 0;
             sendTimer = setInterval(async () => {
                 const q = new THREE.Quaternion().setFromEuler(
@@ -391,9 +596,7 @@ export default function BattleArenaAbly() {
             disposed = true;
             if (sendTimer) clearInterval(sendTimer);
             if (stateCh) {
-                stateCh.presence.leave().catch(() => {
-                    // 에러 무시
-                });
+                stateCh.presence.leave().catch(() => {});
             }
             if (realtime) {
                 realtime.close();
@@ -401,7 +604,7 @@ export default function BattleArenaAbly() {
         };
     }, []);
 
-    // 플레이어 비주얼
+    // 플레이어 비주얼 (무기 추가)
     function ensurePlayerVisual(
         id: string,
         isMe: boolean,
@@ -417,6 +620,7 @@ export default function BattleArenaAbly() {
         let mixer: THREE.AnimationMixer | null = null;
         let actions: PlayerVisual["actions"] = {};
         let isCapsuleFallback = false;
+        let weapon: THREE.Object3D | undefined;
 
         if (baseModelRef.current) {
             root = clone(baseModelRef.current) as THREE.Object3D;
@@ -440,6 +644,23 @@ export default function BattleArenaAbly() {
                 }
 
                 actions.idle?.play();
+
+                // 무기 추가
+                weapon = createWeapon();
+
+                // 캐릭터의 오른손에 무기 부착 (대략적인 위치)
+                const rightHand =
+                    root.getObjectByName("RightHand") ||
+                    root.getObjectByName("mixamorigRightHand") ||
+                    root;
+
+                if (rightHand && rightHand !== root) {
+                    rightHand.add(weapon);
+                } else {
+                    // 오른손을 찾지 못했을 경우 루트에 추가
+                    weapon.position.set(0.5, 1.2, 0.3);
+                    root.add(weapon);
+                }
             } catch {
                 mixer = null;
                 actions = {};
@@ -453,6 +674,11 @@ export default function BattleArenaAbly() {
             mesh.castShadow = true;
             root = mesh;
             isCapsuleFallback = true;
+
+            // 폴백용 무기
+            weapon = createWeapon();
+            weapon.position.set(0.8, 1.0, 0);
+            root.add(weapon);
         }
 
         if (isMe || myIdRef.current === id) {
@@ -468,6 +694,7 @@ export default function BattleArenaAbly() {
             playing: "idle",
             lastPos: new THREE.Vector3(),
             isCapsuleFallback,
+            weapon,
         };
         visualsRef.current.set(id, vis);
         return vis;
@@ -491,9 +718,7 @@ export default function BattleArenaAbly() {
                 curr?.fadeOut(fade);
                 vis.playing = next;
             }
-        } catch {
-            // 에러 무시
-        }
+        } catch {}
     };
 
     // 월드 상태 적용
@@ -501,7 +726,6 @@ export default function BattleArenaAbly() {
         const scene = sceneRef.current!;
         const present = new Set<string>();
 
-        // 플레이어
         for (const p of state.players) {
             present.add(p.id);
             const isMe = myIdRef.current === p.id;
@@ -527,15 +751,12 @@ export default function BattleArenaAbly() {
             }
         }
 
-        // 떠난 플레이어 정리
         for (const [id, vis] of [...visualsRef.current]) {
             if (!present.has(id)) {
                 scene.remove(vis.root);
-
                 vis.root.traverse((o: THREE.Object3D) => {
                     if (o instanceof THREE.Mesh) {
                         o.geometry?.dispose?.();
-
                         if (Array.isArray(o.material)) {
                             o.material.forEach((m: THREE.Material) =>
                                 m.dispose()
@@ -549,7 +770,7 @@ export default function BattleArenaAbly() {
             }
         }
 
-        // 총알 풀
+        // 총알 처리 (더 작고 현실적으로)
         if (!scene.getObjectByName("bulletPool")) {
             const group = new THREE.Group();
             group.name = "bulletPool";
@@ -557,8 +778,6 @@ export default function BattleArenaAbly() {
         }
 
         const pool = scene.getObjectByName("bulletPool") as THREE.Group;
-
-        // 1) Map을 Mesh로 좁히기
         const byId = new Map<string, THREE.Mesh>();
         pool.children.forEach((c) => {
             if (c instanceof THREE.Mesh && c.userData?.id) {
@@ -572,7 +791,6 @@ export default function BattleArenaAbly() {
             presentB.add(b.id);
             let obj = byId.get(b.id);
 
-            // 2) 없으면 생성 시도
             if (!obj) {
                 const geo = createBulletGeometry();
                 const mat = createBulletMaterial();
@@ -584,24 +802,18 @@ export default function BattleArenaAbly() {
                     pool.add(obj);
 
                     const ownerVis = visualsRef.current.get(b.ownerId);
-
                     if (ownerVis?.actions.shoot) {
                         ownerVis.actions.shoot.reset().fadeIn(0.05).play();
-
                         setTimeout(
                             () => ownerVis.actions.shoot?.fadeOut(0.1),
-                            250
+                            200
                         );
                     }
                 }
             }
 
-            // 3) 여전히 없으면 안전하게 스킵
-            if (!obj) {
-                continue;
-            }
+            if (!obj) continue;
 
-            // 서버에서 온 3D 속도로 방향
             const dir3 = new THREE.Vector3(
                 b.vel?.x ?? 0,
                 b.vel?.y ?? 0,
@@ -613,7 +825,7 @@ export default function BattleArenaAbly() {
             }
 
             const isMine = b.ownerId === myIdRef.current;
-            const selfOffset = isMine ? 0.45 : 0.0;
+            const selfOffset = isMine ? 0.3 : 0.0;
 
             obj.position.set(
                 (b.pos?.x ?? 0) + dir3.x * selfOffset,
@@ -627,7 +839,6 @@ export default function BattleArenaAbly() {
             }
         }
 
-        // 사라진 총알 정리
         pool.children
             .filter(
                 (c) =>
@@ -635,10 +846,8 @@ export default function BattleArenaAbly() {
             )
             .forEach((c) => {
                 pool.remove(c);
-
                 if (c instanceof THREE.Mesh) {
                     c.geometry.dispose();
-
                     const mats = Array.isArray(c.material)
                         ? c.material
                         : [c.material];
@@ -647,17 +856,15 @@ export default function BattleArenaAbly() {
             });
 
         const myIdNow = myIdRef.current;
-
         if (myIdNow) {
             const me = state.players.find((p) => p.id === myIdNow);
-
             if (me) {
                 myPosRef.current.set(me.pos.x, eyeHeight, me.pos.z);
             }
         }
     };
 
-    // 렌더 루프
+    // 렌더 루프 (줌 기능 포함)
     useEffect(() => {
         const loop = () => {
             const now = performance.now();
@@ -667,9 +874,15 @@ export default function BattleArenaAbly() {
             visualsRef.current.forEach((vis) => vis.mixer?.update(dt));
 
             const cam = cameraRef.current;
-
             if (cam) {
                 cam.position.copy(myPosRef.current);
+
+                // 줌 기능
+                const targetFov = isZoomed ? ZOOM_FOV : NORMAL_FOV;
+                if (Math.abs(cam.fov - targetFov) > 0.1) {
+                    cam.fov += (targetFov - cam.fov) * 0.1;
+                    cam.updateProjectionMatrix();
+                }
             }
 
             if (sceneRef.current && cameraRef.current && rendererRef.current) {
@@ -686,19 +899,22 @@ export default function BattleArenaAbly() {
                 cancelAnimationFrame(requestRef.current);
             }
         };
-    }, []);
+    }, [isZoomed]);
 
+    // 개선된 마우스 및 키보드 입력 처리
     useEffect(() => {
         const mount = mountRef.current!;
         const requestPointer = () => mount.requestPointerLock();
 
-        // 키보드
+        // 키보드 입력
         const down = (e: KeyboardEvent) => {
             if (e.code === "KeyW") input.current.up = true;
             if (e.code === "KeyS") input.current.down = true;
             if (e.code === "KeyA") input.current.left = true;
             if (e.code === "KeyD") input.current.right = true;
+            if (e.code === "KeyR") startReload(); // R키로 재장전
         };
+
         const up = (e: KeyboardEvent) => {
             if (e.code === "KeyW") input.current.up = false;
             if (e.code === "KeyS") input.current.down = false;
@@ -706,11 +922,12 @@ export default function BattleArenaAbly() {
             if (e.code === "KeyD") input.current.right = false;
         };
 
-        // 마우스(포인터 락 상태에서만)
+        // 마우스 이동
         const handleMouseMove = (e: MouseEvent) => {
             if (document.pointerLockElement === mount) {
-                const sensX = 0.003;
-                const sensY = 0.003;
+                const sensX = isZoomed ? 0.001 : 0.003; // 줌 시 감도 낮춤
+                const sensY = isZoomed ? 0.001 : 0.003;
+
                 input.current.yaw -= e.movementX * sensX;
                 input.current.pitch -= e.movementY * sensY;
 
@@ -720,24 +937,61 @@ export default function BattleArenaAbly() {
                     Math.min(maxPitch, input.current.pitch)
                 );
 
-                // 카메라 즉시 반영
                 const cam = cameraRef.current;
-                if (cam)
+                if (cam) {
                     cam.rotation.set(
                         input.current.pitch,
                         input.current.yaw,
                         0,
                         "YXZ"
                     );
+                }
             }
         };
 
-        const handleMouseDown = () => {
-            input.current.mouseDown = true;
-            fireFlag.current = true;
+        // 마우스 버튼 처리
+        const handleMouseDown = (e: MouseEvent) => {
+            if (e.button === 0) {
+                // 좌클릭
+                input.current.mouseDown = true;
+                if (handleFire()) {
+                    // 연사 모드 시작
+                    autoFireTimer.current = setInterval(() => {
+                        if (input.current.mouseDown) {
+                            handleFire();
+                        } else {
+                            if (autoFireTimer.current) {
+                                clearInterval(autoFireTimer.current);
+                                autoFireTimer.current = null;
+                            }
+                        }
+                    }, AUTO_FIRE_RATE);
+                }
+            } else if (e.button === 2) {
+                // 우클릭
+                input.current.rightMouseDown = true;
+                setIsZoomed(true);
+            }
         };
-        const handleMouseUp = () => {
-            input.current.mouseDown = false;
+
+        const handleMouseUp = (e: MouseEvent) => {
+            if (e.button === 0) {
+                // 좌클릭
+                input.current.mouseDown = false;
+                if (autoFireTimer.current) {
+                    clearInterval(autoFireTimer.current);
+                    autoFireTimer.current = null;
+                }
+            } else if (e.button === 2) {
+                // 우클릭
+                input.current.rightMouseDown = false;
+                setIsZoomed(false);
+            }
+        };
+
+        // 우클릭 컨텍스트 메뉴 비활성화
+        const handleContextMenu = (e: MouseEvent) => {
+            e.preventDefault();
         };
 
         mount.addEventListener("click", requestPointer);
@@ -746,6 +1000,7 @@ export default function BattleArenaAbly() {
         window.addEventListener("mousemove", handleMouseMove);
         window.addEventListener("mousedown", handleMouseDown);
         window.addEventListener("mouseup", handleMouseUp);
+        window.addEventListener("contextmenu", handleContextMenu);
 
         return () => {
             mount.removeEventListener("click", requestPointer);
@@ -754,28 +1009,52 @@ export default function BattleArenaAbly() {
             window.removeEventListener("mousemove", handleMouseMove);
             window.removeEventListener("mousedown", handleMouseDown);
             window.removeEventListener("mouseup", handleMouseUp);
+            window.removeEventListener("contextmenu", handleContextMenu);
+
+            if (autoFireTimer.current) {
+                clearInterval(autoFireTimer.current);
+            }
         };
-    }, []);
+    }, [isZoomed]);
 
     return (
         <div style={{ width: "100%", height: "100vh", position: "relative" }}>
             <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
 
-            {/* 크로스헤어 */}
+            {/* 크로스헤어 (줌 시 더 정확하게) */}
             <div
                 style={{
                     position: "absolute",
                     top: "50%",
                     left: "50%",
                     transform: "translate(-50%, -50%)",
-                    width: "20px",
-                    height: "20px",
+                    width: isZoomed ? "10px" : "20px",
+                    height: isZoomed ? "10px" : "20px",
                     border: "2px solid rgba(255,255,255,0.8)",
                     borderRadius: "50%",
                     pointerEvents: "none",
                     zIndex: 1000,
+                    transition: "all 0.2s ease",
                 }}
             />
+
+            {/* 줌 인디케이터 */}
+            {isZoomed && (
+                <div
+                    style={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: "200px",
+                        height: "200px",
+                        border: "2px solid rgba(255,255,255,0.3)",
+                        borderRadius: "50%",
+                        pointerEvents: "none",
+                        zIndex: 999,
+                    }}
+                />
+            )}
 
             {!connected && (
                 <div
@@ -798,6 +1077,7 @@ export default function BattleArenaAbly() {
                 </div>
             )}
 
+            {/* 개선된 HUD */}
             <div
                 style={{
                     position: "absolute",
@@ -822,7 +1102,7 @@ export default function BattleArenaAbly() {
                         marginBottom: 8,
                     }}
                 >
-                    <b style={{ color: "#7ad7f0" }}>1인칭 배틀 아레나</b>
+                    <b style={{ color: "#7ad7f0" }}>FPS 배틀 아레나</b>
                     <span
                         style={{
                             backgroundColor: connected ? "#22c55e" : "#ef4444",
@@ -836,10 +1116,11 @@ export default function BattleArenaAbly() {
 
                 <div style={{ opacity: 0.9, fontSize: 12, marginBottom: 8 }}>
                     <div>
-                        <strong>1인칭 시점:</strong> 내 눈으로 직접 보기
+                        <strong>조작법:</strong>
                     </div>
-                    <div>WASD: 이동 · 마우스: 시선 · 클릭: 발사</div>
-                    <div>화면 클릭으로 마우스 잠금/해제</div>
+                    <div>WASD: 이동 · 마우스: 시선</div>
+                    <div>좌클릭: 발사 (연사) · 우클릭: 줌</div>
+                    <div>R: 재장전 · 화면클릭: 마우스잠금</div>
                 </div>
 
                 <div style={{ marginBottom: 8, fontSize: 12 }}>
@@ -908,7 +1189,7 @@ export default function BattleArenaAbly() {
                 )}
             </div>
 
-            {/* 게임 상태 표시 (우하단) */}
+            {/* 탄약 및 상태 HUD */}
             <div
                 style={{
                     position: "absolute",
@@ -917,19 +1198,75 @@ export default function BattleArenaAbly() {
                     color: "#e8e8e8",
                     fontFamily:
                         "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
-                    background: "rgba(0,0,0,0.4)",
-                    padding: "8px 12px",
+                    background: "rgba(0,0,0,0.6)",
+                    padding: "12px 16px",
                     borderRadius: 8,
                     backdropFilter: "blur(8px)",
-                    fontSize: 12,
+                    fontSize: 14,
+                    minWidth: 150,
                 }}
             >
-                <div>마우스 감도: 보통</div>
-                <div>
+                <div style={{ marginBottom: 8 }}>
+                    <span style={{ color: "#94a3b8" }}>탄약:</span>{" "}
+                    <span
+                        style={{
+                            color: ammoCount <= 5 ? "#ef4444" : "#22c55e",
+                            fontWeight: "bold",
+                            fontSize: "16px",
+                        }}
+                    >
+                        {ammoCount}/{MAGAZINE_SIZE}
+                    </span>
+                </div>
+
+                {isReloading && (
+                    <div style={{ color: "#fbbf24", fontSize: 12 }}>
+                        재장전 중...
+                    </div>
+                )}
+
+                {isZoomed && (
+                    <div style={{ color: "#7ad7f0", fontSize: 12 }}>ZOOM</div>
+                )}
+
+                <div style={{ fontSize: 10, opacity: 0.7, marginTop: 4 }}>
                     시야각: {input.current.pitch.toFixed(2)}° /{" "}
                     {input.current.yaw.toFixed(2)}°
                 </div>
             </div>
+
+            {/* 탄약 부족 경고 */}
+            {ammoCount <= 5 && !isReloading && (
+                <div
+                    style={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -150%)",
+                        color: "#ef4444",
+                        fontSize: "18px",
+                        fontWeight: "bold",
+                        textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
+                        animation: "pulse 1s infinite",
+                        pointerEvents: "none",
+                        zIndex: 1000,
+                    }}
+                >
+                    {ammoCount === 0 ? "탄약 소진!" : "탄약 부족!"}
+                </div>
+            )}
+
+            <style jsx>{`
+                @keyframes pulse {
+                    0%,
+                    100% {
+                        opacity: 1;
+                    }
+                    50% {
+                        opacity: 0.5;
+                    }
+                }
+            `}</style>
         </div>
     );
 }
