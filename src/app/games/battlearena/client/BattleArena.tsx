@@ -311,7 +311,7 @@ export default function BattleArenaAbly() {
 
         const initAbly = async () => {
             realtime = new Ably.Realtime({
-                key: process.env.NEXT_PUBLIC_ABLY_API_KEY!,
+                key: process.env.ABLY_API_KEY!,
                 clientId: clientId,
             });
 

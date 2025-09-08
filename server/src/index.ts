@@ -249,10 +249,6 @@ import * as path from "path";
 
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
-console.log("Environment check:");
-console.log("ABLY_API_KEY exists:", !!process.env.ABLY_API_KEY);
-console.log("ABLY_API_KEY length:", process.env.ABLY_API_KEY?.length || 0);
-
 // Ably 연결
 const realtime = new Ably.Realtime({
     key: process.env.ABLY_API_KEY!,
