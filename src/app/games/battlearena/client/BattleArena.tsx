@@ -199,7 +199,7 @@ export default function BattleArenaAbly() {
         return weaponGroup;
     };
 
-    // 엄폐물 생성 함수
+    // 엄폐물 생성 함수 (서버와 동일한 위치로 하드코딩)
     const createCoverObjects = (scene: THREE.Scene) => {
         const coverMaterial = new THREE.MeshStandardMaterial({
             color: COVER_COLOR,
@@ -207,67 +207,75 @@ export default function BattleArenaAbly() {
             metalness: 0.1,
         });
 
-        // 나무 상자들
-        for (let i = 0; i < 8; i++) {
+        // 하드코딩된 나무 상자들 (서버와 정확히 동일)
+        const boxes = [
+            { x: 10, z: 5, width: 1.2, height: 1.0, depth: 1.3 },
+            { x: -8, z: 12, width: 1.5, height: 0.9, depth: 1.1 },
+            { x: 15, z: -10, width: 1.1, height: 1.1, depth: 1.4 },
+            { x: -12, z: -6, width: 1.3, height: 0.8, depth: 1.2 },
+            { x: 6, z: -15, width: 1.4, height: 1.0, depth: 1.0 },
+            { x: -5, z: 8, width: 1.0, height: 1.2, depth: 1.5 },
+            { x: 18, z: 3, width: 1.2, height: 0.9, depth: 1.1 },
+            { x: -15, z: -12, width: 1.3, height: 1.1, depth: 1.2 },
+        ];
+
+        boxes.forEach((boxData) => {
             const boxGeometry = new THREE.BoxGeometry(
-                1 + Math.random() * 0.5,
-                0.8 + Math.random() * 0.4,
-                1 + Math.random() * 0.5
+                boxData.width,
+                boxData.height,
+                boxData.depth
             );
             const box = new THREE.Mesh(boxGeometry, coverMaterial);
-
-            const angle = (i / 8) * Math.PI * 2;
-            const radius = 8 + Math.random() * 10;
-            box.position.set(
-                Math.cos(angle) * radius,
-                0.5,
-                Math.sin(angle) * radius
-            );
-            box.rotation.y = Math.random() * Math.PI;
+            box.position.set(boxData.x, boxData.height / 2, boxData.z);
             box.castShadow = true;
             box.receiveShadow = true;
             scene.add(box);
-        }
+        });
 
-        // 벽 엄폐물
-        for (let i = 0; i < 4; i++) {
-            const wallGeometry = new THREE.BoxGeometry(3, 1.5, 0.2);
-            const wall = new THREE.Mesh(wallGeometry, coverMaterial);
+        // 하드코딩된 벽 엄폐물 (서버와 정확히 동일)
+        const walls = [
+            { x: 12, z: 12, width: 3, height: 1.5, thickness: 0.2 },
+            { x: -10, z: -10, width: 3, height: 1.5, thickness: 0.2 },
+            { x: -12, z: 15, width: 3, height: 1.5, thickness: 0.2 },
+            { x: 15, z: -15, width: 3, height: 1.5, thickness: 0.2 },
+        ];
 
-            const angle = (i / 4) * Math.PI * 2 + Math.PI / 4;
-            const radius = 15;
-            wall.position.set(
-                Math.cos(angle) * radius,
-                0.75,
-                Math.sin(angle) * radius
+        walls.forEach((wallData) => {
+            const wallGeometry = new THREE.BoxGeometry(
+                wallData.width,
+                wallData.height,
+                wallData.thickness
             );
-            wall.rotation.y = angle + Math.PI / 2;
+            const wall = new THREE.Mesh(wallGeometry, coverMaterial);
+            wall.position.set(wallData.x, wallData.height / 2, wallData.z);
             wall.castShadow = true;
             wall.receiveShadow = true;
             scene.add(wall);
-        }
+        });
 
-        // 원형 엄폐물들
-        for (let i = 0; i < 6; i++) {
+        // 하드코딩된 원형 엄폐물 (서버와 정확히 동일)
+        const cylinders = [
+            { x: 5, z: 8, radius: 0.5, height: 1.2 },
+            { x: -6, z: 4, radius: 0.5, height: 1.2 },
+            { x: 8, z: -8, radius: 0.5, height: 1.2 },
+            { x: -10, z: 2, radius: 0.5, height: 1.2 },
+            { x: 3, z: -12, radius: 0.5, height: 1.2 },
+            { x: -4, z: -5, radius: 0.5, height: 1.2 },
+        ];
+
+        cylinders.forEach((cylData) => {
             const cylinderGeometry = new THREE.CylinderGeometry(
-                0.5,
-                0.5,
-                1.2,
+                cylData.radius,
+                cylData.radius,
+                cylData.height,
                 8
             );
             const cylinder = new THREE.Mesh(cylinderGeometry, coverMaterial);
-
-            const angle = (i / 6) * Math.PI * 2;
-            const radius = 5 + Math.random() * 8;
-            cylinder.position.set(
-                Math.cos(angle) * radius,
-                0.6,
-                Math.sin(angle) * radius
-            );
+            cylinder.position.set(cylData.x, cylData.height / 2, cylData.z);
             cylinder.castShadow = true;
             cylinder.receiveShadow = true;
             scene.add(cylinder);
-        }
+        });
     };
 
     // 발사 함수

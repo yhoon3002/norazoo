@@ -305,115 +305,110 @@ let tick = 0;
 const coverObjects: Box3D[] = [];
 
 // 엄폐물 초기화 함수
+// 서버용 하드코딩된 엄폐물 시스템
 function initializeCoverObjects() {
-    coverObjects.length = 0; // 배열 초기화
+    coverObjects.length = 0;
 
-    // 나무 상자들 (클라이언트와 동일한 로직)
-    for (let i = 0; i < 8; i++) {
-        const width = 1 + Math.random() * 0.5;
-        const height = 0.8 + Math.random() * 0.4;
-        const depth = 1 + Math.random() * 0.5;
+    // 하드코딩된 나무 상자들 (8개)
+    const boxes = [
+        { x: 10, z: 5, width: 1.2, height: 1.0, depth: 1.3 },
+        { x: -8, z: 12, width: 1.5, height: 0.9, depth: 1.1 },
+        { x: 15, z: -10, width: 1.1, height: 1.1, depth: 1.4 },
+        { x: -12, z: -6, width: 1.3, height: 0.8, depth: 1.2 },
+        { x: 6, z: -15, width: 1.4, height: 1.0, depth: 1.0 },
+        { x: -5, z: 8, width: 1.0, height: 1.2, depth: 1.5 },
+        { x: 18, z: 3, width: 1.2, height: 0.9, depth: 1.1 },
+        { x: -15, z: -12, width: 1.3, height: 1.1, depth: 1.2 },
+    ];
 
-        const angle = (i / 8) * Math.PI * 2;
-        const radius = 8 + Math.random() * 10;
-        const x = Math.cos(angle) * radius;
-        const z = Math.sin(angle) * radius;
-
+    boxes.forEach((box) => {
         coverObjects.push({
             min: {
-                x: x - width / 2,
+                x: box.x - box.width / 2,
                 y: 0,
-                z: z - depth / 2,
+                z: box.z - box.depth / 2,
             },
             max: {
-                x: x + width / 2,
-                y: height,
-                z: z + depth / 2,
+                x: box.x + box.width / 2,
+                y: box.height,
+                z: box.z + box.depth / 2,
             },
         });
-    }
+    });
 
-    // 벽 엄폐물
-    for (let i = 0; i < 4; i++) {
-        const angle = (i / 4) * Math.PI * 2 + Math.PI / 4;
-        const radius = 15;
-        const x = Math.cos(angle) * radius;
-        const z = Math.sin(angle) * radius;
+    // 하드코딩된 벽 엄폐물 (4개)
+    const walls = [
+        { x: 12, z: 12, width: 3, height: 1.5, thickness: 0.2 },
+        { x: -10, z: -10, width: 3, height: 1.5, thickness: 0.2 },
+        { x: -12, z: 15, width: 3, height: 1.5, thickness: 0.2 },
+        { x: 15, z: -15, width: 3, height: 1.5, thickness: 0.2 },
+    ];
 
-        const wallWidth = 3;
-        const wallHeight = 1.5;
-        const wallThickness = 0.2;
-
-        // 벽의 회전을 고려한 바운딩 박스
-        const halfWidth = wallWidth / 2;
-        const halfThickness = wallThickness / 2;
-
+    walls.forEach((wall) => {
         coverObjects.push({
             min: {
-                x: x - halfWidth,
+                x: wall.x - wall.width / 2,
                 y: 0,
-                z: z - halfThickness,
+                z: wall.z - wall.thickness / 2,
             },
             max: {
-                x: x + halfWidth,
-                y: wallHeight,
-                z: z + halfThickness,
+                x: wall.x + wall.width / 2,
+                y: wall.height,
+                z: wall.z + wall.thickness / 2,
             },
         });
-    }
+    });
 
-    // 원형 엄폐물들
-    for (let i = 0; i < 6; i++) {
-        const angle = (i / 6) * Math.PI * 2;
-        const radius = 5 + Math.random() * 8;
-        const x = Math.cos(angle) * radius;
-        const z = Math.sin(angle) * radius;
+    // 하드코딩된 원형 엄폐물 (6개)
+    const cylinders = [
+        { x: 5, z: 8, radius: 0.5, height: 1.2 },
+        { x: -6, z: 4, radius: 0.5, height: 1.2 },
+        { x: 8, z: -8, radius: 0.5, height: 1.2 },
+        { x: -10, z: 2, radius: 0.5, height: 1.2 },
+        { x: 3, z: -12, radius: 0.5, height: 1.2 },
+        { x: -4, z: -5, radius: 0.5, height: 1.2 },
+    ];
 
-        const cylinderRadius = 0.5;
-        const cylinderHeight = 1.2;
-
+    cylinders.forEach((cyl) => {
         coverObjects.push({
             min: {
-                x: x - cylinderRadius,
+                x: cyl.x - cyl.radius,
                 y: 0,
-                z: z - cylinderRadius,
+                z: cyl.z - cyl.radius,
             },
             max: {
-                x: x + cylinderRadius,
-                y: cylinderHeight,
-                z: z + cylinderRadius,
+                x: cyl.x + cyl.radius,
+                y: cyl.height,
+                z: cyl.z + cyl.radius,
             },
         });
-    }
+    });
 
-    // 경계 벽들
+    // 경계 벽들 (변경없음)
     const wallHeight = 3;
     const wallThickness = 0.5;
+    const HALF = ARENA_SIZE / 2;
 
     coverObjects.push(
-        // 북쪽 벽
         {
             min: { x: -HALF, y: 0, z: -HALF - wallThickness / 2 },
             max: { x: HALF, y: wallHeight, z: -HALF + wallThickness / 2 },
         },
-        // 남쪽 벽
         {
             min: { x: -HALF, y: 0, z: HALF - wallThickness / 2 },
             max: { x: HALF, y: wallHeight, z: HALF + wallThickness / 2 },
         },
-        // 서쪽 벽
         {
             min: { x: -HALF - wallThickness / 2, y: 0, z: -HALF },
             max: { x: -HALF + wallThickness / 2, y: wallHeight, z: HALF },
         },
-        // 동쪽 벽
         {
             min: { x: HALF - wallThickness / 2, y: 0, z: -HALF },
             max: { x: HALF + wallThickness / 2, y: wallHeight, z: HALF },
         }
     );
 
-    console.log(`Initialized ${coverObjects.length} cover objects`);
+    console.log(`Initialized ${coverObjects.length} hardcoded cover objects`);
 }
 
 // 레이-박스 교차 검사
@@ -480,6 +475,55 @@ function checkBulletCollision(
     }
 
     return false; // 충돌 없음
+}
+
+// 플레이어-엄폐물 충돌 검사
+function checkPlayerCollision(
+    playerPos: { x: number; y: number; z: number },
+    playerRadius: number
+): boolean {
+    for (const box of coverObjects) {
+        const closestX = Math.max(box.min.x, Math.min(playerPos.x, box.max.x));
+        const closestY = Math.max(box.min.y, Math.min(playerPos.y, box.max.y));
+        const closestZ = Math.max(box.min.z, Math.min(playerPos.z, box.max.z));
+
+        const distance = Math.sqrt(
+            (playerPos.x - closestX) ** 2 +
+                (playerPos.y - closestY) ** 2 +
+                (playerPos.z - closestZ) ** 2
+        );
+
+        if (
+            distance < playerRadius &&
+            playerPos.y + 1.8 > box.min.y &&
+            playerPos.y < box.max.y
+        ) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function resolvePlayerCollision(
+    oldPos: { x: number; y: number; z: number },
+    newPos: { x: number; y: number; z: number },
+    playerRadius: number
+): { x: number; y: number; z: number } {
+    const testPosX = { x: newPos.x, y: oldPos.y, z: oldPos.z };
+    if (!checkPlayerCollision(testPosX, playerRadius)) {
+        const testPosXZ = { x: newPos.x, y: oldPos.y, z: newPos.z };
+        if (!checkPlayerCollision(testPosXZ, playerRadius)) {
+            return { x: newPos.x, y: oldPos.y, z: newPos.z };
+        }
+        return { x: newPos.x, y: oldPos.y, z: oldPos.z };
+    }
+
+    const testPosZ = { x: oldPos.x, y: oldPos.y, z: newPos.z };
+    if (!checkPlayerCollision(testPosZ, playerRadius)) {
+        return { x: oldPos.x, y: oldPos.y, z: newPos.z };
+    }
+
+    return { x: oldPos.x, y: oldPos.y, z: oldPos.z };
 }
 
 const clamp = (v: number, min: number, max: number) =>
@@ -604,8 +648,20 @@ const gameLoop = async () => {
         if (len > 0) {
             vx /= len;
             vz /= len;
-            p.pos.x += vx * PLAYER_SPEED * dt;
-            p.pos.z += vz * PLAYER_SPEED * dt;
+
+            const newPosX = p.pos.x + vx * PLAYER_SPEED * dt;
+            const newPosZ = p.pos.z + vz * PLAYER_SPEED * dt;
+
+            const oldPos = { x: p.pos.x, y: p.pos.y, z: p.pos.z };
+            const newPos = { x: newPosX, y: p.pos.y, z: newPosZ };
+            const resolvedPos = resolvePlayerCollision(
+                oldPos,
+                newPos,
+                PLAYER_RADIUS
+            );
+
+            p.pos.x = resolvedPos.x;
+            p.pos.z = resolvedPos.z;
         }
 
         p.pos.x = clamp(p.pos.x, -HALF + PLAYER_RADIUS, HALF - PLAYER_RADIUS);
