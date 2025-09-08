@@ -1,23 +1,26 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import * as Ably from "ably";
+import { io, Socket } from "socket.io-client";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
-import { WorldState } from "../types";
+import type { WorldState } from "../types";
 
 // Variables
-const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const BASE_PATH = process.env.NEXT_PUBLIC_ASSET_CDN ?? "";
 const CDN_BASE = (process.env.NEXT_PUBLIC_ASSET_CDN ?? "").replace(/\/$/, "");
 
 // Config
+const SERVER_URL =
+    process.env.NEXT_PUBLIC_ARENA_SERVER_URL || "http://localhost:3001";
 const PLAYER_COLOR_ME = 0x7ad7f0;
 const PLAYER_COLOR_OTHERS = 0xf0a87a;
 const BULLET_COLOR = 0xfff06a;
 const FLOOR_COLOR = 0x90ee90;
 const WALL_COLOR = 0xb0b0b0;
 
+// Files
 const FILES = {
     character: "character.glb",
     idle: "anim_idle.glb",
@@ -28,11 +31,10 @@ const FILES = {
 const ASSET_BASE_CANDIDATES = Array.from(
     new Set([
         ...(CDN_BASE ? [`${CDN_BASE}/battlearena`] : []),
-        `${BASE_PATH}/assets/battlearena`,
         `${BASE_PATH}/battlearena`,
+        `${BASE_PATH}/assets/battlearena`,
     ])
 );
-
 // 1인칭 관련
 const eyeHeight = 1.6;
 const MODEL_YAW_OFFSET = Math.PI;
@@ -56,22 +58,12 @@ type PlayerVisual = {
     isCapsuleFallback: boolean;
 };
 
-export default function BattleArenaAbly() {
+export default function BattleArenaSocket() {
     const mountRef = useRef<HTMLDivElement | null>(null);
-    const myIdRef = useRef<string | null>(null);
-    const input = useRef<InputState>({
-        up: false,
-        down: false,
-        left: false,
-        right: false,
-        mouseDown: false,
-        yaw: 0,
-        pitch: 0,
-    });
-    const fireFlag = useRef(false);
     const [connected, setConnected] = useState(false);
     const [myId, setMyId] = useState<string | null>(null);
-    const [arenaSize] = useState(40);
+    const myIdRef = useRef<string | null>(null);
+    const [arenaSize, setArenaSize] = useState(40);
     const [assetStatus, setAssetStatus] = useState({
         base: false,
         idle: false,
@@ -82,13 +74,25 @@ export default function BattleArenaAbly() {
         { id: string; name?: string; score: number }[]
     >([]);
 
+    const socketRef = useRef<Socket | null>(null);
+    const input = useRef<InputState>({
+        up: false,
+        down: false,
+        left: false,
+        right: false,
+        mouseDown: false,
+        yaw: 0,
+        pitch: 0,
+    });
+    const fireFlag = useRef(false);
+
     // three core
     const sceneRef = useRef<THREE.Scene | null>(null);
     const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
     const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
     const floorRef = useRef<THREE.Mesh | null>(null);
 
-    // 내 위치를 저장하여 카메라가 붙도록 사용
+    // 내 위치(서버 state 기반)를 저장하여 카메라가 붙도록 사용
     const myPosRef = useRef(new THREE.Vector3(0, eyeHeight, 0));
 
     // 3D 모델 및 애니메이션
@@ -97,10 +101,11 @@ export default function BattleArenaAbly() {
         Partial<Record<"idle" | "run" | "shoot", THREE.AnimationClip>>
     >({});
     const visualsRef = useRef<Map<string, PlayerVisual>>(new Map());
+
     const prevTimeRef = useRef<number>(performance.now());
     const requestRef = useRef<number | null>(null);
 
-    // 총알 geometry 및 material 재사용
+    // 총알 지오메트리 및 재질 재사용
     const bulletGeometryRef = useRef<THREE.CapsuleGeometry | null>(null);
     const bulletMaterialRef = useRef<THREE.MeshStandardMaterial | null>(null);
 
@@ -123,7 +128,7 @@ export default function BattleArenaAbly() {
     const createBulletGeometry = () => bulletGeometryRef.current;
     const createBulletMaterial = () => bulletMaterialRef.current;
 
-    // Three.js mounting
+    // mount three
     useEffect(() => {
         const mount = mountRef.current!;
         const scene = new THREE.Scene();
@@ -138,9 +143,7 @@ export default function BattleArenaAbly() {
         camera.position.set(0, eyeHeight, 0);
         camera.rotation.order = "YXZ";
 
-        const renderer = new THREE.WebGLRenderer({
-            antialias: true,
-        });
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(mount.clientWidth, mount.clientHeight);
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -168,8 +171,8 @@ export default function BattleArenaAbly() {
         floorRef.current = floor;
 
         // 벽
-        const wallHeight = 2;
-        const wallThick = 0.5;
+        const wallHeight = 2,
+            wallThick = 0.5;
         const wallMat = new THREE.MeshStandardMaterial({ color: WALL_COLOR });
         const wallGeo1 = new THREE.BoxGeometry(
             arenaSize,
@@ -188,7 +191,6 @@ export default function BattleArenaAbly() {
             { geo: wallGeo2, pos: [-arenaSize / 2, wallHeight / 2, 0] },
             { geo: wallGeo2, pos: [arenaSize / 2, wallHeight / 2, 0] },
         ];
-
         walls.forEach(({ geo, pos }) => {
             const wall = new THREE.Mesh(geo, wallMat);
             wall.position.set(pos[0], pos[1], pos[2]);
@@ -200,16 +202,10 @@ export default function BattleArenaAbly() {
         rendererRef.current = renderer;
 
         const onResize = () => {
-            if (
-                !mountRef.current ||
-                !cameraRef.current ||
-                !rendererRef.current
-            ) {
+            if (!mountRef.current || !cameraRef.current || !rendererRef.current)
                 return;
-            }
-
-            const w = mountRef.current.clientWidth;
-            const h = mountRef.current.clientHeight;
+            const w = mountRef.current.clientWidth,
+                h = mountRef.current.clientHeight;
             cameraRef.current.aspect = w / h;
             cameraRef.current.updateProjectionMatrix();
             rendererRef.current.setSize(w, h);
@@ -219,22 +215,18 @@ export default function BattleArenaAbly() {
         ro.observe(mount);
 
         return () => {
-            if (requestRef.current) {
-                cancelAnimationFrame(requestRef.current);
-                ro.disconnect();
-                mount.removeChild(renderer.domElement);
-                renderer.dispose();
-            }
+            if (requestRef.current) cancelAnimationFrame(requestRef.current);
+            ro.disconnect();
+            mount.removeChild(renderer.domElement);
+            renderer.dispose();
         };
     }, [arenaSize]);
 
-    // GLB loader
+    // GLB 로더
     const loadGLB = async (loader: GLTFLoader, filename: string) => {
         let lastErr: unknown = null;
-
         for (const base of ASSET_BASE_CANDIDATES) {
             const url = `${base}/${filename}`;
-
             try {
                 return await loader.loadAsync(url);
             } catch (e) {
@@ -244,11 +236,10 @@ export default function BattleArenaAbly() {
         throw lastErr ?? new Error("GLB not found: " + filename);
     };
 
-    // asset load
+    // 에셋 로드
     useEffect(() => {
         let cancelled = false;
         const loader = new GLTFLoader();
-
         (async () => {
             try {
                 const [charGLB, idleGLB, runGLB, shootGLB] = await Promise.all([
@@ -257,10 +248,7 @@ export default function BattleArenaAbly() {
                     loadGLB(loader, FILES.run),
                     loadGLB(loader, FILES.shoot),
                 ]);
-
-                if (cancelled) {
-                    return;
-                }
+                if (cancelled) return;
 
                 const base = clone(charGLB.scene) as THREE.Object3D;
                 base.traverse((o: THREE.Object3D) => {
@@ -269,7 +257,6 @@ export default function BattleArenaAbly() {
                         o.receiveShadow = true;
                     }
                 });
-
                 baseModelRef.current = base;
                 setAssetStatus((s) => ({ ...s, base: true }));
                 clipsRef.current.idle = idleGLB.animations[0];
@@ -281,7 +268,6 @@ export default function BattleArenaAbly() {
 
                 // 폴백 제거
                 const scene = sceneRef.current;
-
                 if (scene) {
                     for (const [playerId, visual] of visualsRef.current) {
                         if (visual.isCapsuleFallback) {
@@ -291,110 +277,171 @@ export default function BattleArenaAbly() {
                     }
                 }
             } catch (e) {
-                console.error("[DEBUG] GLB 로드 실패: ", e);
+                console.error("[DEBUG] GLB 로드 실패:", e);
             }
         })();
-
         return () => {
             cancelled = true;
         };
     }, []);
 
-    // Ably 연결 (any 타입 제거)
+    // 소켓 & 입력
     useEffect(() => {
-        let disposed = false;
-        let sendTimer: NodeJS.Timeout | null = null;
-        let stateCh: Ably.RealtimeChannel | null = null;
-        let realtime: Ably.Realtime | null = null;
+        const socket = io(SERVER_URL, { transports: ["websocket"] });
+        socketRef.current = socket;
 
-        const clientId = `player_${Math.random().toString(36).substr(2, 9)}`;
+        socket.on("connect", () => setConnected(true));
+        socket.on("disconnect", () => setConnected(false));
 
-        const initAbly = async () => {
-            realtime = new Ably.Realtime({
-                key: process.env.NEXT_PUBLIC_ABLY_API_KEY!,
-                clientId: clientId,
-            });
-
-            await realtime.connection.whenState("connected");
-            if (disposed) return;
-
-            const myClientId = realtime.auth.clientId!;
-            setMyId(myClientId);
-            myIdRef.current = myClientId;
-
-            // 채널들
-            stateCh = realtime.channels.get("arena:state");
-            const inputsCh = realtime.channels.get("arena:inputs");
-            await Promise.all([stateCh.attach(), inputsCh.attach()]);
-
-            // presence 들어가면 서버가 플레이어 생성
-            await stateCh.presence.enter({});
-
-            // 서버 → 상태 수신
-            stateCh.subscribe("state", (msg) => {
-                const world = msg.data as WorldState;
-                applyWorld(world);
-                setScoreboard(
-                    world.players
-                        .map((p) => ({
-                            id: p.id,
-                            name: p.name,
-                            score: p.score,
-                        }))
-                        .sort((a, b) => b.score - a.score)
+        socket.on("init", (data: { id: string; arenaSize: number }) => {
+            setMyId(data.id);
+            myIdRef.current = data.id;
+            setArenaSize(data.arenaSize);
+            if (floorRef.current) {
+                floorRef.current.geometry.dispose();
+                floorRef.current.geometry = new THREE.PlaneGeometry(
+                    data.arenaSize,
+                    data.arenaSize
                 );
-                setConnected(true);
-            });
+            }
+        });
 
-            // 30Hz 입력 송신
-            let seq = 0;
-            sendTimer = setInterval(async () => {
-                const q = new THREE.Quaternion().setFromEuler(
-                    new THREE.Euler(
+        socket.on("state", (state: WorldState) => {
+            applyWorld(state);
+            setScoreboard(
+                state.players
+                    .map((p) => ({ id: p.id, name: p.name, score: p.score }))
+                    .sort((a, b) => b.score - a.score)
+            );
+        });
+
+        let seq = 0;
+        const sendInterval = setInterval(() => {
+            if (!socket.connected) return;
+
+            // YAW/PITCH 분리
+            const movementYaw = input.current.yaw;
+            const movementPitch = input.current.pitch;
+            const bulletYaw = input.current.yaw + Math.PI; // 180도 회전
+            const bulletPitch = input.current.pitch; // pitch 부호 수정됨
+
+            // 카메라 실제 방향 계산 (반전 없이 그대로)
+            const cam = cameraRef.current;
+            const fireDirection = new THREE.Vector3();
+
+            if (cam && fireFlag.current) {
+                cam.getWorldDirection(fireDirection);
+
+                // Y값이 작으면 pitch에서 직접 계산
+                if (Math.abs(fireDirection.y) < 0.1) {
+                    const pitchAmount = Math.sin(input.current.pitch);
+                    fireDirection.y = pitchAmount;
+                }
+
+                fireDirection.normalize();
+            } else {
+                fireDirection.set(0, 0, -1);
+            }
+
+            const origin = {
+                x: myPosRef.current.x,
+                y: eyeHeight,
+                z: myPosRef.current.z,
+            };
+
+            const payload = {
+                seq: seq++,
+                up: input.current.up,
+                down: input.current.down,
+                left: input.current.left,
+                right: input.current.right,
+                yaw: fireFlag.current ? bulletYaw : movementYaw,
+                pitch: fireFlag.current ? bulletPitch : movementPitch,
+                fire: false as boolean,
+                fireOrigin: origin,
+                fireDirection: {
+                    x: fireDirection.x,
+                    y: fireDirection.y,
+                    z: fireDirection.z,
+                },
+            };
+
+            if (fireFlag.current) {
+                payload.fire = true;
+                fireFlag.current = false;
+            }
+
+            socket.emit("input", payload);
+        }, 1000 / 30);
+
+        // 키보드
+        const down = (e: KeyboardEvent) => {
+            if (e.code === "KeyW") input.current.up = true;
+            if (e.code === "KeyS") input.current.down = true;
+            if (e.code === "KeyA") input.current.left = true;
+            if (e.code === "KeyD") input.current.right = true;
+        };
+        const up = (e: KeyboardEvent) => {
+            if (e.code === "KeyW") input.current.up = false;
+            if (e.code === "KeyS") input.current.down = false;
+            if (e.code === "KeyA") input.current.left = false;
+            if (e.code === "KeyD") input.current.right = false;
+        };
+        window.addEventListener("keydown", down);
+        window.addEventListener("keyup", up);
+
+        // 마우스
+        const mount = mountRef.current!;
+        const requestPointer = () => mount.requestPointerLock();
+
+        const handleMouseMove = (e: MouseEvent) => {
+            if (document.pointerLockElement === mount) {
+                const sensX = 0.003;
+                const sensY = 0.003;
+
+                input.current.yaw -= e.movementX * sensX;
+                input.current.pitch -= e.movementY * sensY;
+
+                const maxPitch = Math.PI / 2 - 0.1;
+                input.current.pitch = Math.max(
+                    -maxPitch,
+                    Math.min(maxPitch, input.current.pitch)
+                );
+
+                const cam = cameraRef.current;
+                if (cam) {
+                    cam.rotation.set(
                         input.current.pitch,
                         input.current.yaw,
                         0,
                         "YXZ"
-                    )
-                );
-                const forward = new THREE.Vector3(0, 0, -1)
-                    .applyQuaternion(q)
-                    .normalize();
-
-                const payload = {
-                    seq: seq++,
-                    up: input.current.up,
-                    down: input.current.down,
-                    left: input.current.left,
-                    right: input.current.right,
-                    yaw: input.current.yaw,
-                    pitch: input.current.pitch,
-                    fire: false as boolean,
-                    fireDirection: { x: forward.x, y: forward.y, z: forward.z },
-                };
-
-                if (fireFlag.current) {
-                    payload.fire = true;
-                    fireFlag.current = false;
+                    );
                 }
-
-                await inputsCh.publish("input", payload);
-            }, 1000 / 30);
+            }
         };
 
-        initAbly().catch(console.error);
+        const handleMouseDown = () => {
+            input.current.mouseDown = true;
+            fireFlag.current = true;
+        };
+        const handleMouseUp = () => {
+            input.current.mouseDown = false;
+        };
+
+        mount.addEventListener("click", requestPointer);
+        window.addEventListener("mousemove", handleMouseMove);
+        window.addEventListener("mousedown", handleMouseDown);
+        window.addEventListener("mouseup", handleMouseUp);
 
         return () => {
-            disposed = true;
-            if (sendTimer) clearInterval(sendTimer);
-            if (stateCh) {
-                stateCh.presence.leave().catch(() => {
-                    // 에러 무시
-                });
-            }
-            if (realtime) {
-                realtime.close();
-            }
+            clearInterval(sendInterval);
+            window.removeEventListener("keydown", down);
+            window.removeEventListener("keyup", up);
+            mount.removeEventListener("click", requestPointer);
+            window.removeEventListener("mousemove", handleMouseMove);
+            window.removeEventListener("mousedown", handleMouseDown);
+            window.removeEventListener("mouseup", handleMouseUp);
+            socket.disconnect();
         };
     }, []);
 
@@ -405,10 +452,7 @@ export default function BattleArenaAbly() {
         scene: THREE.Scene
     ): PlayerVisual {
         let vis = visualsRef.current.get(id);
-
-        if (vis) {
-            return vis;
-        }
+        if (vis) return vis;
 
         let root: THREE.Object3D;
         let mixer: THREE.AnimationMixer | null = null;
@@ -417,16 +461,12 @@ export default function BattleArenaAbly() {
 
         if (baseModelRef.current) {
             root = clone(baseModelRef.current) as THREE.Object3D;
-
             try {
                 mixer = new THREE.AnimationMixer(root);
-
-                if (clipsRef.current.idle) {
+                if (clipsRef.current.idle)
                     actions.idle = mixer.clipAction(clipsRef.current.idle);
-                }
-                if (clipsRef.current.run) {
+                if (clipsRef.current.run)
                     actions.run = mixer.clipAction(clipsRef.current.run);
-                }
                 if (clipsRef.current.shoot) {
                     const shootAct: THREE.AnimationAction = mixer.clipAction(
                         clipsRef.current.shoot
@@ -435,7 +475,6 @@ export default function BattleArenaAbly() {
                     shootAct.clampWhenFinished = true;
                     actions.shoot = shootAct;
                 }
-
                 actions.idle?.play();
             } catch {
                 mixer = null;
@@ -452,12 +491,9 @@ export default function BattleArenaAbly() {
             isCapsuleFallback = true;
         }
 
-        if (isMe || myIdRef.current === id) {
-            root.visible = false;
-        }
+        if (isMe || myIdRef.current === id) root.visible = false;
 
         scene.add(root);
-
         vis = {
             root,
             mixer,
@@ -470,31 +506,26 @@ export default function BattleArenaAbly() {
         return vis;
     }
 
-    const crossFade = (
+    // 애니메이션 크로스페이드
+    function crossFade(
         vis: PlayerVisual,
         next: PlayerVisual["playing"],
         fade = 0.12
-    ) => {
-        if (vis.playing === next) {
-            return;
-        }
-
+    ) {
+        if (vis.playing === next) return;
         try {
             const curr = vis.actions[vis.playing];
             const nxt = vis.actions[next];
-
             if (nxt) {
                 nxt.reset().fadeIn(fade).play();
                 curr?.fadeOut(fade);
                 vis.playing = next;
             }
-        } catch {
-            // 에러 무시
-        }
-    };
+        } catch {}
+    }
 
     // 월드 상태 적용
-    const applyWorld = (state: WorldState) => {
+    function applyWorld(state: WorldState) {
         const scene = sceneRef.current!;
         const present = new Set<string>();
 
@@ -517,29 +548,22 @@ export default function BattleArenaAbly() {
                 p.pos.x - vis.lastPos.x,
                 p.pos.z - vis.lastPos.z
             );
-
-            if (vis.mixer) {
-                crossFade(vis, moved > 0.01 ? "run" : "idle");
-                vis.lastPos.set(p.pos.x, 0, p.pos.z);
-            }
+            if (vis.mixer) crossFade(vis, moved > 0.01 ? "run" : "idle");
+            vis.lastPos.set(p.pos.x, 0, p.pos.z);
         }
 
         // 떠난 플레이어 정리
         for (const [id, vis] of [...visualsRef.current]) {
             if (!present.has(id)) {
                 scene.remove(vis.root);
-
                 vis.root.traverse((o: THREE.Object3D) => {
                     if (o instanceof THREE.Mesh) {
                         o.geometry?.dispose?.();
-
-                        if (Array.isArray(o.material)) {
+                        if (Array.isArray(o.material))
                             o.material.forEach((m: THREE.Material) =>
                                 m.dispose()
                             );
-                        } else {
-                            o.material?.dispose?.();
-                        }
+                        else o.material?.dispose?.();
                     }
                 });
                 visualsRef.current.delete(id);
@@ -552,7 +576,6 @@ export default function BattleArenaAbly() {
             group.name = "bulletPool";
             scene.add(group);
         }
-
         const pool = scene.getObjectByName("bulletPool") as THREE.Group;
 
         // 1) Map을 Mesh로 좁히기
@@ -567,13 +590,12 @@ export default function BattleArenaAbly() {
 
         for (const b of state.bullets) {
             presentB.add(b.id);
-            let obj = byId.get(b.id);
+            let obj = byId.get(b.id); // THREE.Mesh | undefined
 
             // 2) 없으면 생성 시도
             if (!obj) {
                 const geo = createBulletGeometry();
                 const mat = createBulletMaterial();
-
                 if (geo && mat) {
                     obj = new THREE.Mesh(geo, mat.clone());
                     obj.userData.id = b.id;
@@ -581,10 +603,8 @@ export default function BattleArenaAbly() {
                     pool.add(obj);
 
                     const ownerVis = visualsRef.current.get(b.ownerId);
-
                     if (ownerVis?.actions.shoot) {
                         ownerVis.actions.shoot.reset().fadeIn(0.05).play();
-
                         setTimeout(
                             () => ownerVis.actions.shoot?.fadeOut(0.1),
                             250
@@ -593,10 +613,8 @@ export default function BattleArenaAbly() {
                 }
             }
 
-            // 3) 여전히 없으면 안전하게 스킵
-            if (!obj) {
-                continue;
-            }
+            // 3) 여전히 없으면(geo/mat 미준비 등) 안전하게 스킵
+            if (!obj) continue;
 
             // 서버에서 온 3D 속도로 방향
             const dir3 = new THREE.Vector3(
@@ -604,17 +622,14 @@ export default function BattleArenaAbly() {
                 b.vel?.y ?? 0,
                 b.vel?.z ?? 0
             );
-
-            if (dir3.lengthSq() > 0) {
-                dir3.normalize();
-            }
+            if (dir3.lengthSq() > 0) dir3.normalize();
 
             const isMine = b.ownerId === myIdRef.current;
             const selfOffset = isMine ? 0.45 : 0.0;
 
             obj.position.set(
                 (b.pos?.x ?? 0) + dir3.x * selfOffset,
-                b.pos?.y ?? 0,
+                b.pos?.y ?? 0, // 서버 y 그대로
                 (b.pos?.z ?? 0) + dir3.z * selfOffset
             );
 
@@ -632,10 +647,8 @@ export default function BattleArenaAbly() {
             )
             .forEach((c) => {
                 pool.remove(c);
-
                 if (c instanceof THREE.Mesh) {
                     c.geometry.dispose();
-
                     const mats = Array.isArray(c.material)
                         ? c.material
                         : [c.material];
@@ -644,15 +657,11 @@ export default function BattleArenaAbly() {
             });
 
         const myIdNow = myIdRef.current;
-
         if (myIdNow) {
             const me = state.players.find((p) => p.id === myIdNow);
-
-            if (me) {
-                myPosRef.current.set(me.pos.x, eyeHeight, me.pos.z);
-            }
+            if (me) myPosRef.current.set(me.pos.x, eyeHeight, me.pos.z);
         }
-    };
+    }
 
     // 렌더 루프
     useEffect(() => {
@@ -664,7 +673,6 @@ export default function BattleArenaAbly() {
             visualsRef.current.forEach((vis) => vis.mixer?.update(dt));
 
             const cam = cameraRef.current;
-
             if (cam) {
                 cam.position.copy(myPosRef.current);
             }
@@ -672,88 +680,16 @@ export default function BattleArenaAbly() {
             if (sceneRef.current && cameraRef.current && rendererRef.current) {
                 rendererRef.current.render(sceneRef.current, cameraRef.current);
             }
-
             requestRef.current = requestAnimationFrame(loop);
         };
 
         requestRef.current = requestAnimationFrame(loop);
-
         return () => {
-            if (requestRef.current) {
-                cancelAnimationFrame(requestRef.current);
-            }
+            if (requestRef.current) cancelAnimationFrame(requestRef.current);
         };
     }, []);
 
-    useEffect(() => {
-        const mount = mountRef.current!;
-        const requestPointer = () => mount.requestPointerLock();
-
-        // 키보드
-        const down = (e: KeyboardEvent) => {
-            if (e.code === "KeyW") input.current.up = true;
-            if (e.code === "KeyS") input.current.down = true;
-            if (e.code === "KeyA") input.current.left = true;
-            if (e.code === "KeyD") input.current.right = true;
-        };
-        const up = (e: KeyboardEvent) => {
-            if (e.code === "KeyW") input.current.up = false;
-            if (e.code === "KeyS") input.current.down = false;
-            if (e.code === "KeyA") input.current.left = false;
-            if (e.code === "KeyD") input.current.right = false;
-        };
-
-        // 마우스(포인터 락 상태에서만)
-        const handleMouseMove = (e: MouseEvent) => {
-            if (document.pointerLockElement === mount) {
-                const sensX = 0.003;
-                const sensY = 0.003;
-                input.current.yaw -= e.movementX * sensX;
-                input.current.pitch -= e.movementY * sensY;
-
-                const maxPitch = Math.PI / 2 - 0.1;
-                input.current.pitch = Math.max(
-                    -maxPitch,
-                    Math.min(maxPitch, input.current.pitch)
-                );
-
-                // 카메라 즉시 반영
-                const cam = cameraRef.current;
-                if (cam)
-                    cam.rotation.set(
-                        input.current.pitch,
-                        input.current.yaw,
-                        0,
-                        "YXZ"
-                    );
-            }
-        };
-
-        const handleMouseDown = () => {
-            input.current.mouseDown = true;
-            fireFlag.current = true;
-        };
-        const handleMouseUp = () => {
-            input.current.mouseDown = false;
-        };
-
-        mount.addEventListener("click", requestPointer);
-        window.addEventListener("keydown", down);
-        window.addEventListener("keyup", up);
-        window.addEventListener("mousemove", handleMouseMove);
-        window.addEventListener("mousedown", handleMouseDown);
-        window.addEventListener("mouseup", handleMouseUp);
-
-        return () => {
-            mount.removeEventListener("click", requestPointer);
-            window.removeEventListener("keydown", down);
-            window.removeEventListener("keyup", up);
-            window.removeEventListener("mousemove", handleMouseMove);
-            window.removeEventListener("mousedown", handleMouseDown);
-            window.removeEventListener("mouseup", handleMouseUp);
-        };
-    }, []);
-
+    // UI
     return (
         <div style={{ width: "100%", height: "100vh", position: "relative" }}>
             <div ref={mountRef} style={{ width: "100%", height: "100%" }} />

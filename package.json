@@ -3,10 +3,30 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "next dev --turbopack",
+        "dev": "next dev",
         "build": "next build",
         "start": "next start",
-        "lint": "next lint"
+        "lint": "next lint",
+        "server": "cd server && ts-node src/index.ts",
+        "server:dev": "cd server && nodemon --exec ts-node src/index.ts",
+        "server:build": "cd server && tsc",
+        "server:prod": "cd server && npm run build && node dist/index.js",
+        "dev:full": "concurrently \"npm run server:dev\" \"npm run dev\""
+    },
+    "devDependencies": {
+        "@eslint/eslintrc": "^3",
+        "@types/express": "^5.0.3",
+        "@types/matter-js": "^0.19.8",
+        "@types/node": "^20.19.13",
+        "@types/react": "^19",
+        "@types/react-dom": "^19",
+        "@types/three": "^0.179.0",
+        "eslint": "^9",
+        "eslint-config-next": "15.3.3",
+        "nodemon": "^3.1.10",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.9.2",
+        "vercel": "^47.0.5"
     },
     "dependencies": {
         "@react-three/cannon": "^6.6.0",
@@ -14,6 +34,8 @@
         "@react-three/fiber": "^9.3.0",
         "@react-three/postprocessing": "^3.0.4",
         "@tailwindcss/postcss": "^4.1.10",
+        "ably": "^2.12.0",
+        "dotenv": "^17.2.2",
         "express": "^5.1.0",
         "matter-js": "^0.20.0",
         "next": "15.3.3",
@@ -28,18 +50,5 @@
         "three": "^0.179.1",
         "uuid": "^11.1.0",
         "zustand": "^5.0.5"
-    },
-    "devDependencies": {
-        "@eslint/eslintrc": "^3",
-        "@types/express": "^5.0.3",
-        "@types/matter-js": "^0.19.8",
-        "@types/node": "^20",
-        "@types/react": "^19",
-        "@types/react-dom": "^19",
-        "@types/three": "^0.179.0",
-        "eslint": "^9",
-        "eslint-config-next": "15.3.3",
-        "typescript": "^5",
-        "vercel": "^47.0.5"
     }
 }
