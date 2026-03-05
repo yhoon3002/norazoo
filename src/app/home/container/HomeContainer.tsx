@@ -52,8 +52,8 @@ export default function HomeContainer() {
             desc: "배틀 아레나",
         },
         {
-            name: "추가 예정6",
-            desc: "추가 예정6",
+            name: "RPG",
+            desc: "RPG",
         },
         {
             name: "추가 예정7",
