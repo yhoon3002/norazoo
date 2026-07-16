@@ -293,7 +293,7 @@ export const CHAPTER_TITLES: Record<
 };
 
 // ===== 조사 포인트 — 멈춘 주민(석상)과 일지 =====
-// 시계탑이 멈춘 밤의 단서를 환경으로 전달한다. 1회 조사: flags[`lore_${'}}id{{'}`]
+// 시계탑이 멈춘 밤의 단서를 환경으로 전달한다. 1회 조사 플래그 키: lore_<id>
 export type LorePoint = {
     id: string;
     x: number;

@@ -41,11 +41,11 @@ export const uiSlice = (set: any, get: any) => ({
     closeAll: () =>
         set(() => ({
             ui: {
-        pauseOpen: false,
-        inventoryOpen: false,
-        shopOpen: false,
-        fastTravelOpen: false,
-        mapOpen: false,
-    },
+                pauseOpen: false,
+                inventoryOpen: false,
+                shopOpen: false,
+                fastTravelOpen: false,
+                mapOpen: false,
+            },
         })),
 });

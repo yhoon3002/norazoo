@@ -209,6 +209,7 @@ export type SaveV1 = {
     story?: {
         stage: string;
         objective: string;
+        target?: null | { x: number; z: number };
         respawn: null | { x: number; y: number; z: number; label: string };
     };
 };

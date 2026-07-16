@@ -440,8 +440,10 @@ export function FieldPlayer({
         let mx = 0,
             mz = 0;
 
-        // 대화 중에는 이동 잠금
-        const inDialogue = useGame.getState().dialogue.length > 0;
+        // 대화 중·전체지도 열림 중에는 이동 잠금
+        const gState = useGame.getState();
+        const inDialogue =
+            gState.dialogue.length > 0 || (gState.ui as any).mapOpen === true;
 
         const fwd = tmpV3.current;
         camera.getWorldDirection(fwd);
@@ -492,9 +494,6 @@ export function FieldPlayer({
             });
             const finalY = gy !== null ? gy : DEFAULT_FIXED_GROUND_Y;
             cachedGroundY.current = finalY;
-            console.log(
-                `[FieldPlayer] 첫 스냅 → (${x.toFixed(1)}, ${finalY.toFixed(2)}, ${z.toFixed(1)}) (sampleGround=${gy === null ? "null→기본값" : gy.toFixed(2)})`
-            );
 
             useGame.getState().moveTo({ x, y: finalY, z });
             (mesh.current as any).__firstSnapDone = true;

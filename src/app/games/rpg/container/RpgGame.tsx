@@ -114,11 +114,17 @@ export default function RpgGame() {
                         return;
                     }
                     togglePause();
-                } else if (key === "i") toggleInventory();
-                else if (key === "m") {
-                    if (useGame.getState().dialogue.length > 0) return;
+                } else if (key === "i") {
+                    const u = useGame.getState().ui as any;
+                    if (u.mapOpen || u.shopOpen || u.fastTravelOpen) return;
+                    toggleInventory();
+                } else if (key === "m") {
+                    const st = useGame.getState();
+                    if (st.dialogue.length > 0) return;
+                    const u = st.ui as any;
+                    if (u.pauseOpen || u.inventoryOpen || u.shopOpen || u.fastTravelOpen) return;
                     document.exitPointerLock?.();
-                    (useGame.getState() as any).toggleMap();
+                    (st as any).toggleMap();
                 }
                 else if (key === "tab") {
                     e.preventDefault();
@@ -188,6 +194,7 @@ export default function RpgGame() {
     ) => {
         if (transitioning.current) return;
         transitioning.current = true;
+        closeAll();
         setFade("to-battle");
         setTimeout(() => {
             startCombat(payload);
