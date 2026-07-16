@@ -55,6 +55,7 @@ export function FishingPanel() {
     useEffect(() => {
         if (!open) return;
         const h = (e: KeyboardEvent) => {
+            if (e.repeat) return;
             if (e.key !== " ") return;
             e.preventDefault();
             const acc = 1 - Math.min(1, Math.abs(posRef.current - 0.5) / 0.5);
@@ -64,10 +65,10 @@ export function FishingPanel() {
                 setRound((r) => r + 1);
                 return;
             }
-            // 결과 — 성공(정확도>0.35)당 생선 1, 퍼펙트(>0.8) 2회 이상이면 월광어
+            // 결과 — 초록 존(acc>0.7) 성공, 밝은 존(acc>0.92) 퍼펙트 2회↑면 월광어
             const s = useGame.getState() as any;
-            const perfect = newHits.filter((a) => a > 0.8).length;
-            const catches = newHits.filter((a) => a > 0.35).length;
+            const perfect = newHits.filter((a) => a > 0.92).length;
+            const catches = newHits.filter((a) => a > 0.7).length;
             if (catches === 0) {
                 s.spawnPopup({
                     side: "enemy",
