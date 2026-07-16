@@ -16,6 +16,7 @@ import { FieldScene } from "../field/FieldScene";
 import { FIELD_TREASURES } from "../data/gameData";
 import { ChapterTitle } from "../ui/ChapterTitle";
 import { FastTravelPanel } from "../menu/FastTravelPanel";
+import { FullMapPanel } from "../menu/FullMapPanel";
 import { BattleRig } from "../battle/BattleRig";
 import { BattleStage } from "../battle/BattleStage";
 import { BattleUI } from "../ui/BattleUI";
@@ -106,14 +107,19 @@ export default function RpgGame() {
             const key = e.key.toLowerCase();
             if (combat.phase === "idle") {
                 if (key === "escape") {
-                    // 상점/패스트트래블이 열려 있으면 ESC는 그것만 닫는다
+                    // 상점/패스트트래블/지도가 열려 있으면 ESC는 그것만 닫는다
                     const ui = useGame.getState().ui as any;
-                    if (ui.shopOpen || ui.fastTravelOpen) {
+                    if (ui.shopOpen || ui.fastTravelOpen || ui.mapOpen) {
                         closeAll();
                         return;
                     }
                     togglePause();
                 } else if (key === "i") toggleInventory();
+                else if (key === "m") {
+                    if (useGame.getState().dialogue.length > 0) return;
+                    document.exitPointerLock?.();
+                    (useGame.getState() as any).toggleMap();
+                }
                 else if (key === "tab") {
                     e.preventDefault();
                     setShowSavePanel((v) => !v);
@@ -239,7 +245,8 @@ export default function RpgGame() {
                 !ui.pauseOpen &&
                 !ui.inventoryOpen &&
                 !ui.shopOpen &&
-                !ui.fastTravelOpen && <MiniMap />}
+                !ui.fastTravelOpen &&
+                !ui.mapOpen && <MiniMap />}
 
             {combat.phase === "idle" && <DialogueUI />}
 
@@ -249,7 +256,7 @@ export default function RpgGame() {
                         💰 {gold} Gold
                     </div>
                     <div className="text-xs text-gray-400 text-center">
-                        ESC: Menu | I: Inventory | TAB: Save/Load
+                        ESC: Menu | I: Inventory | M: Map | TAB: Save/Load
                     </div>
                 </div>
             )}
@@ -264,6 +271,7 @@ export default function RpgGame() {
             <InventoryPanel />
             {combat.phase === "idle" && <ShopPanel />}
             {combat.phase === "idle" && <FastTravelPanel />}
+            {combat.phase === "idle" && <FullMapPanel />}
             <ChapterTitle />
         </div>
     );
