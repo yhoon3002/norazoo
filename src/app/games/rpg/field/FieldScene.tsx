@@ -11,6 +11,7 @@ import { FieldCompanions } from "./FieldCompanions";
 import { FieldMerchant } from "./FieldMerchant";
 import { FieldQuestNpc } from "./FieldQuestNpc";
 import { FieldFlag } from "./FieldFlag";
+import { FishingSpot } from "./FishingSpot";
 import { StoryTriggers } from "./StoryTriggers";
 import { ObjectiveBeacon } from "./ObjectiveBeacon";
 import { TutorialTrail } from "./TutorialTrail";
@@ -122,6 +123,9 @@ export function FieldScene({
 
             {/* 상인 NPC */}
             <FieldMerchant />
+
+            {/* 부두 낚시터 */}
+            <FishingSpot />
 
             {/* 사이드 퀘스트 NPC */}
             {SIDE_QUESTS.map((q) => (

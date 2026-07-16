@@ -440,10 +440,12 @@ export function FieldPlayer({
         let mx = 0,
             mz = 0;
 
-        // 대화 중·전체지도 열림 중에는 이동 잠금
+        // 대화 중·전체지도/낚시 중에는 이동 잠금
         const gState = useGame.getState();
         const inDialogue =
-            gState.dialogue.length > 0 || (gState.ui as any).mapOpen === true;
+            gState.dialogue.length > 0 ||
+            (gState.ui as any).mapOpen === true ||
+            (gState.ui as any).fishingOpen === true;
 
         const fwd = tmpV3.current;
         camera.getWorldDirection(fwd);
