@@ -37,6 +37,9 @@ export type Equipment = {
     rarity: "common" | "rare" | "epic" | "legendary";
 };
 
+/** 파티 캐릭터 고정 id — 대사 speakerId/메타 조회 키 */
+export type PartyId = "arin" | "theo" | "lotti";
+
 export type Character = {
     id: string;
     name: string;
@@ -71,6 +74,8 @@ export type Player = {
 
 export type Enemy = {
     id: string; // 전장 개체 식별자(필드 id)
+    /** 생성 원본 템플릿 키 (유닛별 공격 프로필 조회용) */
+    template?: string;
     name: string;
     model: string;
     level: number;
@@ -98,8 +103,14 @@ export type CombatAction = {
 
 export type Telegraph = {
     startAt: number;
-    hitAt: number;
+    hitAt: number; // = hits[0] (하위 호환)
     endAt: number;
+    /** 다단 히트 타격 시각들(절대시간). 없으면 [hitAt]으로 취급 */
+    hits?: number[];
+    /** false면 패리 불가(회피 전용) 공격 */
+    parryable?: boolean;
+    /** 수축 링/차징 글로우 색 */
+    ringColor?: string;
 };
 
 /** ★ 타겟 선택 단계에서 사용할 보조 타입 */
@@ -194,6 +205,12 @@ export type SaveV1 = {
     treasures: Treasure[];
     unlockedSkills: string[];
     unlockedEquipment: string[];
+    /** 스토리 진행 (v1 후기 추가 — 없으면 초기값) */
+    story?: {
+        stage: string;
+        objective: string;
+        respawn: null | { x: number; y: number; z: number; label: string };
+    };
 };
 
 export type SaveData = SaveV1;
