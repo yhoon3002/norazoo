@@ -10,11 +10,13 @@ import type { PartyId } from "../types/RpgTypes";
 
 const CAPSULE_RADIUS = 0.34;
 const STEP_MAX_UP = 0.85;
-// 지형 블록 단차 허용치 — 이 맵 지형은 1.0m 블록 계단식이다(실측: 마을 지면대
-// 수평면 레벨이 정확히 1.00 간격). 펜스/난간 상판(+1.0)과 높이가 같아 높이로는
-// 구분할 수 없고, stepUpAllowed의 "이어짐(연속성)" 검사(0.95m 앞도 같은
-// 높이대인가)가 지형만 통과시키고 폭 좁은 난간은 계속 차단한다.
-const TERRAIN_STEP_MAX = 1.05;
+// 지형 블록 단차 허용치 — 이 맵 지형은 1.0m 블록 계단식인데(실측: 마을 지면대
+// 수평면 레벨이 정확히 1.00 간격), 풀 둔덕/언덕 가장자리는 2블록(2.0m)씩 솟는
+// 곳이 많다(헤드리스 실측: (46.6,-35.2) 서측 벽이 1.45m 레이에도 걸리고 1.05m
+// 내 지면 없음). 2.1까지 허용해 둔덕을 오르내리게 한다. 펜스/난간 상판(+1.0,
+// 폭 좁음)은 stepUpAllowed의 "이어짐(연속성)" 검사(0.95m 앞도 같은 높이대)가
+// 계속 차단하고, 건물 벽(3m+)은 밴드 밖이라 그대로 막힌다.
+const TERRAIN_STEP_MAX = 2.1;
 const DEFAULT_FIXED_GROUND_Y = -30.0;
 
 
@@ -368,7 +370,32 @@ export function FieldPlayer({
             (curHeadOk &&
                 !headroomAt(prevX + dirX * 0.4, prevZ + dirZ * 0.4, baseY))
         ) {
-            const stepY = baseY + STEP_MAX_UP;
+            // 스텝업 재검사 레이는 지형 단차 최상단 위에서 쏜다 — 2블록 둔덕의
+            // 벽면(0~2.0m)에 걸리지 않게. 그 위 장애물(처마 등)은 여전히 걸러짐.
+            const stepY = baseY + TERRAIN_STEP_MAX;
+
+            // 이동 차단 진단 — 콘솔에서 window.__debugMove = true 로 활성화.
+            // 어떤 게이트가 막는지 + 스텝업 판정 근거(g1/g2)를 250ms 스로틀로 출력.
+            const dbg = (window as unknown as { __debugMove?: boolean; __debugMoveLast?: number });
+            if (dbg.__debugMove) {
+                const now = performance.now();
+                if (now - (dbg.__debugMoveLast ?? 0) > 250) {
+                    dbg.__debugMoveLast = now;
+                    const chest = castBlockedOptimized(prevX, checkY, prevZ, dirX, 0, dirZ, len, baseY);
+                    const knee = castBlockedOptimized(prevX, baseY + 0.3, prevZ, dirX, 0, dirZ, len, baseY);
+                    const obst = obstacleAhead(prevX, prevZ, baseY, dirX, dirZ);
+                    const water = !curOnWater && waterAhead(prevX, prevZ, baseY, dirX, dirZ);
+                    const head = curHeadOk && !headroomAt(prevX + dirX * 0.4, prevZ + dirZ * 0.4, baseY);
+                    const wallAbove = castBlockedOptimized(prevX, stepY + 0.6, prevZ, dirX, 0, dirZ, len, baseY);
+                    const g1 = sampleGround(prevX + dirX * 0.35, prevZ + dirZ * 0.35, baseY + TERRAIN_STEP_MAX + 0.8, { baseY, maxRise: TERRAIN_STEP_MAX, maxDrop: null });
+                    const g2 = g1 === null ? null : sampleGround(prevX + dirX * 0.95, prevZ + dirZ * 0.95, g1 + TERRAIN_STEP_MAX + 0.8, { baseY: g1, maxRise: TERRAIN_STEP_MAX + 0.01, maxDrop: 0.5 });
+                    console.log(
+                        `[MoveDebug] pos(${prevX.toFixed(1)},${baseY.toFixed(2)},${prevZ.toFixed(1)}) dir(${dirX.toFixed(2)},${dirZ.toFixed(2)}) ` +
+                        `차단[가슴=${chest} 무릎=${knee} 상판=${obst} 수면=${water} 머리=${head}] ` +
+                        `스텝업[벽위=${wallAbove} g1=${g1 === null ? "null" : (g1 - baseY).toFixed(2)} g2=${g2 === null ? "null" : (g2 - (g1 ?? 0)).toFixed(2)} 허용=${stepUpAllowed(prevX, prevZ, baseY, dirX, dirZ)}]`
+                    );
+                }
+            }
 
             if (
                 !castBlockedOptimized(
@@ -579,8 +606,9 @@ export function FieldPlayer({
             }
         }
 
-        // 표시 Y 러프: 계단 팝핑 제거. 낙하/리스폰처럼 큰 차이는 즉시 스냅.
-        if (Math.abs(newY - renderY.current) > 1.5) {
+        // 표시 Y 러프: 계단·둔덕(≤2.1m) 팝핑 제거. 리스폰/텔레포트처럼 더 큰
+        // 차이는 즉시 스냅.
+        if (Math.abs(newY - renderY.current) > 2.4) {
             renderY.current = newY;
         } else {
             renderY.current += (newY - renderY.current) * Math.min(1, dt * 12);
