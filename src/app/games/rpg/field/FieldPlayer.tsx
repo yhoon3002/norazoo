@@ -10,6 +10,11 @@ import type { PartyId } from "../types/RpgTypes";
 
 const CAPSULE_RADIUS = 0.34;
 const STEP_MAX_UP = 0.85;
+// 지형 블록 단차 허용치 — 이 맵 지형은 1.0m 블록 계단식이다(실측: 마을 지면대
+// 수평면 레벨이 정확히 1.00 간격). 펜스/난간 상판(+1.0)과 높이가 같아 높이로는
+// 구분할 수 없고, stepUpAllowed의 "이어짐(연속성)" 검사(0.95m 앞도 같은
+// 높이대인가)가 지형만 통과시키고 폭 좁은 난간은 계속 차단한다.
+const TERRAIN_STEP_MAX = 1.05;
 const DEFAULT_FIXED_GROUND_Y = -30.0;
 
 
@@ -206,21 +211,22 @@ export function FieldPlayer({
         dirX: number,
         dirZ: number
     ): boolean {
-        // maxRise는 STEP_MAX_UP 그대로 — 이 맵의 난간 상판(+1.0)이 밴드에
-        // 들어오지 않도록 여유분을 두지 않는다 (계단 단 높이는 ~0.5)
+        // maxRise는 TERRAIN_STEP_MAX(1.05) — 1.0m 블록 지형 단차(풀 둔덕·언덕)를
+        // 오를 수 있어야 한다. 난간 상판(+1.0)도 이 밴드에 들어오지만, 아래의
+        // g2 이어짐 검사(0.95 앞도 같은 높이대)가 폭 좁은 난간을 걸러낸다.
         const g1 = sampleGround(
             prevX + dirX * 0.35,
             prevZ + dirZ * 0.35,
-            baseY + STEP_MAX_UP + 0.8,
-            { baseY, maxRise: STEP_MAX_UP, maxDrop: null }
+            baseY + TERRAIN_STEP_MAX + 0.8,
+            { baseY, maxRise: TERRAIN_STEP_MAX, maxDrop: null }
         );
         if (g1 === null || g1 <= baseY + 0.05) return false;
 
         const g2 = sampleGround(
             prevX + dirX * 0.95,
             prevZ + dirZ * 0.95,
-            g1 + STEP_MAX_UP + 0.8,
-            { baseY: g1, maxRise: STEP_MAX_UP + 0.2, maxDrop: 0.5 }
+            g1 + TERRAIN_STEP_MAX + 0.8,
+            { baseY: g1, maxRise: TERRAIN_STEP_MAX + 0.01, maxDrop: 0.5 }
         );
         if (g2 === null) return false;
         // 올라선 단 위에도 머리 공간이 있어야 한다
@@ -533,11 +539,12 @@ export function FieldPlayer({
                 maxRise: teleported
                     ? 200
                     : moved.needsGroundCheck
-                    ? STEP_MAX_UP + 0.2
+                    ? TERRAIN_STEP_MAX + 0.01
                     : STEP_MAX_UP + 0.1,
-                // 점프가 없는 게임이라 내려가기도 스텝 한계(0.85+여유)로 대칭 제한 —
-                // 한 번 떨어지면 못 돌아오는 구덩이(부두 아래 해변 등) 원천 방지
-                maxDrop: teleported ? 200 : STEP_MAX_UP + 0.02,
+                // 점프가 없는 게임이라 내려가기도 지형 단차 한계(1.05+여유)로 대칭
+                // 제한 — 1m 블록 둔덕은 오르내리고, 그보다 깊은 구덩이(부두 아래
+                // 해변 등 되돌아올 수 없는 낙차)는 원천 방지
+                maxDrop: teleported ? 200 : TERRAIN_STEP_MAX + 0.02,
             });
             if (gy !== null) {
                 newY = gy;
