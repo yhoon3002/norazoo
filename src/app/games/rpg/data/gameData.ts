@@ -108,6 +108,13 @@ export const FIELD_TREASURES: Array<{
     { id: "t8", pos: new THREE.Vector3(172.4, -37.25, 8.4), items: [{ id: "leather_armor", qty: 1 }, { id: "herb", qty: 2 }] },
     { id: "t9", pos: new THREE.Vector3(215.8, -38.25, -8.4), items: [{ id: "power_ring", qty: 1 }] },
     { id: "t10", pos: new THREE.Vector3(218.6, -38.25, -14.7), items: [{ id: "health_potion", qty: 2 }, { id: "mana_crystal", qty: 1 }] },
+    // ===== 숨은 보물 — 길 밖 탐험 보상 (지도에 25m 접근 시 '?') =====
+    { id: "t11", pos: new THREE.Vector3(30, -33.25, -48), items: [{ id: "mana_crystal", qty: 2 }, { id: "health_potion", qty: 1 }] },
+    { id: "t12", pos: new THREE.Vector3(58, -33.25, -12), items: [{ id: "monster_core", qty: 2 }] },
+    { id: "t13", pos: new THREE.Vector3(78, -33.25, -50), items: [{ id: "herb", qty: 3 }, { id: "health_potion", qty: 1 }] },
+    { id: "t14", pos: new THREE.Vector3(66, -33.25, -8), items: [{ id: "kite", qty: 1 }] }, // 소년 퀘스트: 잃어버린 연
+    { id: "t15", pos: new THREE.Vector3(150, -34.25, 2), items: [{ id: "mana_potion", qty: 2 }] },
+    { id: "t16", pos: new THREE.Vector3(226, -38.25, -4), items: [{ id: "orc_tusk", qty: 3 }, { id: "golden_herb", qty: 1 }] },
 ];
 
 // ===== 채집물 — 반짝이는 약초/수정 (E로 획득, 1회성) =====

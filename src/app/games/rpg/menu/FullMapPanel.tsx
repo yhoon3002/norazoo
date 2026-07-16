@@ -4,6 +4,7 @@
 import { useGame } from "../presenter/useGameStore";
 import { useMapStore, worldToUV } from "../presenter/mapStore";
 import { STORY_FLAGS, LORE_POINTS } from "../data/storyData";
+import { POIS } from "../data/poiData";
 import { MERCHANT_POS } from "../data/gameData";
 
 export function FullMapPanel() {
@@ -68,6 +69,17 @@ export function FullMapPanel() {
                     >
                         💰
                     </div>
+                    {/* 발견한 전망 포인트 */}
+                    {POIS.filter((p) => flags[`poi_${p.id}`]).map((p) => (
+                        <div
+                            key={p.id}
+                            className="absolute -translate-x-1/2 -translate-y-1/2 text-[12px]"
+                            style={pct(p.x, p.z)}
+                            title={p.label}
+                        >
+                            🏞️
+                        </div>
+                    ))}
                     {/* 깃발 — 활성화된 것만 클릭 가능 */}
                     {STORY_FLAGS.map((f) => {
                         const active = !!flags[`flag_${f.id}`];
@@ -124,7 +136,7 @@ export function FullMapPanel() {
                 <div className="mt-2 flex items-center justify-between text-xs text-gray-400">
                     <span>
                         ▲ 현재 위치 · ◆ 목표 · 🚩 깃발(클릭: 빠른이동) · 💰 상인
-                        · 📜/🗿 조사 포인트
+                        · 📜/🗿 조사 포인트 · 🏞️ 전망
                     </span>
                     <span>M / ESC: 닫기</span>
                 </div>

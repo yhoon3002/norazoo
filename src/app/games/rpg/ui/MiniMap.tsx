@@ -6,7 +6,8 @@ import * as THREE from "three";
 import { useGame } from "../presenter/useGameStore";
 import { useMapStore } from "../presenter/mapStore";
 import { STORY_FLAGS } from "../data/storyData";
-import { MERCHANT_POS } from "../data/gameData";
+import { POIS, HIDDEN_TREASURE_IDS } from "../data/poiData";
+import { MERCHANT_POS, FIELD_TREASURES } from "../data/gameData";
 
 const SIZE = 160; // px
 const METERS_ACROSS = 64; // 미니맵 지름이 커버하는 월드 거리(m)
@@ -53,6 +54,18 @@ export function MiniMap() {
         if (flags[`flag_${f.id}`]) markers.push({ x: f.x, z: f.z, icon: "🚩" });
     }
     markers.push({ x: MERCHANT_POS.x, z: MERCHANT_POS.z, icon: "💰" });
+    // 미발견 탐험 요소 — 25m 이내 접근 시 '?'로 호기심 유도
+    for (const poi of POIS) {
+        if (flags[`poi_${poi.id}`]) continue;
+        if (Math.hypot(poi.x - px, poi.z - pz) <= 25)
+            markers.push({ x: poi.x, z: poi.z, icon: "❓" });
+    }
+    for (const tid of HIDDEN_TREASURE_IDS) {
+        if (flags[`treasure_${tid}`]) continue;
+        const t = FIELD_TREASURES.find((tt) => tt.id === tid);
+        if (t && Math.hypot(t.pos.x - px, t.pos.z - pz) <= 25)
+            markers.push({ x: t.pos.x, z: t.pos.z, icon: "❓" });
+    }
 
     return (
         <div

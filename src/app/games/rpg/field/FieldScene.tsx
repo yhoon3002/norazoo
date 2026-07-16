@@ -22,6 +22,8 @@ import { FieldGatherable } from "./FieldGatherable";
 import FieldEnemyAvatar from "./FieldEnemyAvatar";
 import { NavmeshController } from "./NavmeshController";
 import { RespawnController } from "./RespawnController";
+import { FieldPoi } from "./FieldPoi";
+import { POIS } from "../data/poiData";
 import { FIELD_ENEMIES, FIELD_TREASURES, FIELD_GATHERABLES, GOLDEN_HERB_SPOTS } from "../data/gameData";
 
 
@@ -158,6 +160,9 @@ export function FieldScene({
                     y={f.y}
                     label={f.label}
                 />
+            ))}
+            {POIS.map((poi) => (
+                <FieldPoi key={poi.id} poi={poi} />
             ))}
 
             <FieldPlayer {...{ onEnemyCollide, onTreasureCollide }} />
