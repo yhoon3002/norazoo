@@ -11,8 +11,8 @@ export const ENEMY_MODEL_BY_TEMPLATE: Record<string, string> = {
 
 // 필드 적 데이터 단일 소스 — FieldScene(렌더링)·FieldPlayer(충돌) 공용
 export const FIELD_ENEMIES: Array<
-    | { id: string; pos: THREE.Vector3; templates: string[] }
-    | { id: string; pos: THREE.Vector3; template: string }
+    | { id: string; pos: THREE.Vector3; templates: string[]; respawn?: number }
+    | { id: string; pos: THREE.Vector3; template: string; respawn?: number }
 > = [
     // y는 "의도한 층"의 지면 높이 — 스폰 스냅이 이 층 근처 walkable을 고른다.
     // (플레이어 y 기반이면 플레이어가 항구 등 다른 층에 있을 때 지하 수로층에 스냅됨)
@@ -20,6 +20,14 @@ export const FIELD_ENEMIES: Array<
     { id: "e1", pos: new THREE.Vector3(12.8, -33.25, -28.8), templates: ["slime", "slime"] },
     { id: "e2", pos: new THREE.Vector3(10, -33.25, 2),   templates: ["orc", "slime", "mage"] },
     { id: "e3", pos: new THREE.Vector3(14, -33.25, 8),   template: "mage" },
+    // ===== 배회 몬스터 — 길 밖 필드 라이프 (3분 리스폰) =====
+    { id: "r1", pos: new THREE.Vector3(46, -33.25, -30), templates: ["slime", "slime"], respawn: 180_000 },
+    { id: "r2", pos: new THREE.Vector3(68, -33.25, -33), template: "orc", respawn: 180_000 },
+    { id: "r3", pos: new THREE.Vector3(88, -33.25, -22), templates: ["slime", "mage"], respawn: 180_000 },
+    { id: "r4", pos: new THREE.Vector3(126, -33.25, -20), template: "orc", respawn: 180_000 },
+    { id: "r5", pos: new THREE.Vector3(196, -37.25, 2), templates: ["slime", "slime", "slime"], respawn: 180_000 },
+    // 파수꾼 퀘스트 전용 무리 (리스폰 없음 — Task 4에서 사용)
+    { id: "bounty1", pos: new THREE.Vector3(52, -33.25, -46), templates: ["orc", "orc"] },
 ];
 
 // ===== 상점 =====
@@ -40,6 +48,10 @@ export const ITEM_PRICES: Record<string, number> = {
     orc_tusk: 20,
     mana_crystal: 35,
     herb: 12,
+    monster_core: 45,
+    golden_herb: 60,
+    fish_common: 18,
+    fish_rare: 90,
 };
 
 export const SELL_RATIO = 0.5;
@@ -118,6 +130,13 @@ export const FIELD_GATHERABLES: Array<{
     { id: "g8", pos: new THREE.Vector3(211.0, -38.25, -13.6), item: "herb", qty: 1 },
     { id: "g9", pos: new THREE.Vector3(25.6, -33.25, -22.2), item: "slime_gel", qty: 1 },
     { id: "g10", pos: new THREE.Vector3(16.4, -33.25, -20.0), item: "herb", qty: 1 },
+];
+
+// ===== 황금 약초 — 필드 진입마다 후보 3곳 중 랜덤 1곳 스폰 (3분 리스폰) =====
+export const GOLDEN_HERB_SPOTS: Array<{ x: number; y: number; z: number }> = [
+    { x: 52, y: -33.25, z: -24 },
+    { x: 112, y: -33.25, z: -32 },
+    { x: 205, y: -38.25, z: 8 },
 ];
 
 // ===== 요리사 미니퀘스트: 멈춘 화덕을 위한 재료 =====
@@ -474,6 +493,7 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
             items: [
                 { id: "orc_tusk", chance: 0.8 },
                 { id: "steel_sword", chance: 0.2 },
+                { id: "monster_core", chance: 0.15 },
             ],
         },
     },
@@ -500,6 +520,7 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
             items: [
                 { id: "mana_crystal", chance: 0.9 },
                 { id: "mage_staff", chance: 0.3 },
+                { id: "monster_core", chance: 0.15 },
             ],
         },
     },

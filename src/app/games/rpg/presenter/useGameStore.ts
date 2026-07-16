@@ -30,6 +30,7 @@ import { turnSlice } from "./slices/turnSlice";
 import { statusSlice } from "./slices/statusSlice";
 import { targetSlice } from "./slices/targetSlice";
 import { storySlice } from "./slices/storySlice";
+import { fieldSlice } from "./slices/fieldSlice";
 
 // ===== Type Definition =====
 export type GameState = ReturnType<typeof playerSlice> &
@@ -43,7 +44,8 @@ export type GameState = ReturnType<typeof playerSlice> &
     ReturnType<typeof turnSlice> &
     ReturnType<typeof statusSlice> &
     ReturnType<typeof targetSlice> &
-    ReturnType<typeof storySlice> & {
+    ReturnType<typeof storySlice> &
+    ReturnType<typeof fieldSlice> & {
         // World state
         world: { mapId: string; time: number };
         flags: Record<string, boolean>;
@@ -73,6 +75,7 @@ export const useGame = create<GameState>((set, get) => ({
     ...statusSlice(set, get),
     ...targetSlice(set, get),
     ...storySlice(set, get),
+    ...fieldSlice(set, get),
 }));
 
 // 디버깅용 전역 핸들 — 브라우저 콘솔에서 __game.getState()로 상태 확인 가능

@@ -13,12 +13,14 @@ const ITEM_LABEL: Record<string, string> = {
     herb: "약초",
     mana_crystal: "마나 수정",
     slime_gel: "슬라임 젤",
+    golden_herb: "황금 약초",
 };
 
 const ITEM_COLOR: Record<string, string> = {
     herb: "#8fd67a",
     mana_crystal: "#7dd3fc",
     slime_gel: "#a3e635",
+    golden_herb: "#fbbf24",
 };
 
 // 아이템별 지면 밀착 형태 — 부유 보석이 아니라 "심겨 있는 채집물"로 보이게.
@@ -94,6 +96,7 @@ export function FieldGatherable({
     z,
     item,
     qty,
+    respawnMs,
 }: {
     id: string;
     x: number;
@@ -101,6 +104,7 @@ export function FieldGatherable({
     z: number;
     item: string;
     qty: number;
+    respawnMs?: number;
 }) {
     const groupRef = useRef<THREE.Group>(null);
     const [inRange, setInRange] = useState(false);
@@ -170,12 +174,14 @@ export function FieldGatherable({
             useGame.setState((st: any) => ({
                 flags: { ...st.flags, [`gather_${id}`]: true },
             }));
+            // 리스폰 예약 — RespawnController가 만료 시 플래그를 지워 되살린다
+            if (respawnMs) (s as any).scheduleRespawn(`gather_${id}`, respawnMs);
             setJustPicked(true);
             setTimeout(() => setJustPicked(false), 1400);
         };
         window.addEventListener("keydown", h);
         return () => window.removeEventListener("keydown", h);
-    }, [inRange, picked, id, item, qty]);
+    }, [inRange, picked, id, item, qty, respawnMs]);
 
     if (picked && !justPicked) return null;
 

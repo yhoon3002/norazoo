@@ -1,5 +1,5 @@
 // rpg/field/FieldScene.tsx
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Environment as HDRI } from "@react-three/drei";
 import * as THREE from "three";
@@ -21,7 +21,8 @@ import { FieldLorePoint } from "./FieldLorePoint";
 import { FieldGatherable } from "./FieldGatherable";
 import FieldEnemyAvatar from "./FieldEnemyAvatar";
 import { NavmeshController } from "./NavmeshController";
-import { FIELD_ENEMIES, FIELD_TREASURES, FIELD_GATHERABLES } from "../data/gameData";
+import { RespawnController } from "./RespawnController";
+import { FIELD_ENEMIES, FIELD_TREASURES, FIELD_GATHERABLES, GOLDEN_HERB_SPOTS } from "../data/gameData";
 
 
 
@@ -38,6 +39,9 @@ export function FieldScene({
     onTreasureCollide: (treasureId: string) => void;
 }) {
     const envRef = useRef<THREE.Group>(null);
+    const [goldenIdx] = useState(() =>
+        Math.floor(Math.random() * GOLDEN_HERB_SPOTS.length)
+    );
 
     return (
         <Canvas
@@ -131,8 +135,20 @@ export function FieldScene({
                     z={g.pos.z}
                     item={g.item}
                     qty={g.qty}
+                    respawnMs={180_000}
                 />
             ))}
+            {/* 황금 약초 — 진입마다 후보 중 1곳 */}
+            <FieldGatherable
+                id={`golden_${goldenIdx}`}
+                x={GOLDEN_HERB_SPOTS[goldenIdx].x}
+                y={GOLDEN_HERB_SPOTS[goldenIdx].y}
+                z={GOLDEN_HERB_SPOTS[goldenIdx].z}
+                item="golden_herb"
+                qty={1}
+                respawnMs={180_000}
+            />
+            <RespawnController />
             {STORY_FLAGS.map((f) => (
                 <FieldFlag
                     key={f.id}
