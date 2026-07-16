@@ -13,6 +13,7 @@ import { FieldFlag } from "./FieldFlag";
 import { StoryTriggers } from "./StoryTriggers";
 import { ObjectiveBeacon } from "./ObjectiveBeacon";
 import { TutorialTrail } from "./TutorialTrail";
+import { SpeakerHighlight } from "./SpeakerHighlight";
 import { STORY_FLAGS, LORE_POINTS } from "../data/storyData";
 import { FieldTreasure } from "./FieldElements";
 import { FieldLorePoint } from "./FieldLorePoint";
@@ -144,6 +145,7 @@ export function FieldScene({
 
             <FieldPlayer {...{ onEnemyCollide, onTreasureCollide }} />
             <FieldCompanions />
+            <SpeakerHighlight />
             <ThirdPersonCamera dist={3.3} height={1.6} shoulder={0.55} />
         </Canvas>
     );

@@ -42,6 +42,8 @@ export function FieldMerchant() {
                 );
                 if (found) {
                     groupRef.current.position.set(found.x, found.y, found.z);
+                    // 화자 마커(SpeakerHighlight)가 요리사 위치를 찾을 수 있게 공유
+                    state.scene.userData.__merchantPos = groupRef.current.position;
                 }
                 snapped.current = true;
             }
