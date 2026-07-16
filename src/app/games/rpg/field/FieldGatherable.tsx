@@ -96,7 +96,6 @@ export function FieldGatherable({
     z,
     item,
     qty,
-    respawnMs,
 }: {
     id: string;
     x: number;
@@ -104,7 +103,6 @@ export function FieldGatherable({
     z: number;
     item: string;
     qty: number;
-    respawnMs?: number;
 }) {
     const groupRef = useRef<THREE.Group>(null);
     const [inRange, setInRange] = useState(false);
@@ -174,14 +172,12 @@ export function FieldGatherable({
             useGame.setState((st: any) => ({
                 flags: { ...st.flags, [`gather_${id}`]: true },
             }));
-            // 리스폰 예약 — RespawnController가 만료 시 플래그를 지워 되살린다
-            if (respawnMs) (s as any).scheduleRespawn(`gather_${id}`, respawnMs);
             setJustPicked(true);
             setTimeout(() => setJustPicked(false), 1400);
         };
         window.addEventListener("keydown", h);
         return () => window.removeEventListener("keydown", h);
-    }, [inRange, picked, id, item, qty, respawnMs]);
+    }, [inRange, picked, id, item, qty]);
 
     if (picked && !justPicked) return null;
 

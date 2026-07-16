@@ -1,5 +1,5 @@
 // rpg/field/FieldScene.tsx
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Environment as HDRI } from "@react-three/drei";
 import * as THREE from "three";
@@ -28,6 +28,7 @@ import { FieldPoi } from "./FieldPoi";
 import { POIS } from "../data/poiData";
 import { FIELD_ENEMIES, FIELD_TREASURES, FIELD_GATHERABLES, GOLDEN_HERB_SPOTS } from "../data/gameData";
 import { SIDE_QUESTS } from "../data/questData";
+import { useGame } from "../presenter/useGameStore";
 
 
 
@@ -44,9 +45,7 @@ export function FieldScene({
     onTreasureCollide: (treasureId: string) => void;
 }) {
     const envRef = useRef<THREE.Group>(null);
-    const [goldenIdx] = useState(() =>
-        Math.floor(Math.random() * GOLDEN_HERB_SPOTS.length)
-    );
+    const goldenIdx = useGame((s) => s.goldenHerbIdx);
 
     return (
         <Canvas
@@ -148,7 +147,6 @@ export function FieldScene({
                     z={g.pos.z}
                     item={g.item}
                     qty={g.qty}
-                    respawnMs={180_000}
                 />
             ))}
             {/* 황금 약초 — 진입마다 후보 중 1곳 */}
@@ -159,7 +157,6 @@ export function FieldScene({
                 z={GOLDEN_HERB_SPOTS[goldenIdx].z}
                 item="golden_herb"
                 qty={1}
-                respawnMs={180_000}
             />
             <RespawnController />
             {STORY_FLAGS.map((f) => (

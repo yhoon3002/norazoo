@@ -14,6 +14,7 @@ export function FieldPoi({ poi }: { poi: Poi }) {
     const groupRef = useRef<THREE.Group>(null);
     const snapped = useRef(false);
     const frame = useRef(0);
+    const fired = useRef(false);
     const [banner, setBanner] = useState(false);
     const discovered = useGame((s) => !!s.flags[`poi_${poi.id}`]);
 
@@ -39,7 +40,8 @@ export function FieldPoi({ poi }: { poi: Poi }) {
 
         // 발견 판정 (8프레임 스로틀)
         frame.current++;
-        if (frame.current % 8 !== 0 || discovered) return;
+        // 구독값 갱신 전 프레임 지연으로 인한 이중 발동 방지
+        if (frame.current % 8 !== 0 || discovered || fired.current) return;
         const p = state.scene.userData.__playerWorldPos as
             | THREE.Vector3
             | undefined;
@@ -52,6 +54,7 @@ export function FieldPoi({ poi }: { poi: Poi }) {
             return;
 
         const s = useGame.getState();
+        fired.current = true;
         useGame.setState((st: any) => ({
             flags: { ...st.flags, [`poi_${poi.id}`]: true },
         }));

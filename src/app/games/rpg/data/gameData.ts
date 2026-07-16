@@ -23,7 +23,7 @@ export const FIELD_ENEMIES: Array<
     // ===== 배회 몬스터 — 길 밖 필드 라이프 (3분 리스폰) =====
     { id: "r1", pos: new THREE.Vector3(46, -33.25, -30), templates: ["slime", "slime"], respawn: 180_000 },
     { id: "r2", pos: new THREE.Vector3(68, -33.25, -33), template: "orc", respawn: 180_000 },
-    { id: "r3", pos: new THREE.Vector3(88, -33.25, -22), templates: ["slime", "mage"], respawn: 180_000 },
+    { id: "r3", pos: new THREE.Vector3(80, -33.25, -10), templates: ["slime", "mage"], respawn: 180_000 },
     { id: "r4", pos: new THREE.Vector3(126, -33.25, -20), template: "orc", respawn: 180_000 },
     { id: "r5", pos: new THREE.Vector3(196, -37.25, 2), templates: ["slime", "slime", "slime"], respawn: 180_000 },
     // 파수꾼 퀘스트 전용 무리 (리스폰 없음 — Task 4에서 사용)

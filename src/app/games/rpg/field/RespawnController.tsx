@@ -4,7 +4,7 @@
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGame } from "../presenter/useGameStore";
-import { FIELD_ENEMIES } from "../data/gameData";
+import { FIELD_ENEMIES, FIELD_GATHERABLES, GOLDEN_HERB_SPOTS } from "../data/gameData";
 
 export function RespawnController() {
     const frame = useRef(0);
@@ -31,7 +31,21 @@ export function RespawnController() {
             }
         }
 
-        // 2) 만료 타이머 소거 → 플래그 부활(리스폰)
+        // 2) 채집물 — 플래그가 서 있는데 타이머가 없으면 예약 (세이브/로드 후에도 복원)
+        for (const gt of FIELD_GATHERABLES) {
+            const key = `gather_${gt.id}`;
+            if (g.fieldRespawn[key] === undefined && g.flags[key]) {
+                g.scheduleRespawn(key, 180_000);
+            }
+        }
+        for (let i = 0; i < GOLDEN_HERB_SPOTS.length; i++) {
+            const key = `gather_golden_${i}`;
+            if (g.fieldRespawn[key] === undefined && g.flags[key]) {
+                g.scheduleRespawn(key, 180_000);
+            }
+        }
+
+        // 3) 만료 타이머 소거 → 플래그 부활(리스폰)
         g.consumeRespawns();
     });
 
