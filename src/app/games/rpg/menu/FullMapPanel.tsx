@@ -3,9 +3,10 @@
 
 import { useGame } from "../presenter/useGameStore";
 import { useMapStore, worldToUV } from "../presenter/mapStore";
-import { STORY_FLAGS, LORE_POINTS } from "../data/storyData";
+import { STORY_FLAGS, LORE_POINTS, stageAtLeast } from "../data/storyData";
 import { POIS } from "../data/poiData";
 import { MERCHANT_POS } from "../data/gameData";
+import { SIDE_QUESTS } from "../data/questData";
 
 export function FullMapPanel() {
     const open = useGame((s) => (s.ui as any).mapOpen);
@@ -14,6 +15,7 @@ export function FullMapPanel() {
     const flags = useGame((s) => s.flags);
     const target = useGame((s) => s.story.target);
     const playerPos = useGame((s) => s.player.pos);
+    const stage = useGame((s) => s.story.stage);
     const mapUrl = useMapStore((s) => s.mapUrl);
     const bounds = useMapStore((s) => s.bounds);
 
@@ -80,6 +82,21 @@ export function FullMapPanel() {
                             🏞️
                         </div>
                     ))}
+                    {/* 진행 가능한 사이드 퀘스트 */}
+                    {SIDE_QUESTS.filter(
+                        (q) =>
+                            stageAtLeast(stage, q.availableFrom) &&
+                            !flags[`quest_${q.id}_done`]
+                    ).map((q) => (
+                        <div
+                            key={q.id}
+                            className="absolute -translate-x-1/2 -translate-y-1/2 text-[12px]"
+                            style={pct(q.npc.x, q.npc.z)}
+                            title={q.npc.label}
+                        >
+                            ❗
+                        </div>
+                    ))}
                     {/* 깃발 — 활성화된 것만 클릭 가능 */}
                     {STORY_FLAGS.map((f) => {
                         const active = !!flags[`flag_${f.id}`];
@@ -136,7 +153,7 @@ export function FullMapPanel() {
                 <div className="mt-2 flex items-center justify-between text-xs text-gray-400">
                     <span>
                         ▲ 현재 위치 · ◆ 목표 · 🚩 깃발(클릭: 빠른이동) · 💰 상인
-                        · 📜/🗿 조사 포인트 · 🏞️ 전망
+                        · 📜/🗿 조사 포인트 · 🏞️ 전망 · ❗ 의뢰
                     </span>
                     <span>M / ESC: 닫기</span>
                 </div>

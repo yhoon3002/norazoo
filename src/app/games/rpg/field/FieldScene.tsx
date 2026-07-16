@@ -9,6 +9,7 @@ import { InteriorLighting } from "../environment/InteriorLighting";
 import { FieldPlayer } from "./FieldPlayer";
 import { FieldCompanions } from "./FieldCompanions";
 import { FieldMerchant } from "./FieldMerchant";
+import { FieldQuestNpc } from "./FieldQuestNpc";
 import { FieldFlag } from "./FieldFlag";
 import { StoryTriggers } from "./StoryTriggers";
 import { ObjectiveBeacon } from "./ObjectiveBeacon";
@@ -25,6 +26,7 @@ import { RespawnController } from "./RespawnController";
 import { FieldPoi } from "./FieldPoi";
 import { POIS } from "../data/poiData";
 import { FIELD_ENEMIES, FIELD_TREASURES, FIELD_GATHERABLES, GOLDEN_HERB_SPOTS } from "../data/gameData";
+import { SIDE_QUESTS } from "../data/questData";
 
 
 
@@ -120,6 +122,11 @@ export function FieldScene({
 
             {/* 상인 NPC */}
             <FieldMerchant />
+
+            {/* 사이드 퀘스트 NPC */}
+            {SIDE_QUESTS.map((q) => (
+                <FieldQuestNpc key={q.id} quest={q} />
+            ))}
 
             {/* 스토리: 트리거 감시 + 목표 빛기둥 + 체크포인트 깃발 */}
             <StoryTriggers />

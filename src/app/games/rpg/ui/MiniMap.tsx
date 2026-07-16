@@ -5,9 +5,10 @@ import { useEffect, useState } from "react";
 import * as THREE from "three";
 import { useGame } from "../presenter/useGameStore";
 import { useMapStore } from "../presenter/mapStore";
-import { STORY_FLAGS } from "../data/storyData";
+import { STORY_FLAGS, stageAtLeast } from "../data/storyData";
 import { POIS, HIDDEN_TREASURE_IDS } from "../data/poiData";
 import { MERCHANT_POS, FIELD_TREASURES } from "../data/gameData";
+import { SIDE_QUESTS } from "../data/questData";
 
 const SIZE = 160; // px
 const METERS_ACROSS = 64; // 미니맵 지름이 커버하는 월드 거리(m)
@@ -20,6 +21,7 @@ export function MiniMap() {
     const bounds = useMapStore((s) => s.bounds);
     const target = useGame((s) => s.story.target);
     const flags = useGame((s) => s.flags);
+    const stage = useGame((s) => s.story.stage);
     const [view, setView] = useState<View | null>(null);
 
     useEffect(() => {
@@ -65,6 +67,11 @@ export function MiniMap() {
         const t = FIELD_TREASURES.find((tt) => tt.id === tid);
         if (t && Math.hypot(t.pos.x - px, t.pos.z - pz) <= 25)
             markers.push({ x: t.pos.x, z: t.pos.z, icon: "❓" });
+    }
+    for (const q of SIDE_QUESTS) {
+        if (!stageAtLeast(stage, q.availableFrom)) continue;
+        if (flags[`quest_${q.id}_done`]) continue;
+        markers.push({ x: q.npc.x, z: q.npc.z, icon: "❗" });
     }
 
     return (

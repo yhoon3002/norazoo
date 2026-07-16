@@ -236,3 +236,7 @@ useFBX.preload("/character/Wizard.fbx");
 useFBX.preload("/character/Goblin_Male.fbx");
 useFBX.preload("/character/Zombie_Female.fbx");
 useFBX.preload("/character/Chef_Hat.fbx");
+useFBX.preload("/character/VikingHelmet.fbx");
+useFBX.preload("/character/Viking_Female.fbx");
+useFBX.preload("/character/Cowboy_Hair.fbx");
+useFBX.preload("/character/Elf.fbx");
