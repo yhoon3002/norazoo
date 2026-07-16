@@ -105,16 +105,19 @@ export const FIELD_GATHERABLES: Array<{
     item: string;
     qty: number;
 }> = [
-    { id: "g1", pos: new THREE.Vector3(31.5, -33.25, -28.9), item: "herb", qty: 1 },
-    { id: "g2", pos: new THREE.Vector3(42, -33.25, -38), item: "herb", qty: 1 },
-    { id: "g3", pos: new THREE.Vector3(60.2, -33.25, -42.2), item: "herb", qty: 1 },
-    { id: "g4", pos: new THREE.Vector3(105.9, -33.25, -29.4), item: "herb", qty: 1 },
-    { id: "g5", pos: new THREE.Vector3(119.9, -33.25, -22.4), item: "mana_crystal", qty: 1 },
-    { id: "g6", pos: new THREE.Vector3(139.5, -34.25, -11.9), item: "herb", qty: 1 },
-    { id: "g7", pos: new THREE.Vector3(185.7, -37.25, 9.1), item: "mana_crystal", qty: 1 },
-    { id: "g8", pos: new THREE.Vector3(213, -38.25, -11.9), item: "herb", qty: 1 },
-    { id: "g9", pos: new THREE.Vector3(28, -33.25, -24), item: "slime_gel", qty: 1 },
-    { id: "g10", pos: new THREE.Vector3(15, -33.25, -17), item: "herb", qty: 1 },
+    // 길잡이 트레일 위가 아니라 길가 풀밭·수풀 속에 배치한다 — "탐색하면 발견"하는
+    // 느낌을 주기 위해 도로에서 2.5~4m 비켜난 지점. (navFindWalkable이 최근접
+    // walkable로 스냅하므로 좌표가 다소 어긋나도 안전)
+    { id: "g1", pos: new THREE.Vector3(33.8, -33.25, -31.6), item: "herb", qty: 1 },
+    { id: "g2", pos: new THREE.Vector3(44.6, -33.25, -36.0), item: "herb", qty: 1 },
+    { id: "g3", pos: new THREE.Vector3(59.4, -33.25, -39.2), item: "herb", qty: 1 },
+    { id: "g4", pos: new THREE.Vector3(103.9, -33.25, -31.8), item: "herb", qty: 1 },
+    { id: "g5", pos: new THREE.Vector3(121.6, -33.25, -24.3), item: "mana_crystal", qty: 1 },
+    { id: "g6", pos: new THREE.Vector3(141.2, -34.25, -13.6), item: "herb", qty: 1 },
+    { id: "g7", pos: new THREE.Vector3(187.4, -37.25, 12.0), item: "mana_crystal", qty: 1 },
+    { id: "g8", pos: new THREE.Vector3(211.0, -38.25, -13.6), item: "herb", qty: 1 },
+    { id: "g9", pos: new THREE.Vector3(25.6, -33.25, -22.2), item: "slime_gel", qty: 1 },
+    { id: "g10", pos: new THREE.Vector3(16.4, -33.25, -20.0), item: "herb", qty: 1 },
 ];
 
 // ===== 요리사 미니퀘스트: 멈춘 화덕을 위한 재료 =====
