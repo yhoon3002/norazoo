@@ -102,7 +102,7 @@ export function FieldTreasure({ id, pos }: { id: string; pos: THREE.Vector3 }) {
         if (!ref.current) return;
         ref.current.rotation.y += 0.02;
         ref.current.position.y =
-            pos.y + Math.sin(state.clock.elapsedTime * 3) * 0.15;
+            pos.y + 0.8 + Math.sin(state.clock.elapsedTime * 3) * 0.15;
     });
     if (discovered) return null;
     return (

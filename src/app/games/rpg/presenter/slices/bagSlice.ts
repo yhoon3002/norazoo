@@ -1,6 +1,8 @@
 // rpg/presenter/slices/bagSlice.ts
 "use client";
 
+import { ITEM_PRICES, SELL_RATIO } from "../../data/gameData";
+
 export const bagSlice = (set: any, get: any) => ({
     // ===== State =====
     bag: [
@@ -19,6 +21,41 @@ export const bagSlice = (set: any, get: any) => ({
             else bag[i] = { id, qty: bag[i].qty + qty };
             return { bag };
         }),
+
+    // ===== Shop =====
+    buyItem: (id: string): boolean => {
+        const price = ITEM_PRICES[id];
+        if (price == null) return false;
+        const s = get();
+        if (s.player.gold < price) return false;
+        set((st: any) => ({
+            player: { ...st.player, gold: st.player.gold - price },
+        }));
+        get().addItem(id, 1);
+        return true;
+    },
+
+    sellItem: (id: string): boolean => {
+        const base = ITEM_PRICES[id];
+        if (base == null) return false;
+        const s = get();
+        const item = s.bag.find((b: { id: string; qty: number }) => b.id === id && b.qty > 0);
+        if (!item) return false;
+        const price = Math.max(1, Math.floor(base * SELL_RATIO));
+        set((st: any) => {
+            type BagItem = { id: string; qty: number };
+            const bag = st.bag
+                .map((b: BagItem) =>
+                    b.id === id ? { ...b, qty: b.qty - 1 } : b
+                )
+                .filter((b: BagItem) => b.qty > 0);
+            return {
+                bag,
+                player: { ...st.player, gold: st.player.gold + price },
+            };
+        });
+        return true;
+    },
 
     // ===== Use Item =====
     useItem: (id: string, targetId?: string) => {
@@ -39,6 +76,21 @@ export const bagSlice = (set: any, get: any) => ({
                                   ...c.stats,
                                   hp: Math.min(c.stats.maxHp, c.stats.hp + 50),
                               },
+                          }
+                        : c
+                );
+                return { bag, player: { ...s.player, party } };
+            }
+            // mana_potion: 에테르 +3 회복
+            if (id === "mana_potion" && targetId) {
+                const party = s.player.party.map((c: any) =>
+                    c.id === targetId
+                        ? {
+                              ...c,
+                              ether: Math.min(
+                                  c.maxEther ?? 9,
+                                  (c.ether ?? 0) + 3
+                              ),
                           }
                         : c
                 );

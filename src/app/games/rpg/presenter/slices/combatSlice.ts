@@ -17,6 +17,13 @@ export const combatSlice = (set: any, get: any) => ({
     subMenuIndex: 0,
 
     defenseTimeoutId: null as NodeJS.Timeout | null,
+    // 다단 히트 방어 상태 (유닛별 공격 프로필)
+    defenseHitIndex: 0,
+    defenseResults: [] as Array<"parry" | "dodge" | "fail">,
+    defenseSpent: false, // 현재 히트에 이른 입력을 해서 방어권 소진(연타 방지)
+    defenseTimeoutIds: [] as NodeJS.Timeout[],
+    // 패배 복귀 직후 재조우 방지 무적 시간 (performance.now 기준)
+    encounterCooldownUntil: 0,
 
     // ===== Menu Navigation =====
     setBattleIndex: (i: number) => set({ battleIndex: i }),
@@ -73,7 +80,7 @@ export const combatSlice = (set: any, get: any) => ({
                 const tpl = ENEMY_TEMPLATES[template];
                 if (!tpl)
                     throw new Error(`Unknown enemy template: ${template}`);
-                return { id: fieldId, ...tpl };
+                return { id: fieldId, template, ...tpl };
             });
 
             const all = [
@@ -89,6 +96,13 @@ export const combatSlice = (set: any, get: any) => ({
                 currentTurn: 0,
                 battleIndex: 0,
                 subMenuIndex: 0,
+                // 방어 튜토리얼은 "처음 실행된 전투" 한 판만 — 다음 전투부터는 종료 확정
+                defenseTutorial: null,
+                flags:
+                    s.flags.defense_tutorial_started &&
+                    !s.flags.defense_tutorial_done
+                        ? { ...s.flags, defense_tutorial_done: true }
+                        : s.flags,
                 encounterFieldIds: enemies.map((e: any) => e.id),
                 battleStartPartyState: s.player.party.map((c: any) => ({
                     ...c,

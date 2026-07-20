@@ -86,7 +86,13 @@ export function BattleUI() {
             const phase = gs.combat.phase;
 
             if (phase === "playerQTE") {
-                if (k === "f" || e.key === " " || e.key === "Enter") {
+                if (e.repeat) return; // 홀드 반복이 조기 탭으로 새는 것 방지
+                if (
+                    k === "f" ||
+                    e.code === "KeyF" ||
+                    e.key === " " ||
+                    e.key === "Enter"
+                ) {
                     e.preventDefault();
                     gs.qteTap();
                 }
@@ -234,6 +240,49 @@ export function BattleUI() {
                             >
                                 다시하기
                             </button>
+                            {useGame.getState().story?.respawn && (
+                                <button
+                                    onClick={() => {
+                                        const st = useGame.getState();
+                                        const r = st.story.respawn!;
+                                        // 깃발 부활: 완전 회복 + 깃발 위치로 복귀
+                                        useGame.setState((s: any) => ({
+                                            player: {
+                                                ...s.player,
+                                                party: s.player.party.map(
+                                                    (c: any) => ({
+                                                        ...c,
+                                                        stats: {
+                                                            ...c.stats,
+                                                            hp: c.stats.maxHp,
+                                                        },
+                                                        ether: 3,
+                                                        statusEffects: [],
+                                                    })
+                                                ),
+                                                pos: {
+                                                    x: r.x,
+                                                    y: r.y,
+                                                    z: r.z,
+                                                },
+                                            },
+                                            combat: { phase: "idle" },
+                                            turnQueue: [],
+                                            currentTurn: 0,
+                                            encounterFieldIds: undefined,
+                                            popups: [],
+                                            battleStartPartyState: undefined,
+                                            battleStartPosition: undefined,
+                                            encounterCooldownUntil:
+                                                performance.now() + 3000,
+                                        }));
+                                    }}
+                                    className="w-full px-6 py-3 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold transition"
+                                >
+                                    🚩 깃발로 복귀 (
+                                    {useGame.getState().story.respawn!.label})
+                                </button>
+                            )}
                             <button
                                 onClick={() => exitBattle()}
                                 className="w-full px-6 py-3 rounded-lg bg-gray-700 hover:bg-gray-600 text-white font-semibold transition"

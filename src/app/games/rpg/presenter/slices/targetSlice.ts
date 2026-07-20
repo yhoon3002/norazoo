@@ -80,6 +80,7 @@ export const targetSlice = (set: any, get: any) => ({
                 get().triggerFX("player", 1.6);
                 get().spawnPopup({
                     side: "enemy",
+                    charId: targetId,
                     text: `-${dmg}`,
                     color: "#ef4444",
                 });

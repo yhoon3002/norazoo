@@ -147,5 +147,8 @@ export const statusSlice = (set: any, get: any) => ({
 
             return state;
         });
+
+        // DoT(burn/poison)로 사망했을 수 있음 — 전투 중이면 종료 체크
+        if (get().combat.phase !== "idle") get().checkCombatEnd();
     },
 });

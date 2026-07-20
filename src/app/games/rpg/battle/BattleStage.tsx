@@ -2,6 +2,7 @@
 import { useGame } from "../presenter/useGameStore";
 import { CharacterMesh } from "./CharacterMesh";
 import { EnemyMesh } from "./EnemyMesh";
+import { BattlePopups } from "../ui/BattlePopups";
 import * as THREE from "three";
 import { HitEffects } from "../ui/HitEffects";
 
@@ -109,6 +110,7 @@ export function BattleStage() {
                     />
                 ))}
             <HitEffects />
+            <BattlePopups />
         </group>
     );
 }

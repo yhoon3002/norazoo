@@ -7,6 +7,7 @@ import {
     aliveEnemies,
     enemiesInCombat,
     getEnemyById,
+    findNextAliveIndex,
 } from "../gameStoreHelpers";
 
 export const turnSlice = (set: any, get: any) => ({
@@ -14,68 +15,78 @@ export const turnSlice = (set: any, get: any) => ({
     nextTurn: () =>
         set((s: any) => {
             if (s.turnQueue.length === 0) return s;
-            const next = get().findNextAliveIndex(s, s.currentTurn);
+            const next = findNextAliveIndex(s, s.currentTurn);
             return { currentTurn: next };
         }),
+
+    // 다음 턴 시작 공통 처리 — 플레이어 턴이면 상태이상 틱(DoT)·스턴 턴스킵까지 수행
+    beginNextTurn: () => {
+        const s = get();
+        if (["victory", "defeat", "idle"].includes(s.combat.phase)) return;
+
+        const nextId = s.turnQueue[s.currentTurn];
+        const isPlayerTurn = s.player.party.some(
+            (c: any) => c.id === nextId && c.stats.hp > 0
+        );
+
+        if (!isPlayerTurn) {
+            get().startEnemyTelegraph();
+            return;
+        }
+
+        // 스턴 여부는 틱(지속시간 감소) 전에 판정
+        const char = s.player.party.find((c: any) => c.id === nextId);
+        const stunned = char?.statusEffects.some(
+            (e: any) => e.type === "stun" || e.type === "freeze"
+        );
+        get().processStatusEffects(nextId);
+
+        // DoT로 사망/전투 종료 가능
+        const phase = get().combat.phase;
+        if (phase === "victory" || phase === "defeat") return;
+        const after = get().player.party.find((c: any) => c.id === nextId);
+        if (!after || after.stats.hp <= 0) {
+            get().endPlayerTurn();
+            return;
+        }
+
+        if (stunned) {
+            get().spawnPopup({
+                side: "ally",
+                charId: nextId,
+                text: "Can't Move!",
+                color: "#60a5fa",
+            });
+            setTimeout(() => get().endPlayerTurn(), 700);
+            return;
+        }
+
+        set({
+            combat: {
+                phase: "playerMenu",
+                enemies: enemiesInCombat(get()),
+            },
+        });
+    },
 
     endPlayerTurn: () => {
         set((s: any) => {
             if (s.turnQueue.length === 0) return s;
-            const next = get().findNextAliveIndex(s, s.currentTurn);
+            const next = findNextAliveIndex(s, s.currentTurn);
             return { currentTurn: next };
         });
 
-        setTimeout(() => {
-            const s = get();
-            if (["victory", "defeat", "idle"].includes(s.combat.phase))
-                return;
-
-            const nextId = s.turnQueue[s.currentTurn];
-            const isPlayerTurn = s.player.party.some(
-                (c: any) => c.id === nextId && c.stats.hp > 0
-            );
-
-            if (isPlayerTurn) {
-                set({
-                    combat: {
-                        phase: "playerMenu",
-                        enemies: enemiesInCombat(get()),
-                    },
-                });
-            } else {
-                get().startEnemyTelegraph();
-            }
-        }, 350);
+        setTimeout(() => get().beginNextTurn(), 350);
     },
 
     endEnemyTurn: () => {
         set((s: any) => {
             if (s.turnQueue.length === 0) return s;
-            const next = get().findNextAliveIndex(s, s.currentTurn);
+            const next = findNextAliveIndex(s, s.currentTurn);
             return { currentTurn: next };
         });
 
-        setTimeout(() => {
-            const s = get();
-            if (["victory", "defeat", "idle"].includes(s.combat.phase))
-                return;
-
-            const nextId = s.turnQueue[s.currentTurn];
-            const isPlayerTurn = s.player.party.some(
-                (c: any) => c.id === nextId && c.stats.hp > 0
-            );
-
-            if (isPlayerTurn) {
-                set({
-                    combat: {
-                        phase: "playerMenu",
-                        enemies: enemiesInCombat(get()),
-                    },
-                });
-            } else {
-                get().startEnemyTelegraph();
-            }
-        }, 350);
+        setTimeout(() => get().beginNextTurn(), 350);
     },
 
     // ===== Apply Damage =====
@@ -320,6 +331,7 @@ export const turnSlice = (set: any, get: any) => ({
                             get().applyStatusEffect(enemyId, sk.statusEffect);
                             get().spawnPopup({
                                 side: "enemy",
+                                charId: enemyId,
                                 text: `${sk.statusEffect.type}!`,
                                 color: "#a78bfa",
                             });
@@ -328,6 +340,7 @@ export const turnSlice = (set: any, get: any) => ({
                         get().triggerFX("player", ok ? 2 : 1);
                         get().spawnPopup({
                             side: "enemy",
+                            charId: enemyId,
                             text: `-${damage}`,
                             color: "#ef4444",
                         });
@@ -374,8 +387,12 @@ export const turnSlice = (set: any, get: any) => ({
                 (acc: any, e: any) => {
                     acc.exp += e.rewards.exp;
                     acc.gold += e.rewards.gold;
+                    // 드랍 확률 롤 적용
                     if (e.rewards.items)
-                        acc.items.push(...e.rewards.items.map((i: any) => i.id));
+                        e.rewards.items.forEach((i: any) => {
+                            if (Math.random() < (i.chance ?? 1))
+                                acc.items.push(i.id);
+                        });
                     return acc;
                 },
                 { exp: 0, gold: 0, items: [] as string[] }
@@ -458,6 +475,8 @@ export const turnSlice = (set: any, get: any) => ({
                     popups: [],
                     battleStartPartyState: undefined,
                     battleStartPosition: undefined,
+                    // 복귀 위치가 적 접촉 반경 안일 수 있으므로 잠시 무적 (즉시 재조우 방지)
+                    encounterCooldownUntil: performance.now() + 3000,
                 };
             }
 
@@ -474,29 +493,32 @@ export const turnSlice = (set: any, get: any) => ({
 
     // ===== Save/Load =====
     applySave: (d: SaveData) =>
-        set({
+        set((s: any) => ({
             player: d.player,
             world: d.world,
             flags: d.flags,
             bag: d.bag,
             quests: d.quests || [],
             treasures: d.treasures || [],
+            story: (d as any).story ?? s.story, // 구버전 세이브 호환
+            dialogue: [],
             combat: { phase: "idle" },
             turnQueue: [],
             currentTurn: 0,
             popups: [],
-        }),
+        })),
 
     snapshot: () => {
         const s = get();
         return {
-            version: 1,
+            version: 1 as const,
             player: s.player,
             world: s.world,
             flags: s.flags,
             bag: s.bag,
             quests: s.quests,
             treasures: s.treasures,
+            story: s.story,
             unlockedSkills: [],
             unlockedEquipment: [],
         };

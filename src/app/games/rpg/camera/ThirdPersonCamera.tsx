@@ -10,7 +10,7 @@ export function ThirdPersonCamera({
     shoulder = 0.55,
     lookAhead = 2.2,
     camRadius = 0.28,
-    posLerp = 0.16,
+    posLerp = 12,
     castEvery = 2,
     mouseSens = 0.0025,
 }: Partial<{
@@ -34,18 +34,20 @@ export function ThirdPersonCamera({
             desired: new THREE.Vector3(),
             dir: new THREE.Vector3(),
             tmp: new THREE.Vector3(),
-            // 매 프레임 .clone() 방지용 스크래치 버퍼
             scratch: new THREE.Vector3(),
             camPos: new THREE.Vector3(),
             lookAt: new THREE.Vector3(),
+            smoothedLookAt: new THREE.Vector3(),
         }),
         []
     );
     const envTargets = useRef<THREE.Object3D[]>([]);
-    const yaw = useRef(0);
+    // 초기 시선: 서쪽(-x) — 동쪽 시골길 스폰에서 마을로 이어지는 길을 정면으로
+    const yaw = useRef(-Math.PI / 2);
     const locked = useRef(false);
     const frame = useRef(0);
     const lastAllowed = useRef<number | null>(null);
+    const smoothedPlayerY = useRef<number | null>(null);
 
     // Pointer lock 세팅
     useEffect(() => {
@@ -60,7 +62,8 @@ export function ThirdPersonCamera({
             if (
                 s.combat.phase !== "idle" ||
                 s.ui.pauseOpen ||
-                s.ui.inventoryOpen
+                s.ui.inventoryOpen ||
+                s.ui.shopOpen
             )
                 return;
             el.requestPointerLock?.();
@@ -85,7 +88,7 @@ export function ThirdPersonCamera({
         };
     }, [gl, scene, mouseSens, ray]);
 
-    useFrame(() => {
+    useFrame((_, dt) => {
         frame.current++;
 
         const upos: THREE.Vector3 =
@@ -100,8 +103,12 @@ export function ThirdPersonCamera({
         V.f.set(Math.sin(yaw.current), 0, Math.cos(yaw.current)).normalize();
         V.r.crossVectors(U, V.f).negate().normalize();
 
+        // Y 스무딩 (땅 높이 스냅을 카메라에서 숨김)
+        if (smoothedPlayerY.current === null) smoothedPlayerY.current = upos.y;
+        else smoothedPlayerY.current += (upos.y - smoothedPlayerY.current) * (1 - Math.exp(-10 * dt));
+
         // 기준점(머리 부근)
-        V.p.set(upos.x, upos.y + 0.9, upos.z);
+        V.p.set(upos.x, smoothedPlayerY.current + 0.9, upos.z);
 
         // 원하는 카메라 위치
         V.desired
@@ -126,7 +133,8 @@ export function ThirdPersonCamera({
             const test = (start: THREE.Vector3) => {
                 ray.set(start, V.dir);
                 ray.far = baseDist + camRadius;
-                const hit = ray.intersectObjects(env, true).filter(filter)[0];
+                // __environmentMeshes는 leaf mesh 배열 → recursive=false 사용
+                const hit = ray.intersectObjects(env, false).filter(filter)[0];
                 if (hit) min = Math.min(min, hit.distance);
             };
             test(V.p);
@@ -139,16 +147,20 @@ export function ThirdPersonCamera({
             V.tmp.copy(V.f).cross(U).normalize().multiplyScalar(-camRadius);
             test(V.scratch.copy(V.p).add(V.tmp));
 
+            const wallLerp = 1 - Math.exp(-20 * dt);
             allowed =
                 min !== Infinity
                     ? Math.max(0.6, min - camRadius * 0.9)
-                    : 0.92 * allowed + 0.08 * baseDist;
+                    : allowed + (baseDist - allowed) * wallLerp;
             lastAllowed.current = allowed;
         }
 
-        // 위치/시선 — camPos·lookAt도 스크래치 재사용
+        // 프레임레이트 독립적인 지수 평활
+        const smooth = 1 - Math.exp(-posLerp * dt);
+
         V.camPos.copy(V.p).addScaledVector(V.dir, Math.min(allowed, baseDist));
-        camera.position.lerp(V.camPos, posLerp);
+        camera.position.lerp(V.camPos, smooth);
+
         V.lookAt.copy(V.p).addScaledVector(V.f, lookAhead);
         camera.lookAt(V.lookAt);
 

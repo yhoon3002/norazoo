@@ -61,3 +61,25 @@ body {
         color-scheme: dark;
     }
 } */
+
+/* RPG 전투 플로팅 팝업 (BattlePopups) */
+@keyframes rpgPopupRise {
+    0% {
+        opacity: 0;
+        transform: translateY(8px) scale(0.7);
+    }
+    12% {
+        opacity: 1;
+        transform: translateY(0) scale(1.18);
+    }
+    25% {
+        transform: translateY(-4px) scale(1);
+    }
+    78% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-36px) scale(0.95);
+    }
+}

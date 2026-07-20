@@ -3,8 +3,22 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useGame } from "../presenter/useGameStore";
 
+const SHAKE_DURATION = 320; // ms
+
 export function BattleRig() {
     const { camera } = useThree();
+
+    // 스크린 셰이크 — triggerFX(effectsSlice)가 쏘는 fx를 소비해 카메라를 흔든다
+    function applyShake() {
+        const fx = useGame.getState().fx;
+        if (!fx.side) return;
+        const elapsed = performance.now() - fx.t;
+        if (elapsed >= SHAKE_DURATION) return;
+        const falloff = 1 - elapsed / SHAKE_DURATION;
+        const k = 0.14 * (fx.intensity ?? 1) * falloff;
+        camera.position.x += (Math.random() - 0.5) * 2 * k;
+        camera.position.y += (Math.random() - 0.5) * 2 * k;
+    }
 
     useFrame((state, delta) => {
         const s = useGame.getState();
@@ -69,12 +83,14 @@ export function BattleRig() {
                 );
                 camera.position.lerp(zoomPos, 0.18);
                 camera.lookAt(targetPos);
+                applyShake();
                 return;
             }
         }
 
         camera.position.lerp(desired, 0.12);
         camera.lookAt(lookAt);
+        applyShake();
     });
 
     return null;

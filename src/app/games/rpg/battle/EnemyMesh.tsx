@@ -75,6 +75,11 @@ export function EnemyMesh({
     const _targetPos = useRef(new THREE.Vector3());
     const _currentPos = useRef(new THREE.Vector3());
 
+    // ── 텔레그래프 수축 링 + 차징 글로우 ──
+    const shrinkRingRef = useRef<THREE.Mesh>(null);
+    const targetRingRef = useRef<THREE.Mesh>(null);
+    const glowRef = useRef<THREE.PointLight>(null);
+
     useEffect(() => {
         if (enemy.stats.hp <= 0) {
             setAnim("death");
@@ -153,6 +158,58 @@ export function EnemyMesh({
             basePos.current.set(...position);
             groupRef.current.position.lerp(basePos.current, 0.2);
         }
+
+        // ── 텔레그래프 수축 링: 링이 안쪽 타겟 링에 닿는 순간 = 타격 타이밍 ──
+        const gs = useGame.getState();
+        const c = gs.combat as {
+            phase: string;
+            enemyId?: string;
+            telegraph?: import("../types/RpgTypes").Telegraph;
+        };
+        const tele =
+            c.phase === "defenseWindow" && c.enemyId === enemy.id
+                ? c.telegraph
+                : undefined;
+        if (shrinkRingRef.current && targetRingRef.current && glowRef.current) {
+            if (tele) {
+                const hits: number[] = tele.hits ?? [tele.hitAt];
+                const i = Math.min(gs.defenseHitIndex ?? 0, hits.length - 1);
+                const hit = hits[i];
+                // 방어 튜토리얼 정지 중엔 링도 그 시각에 멈춘다
+                const tut = (gs as any).defenseTutorial;
+                const now =
+                    tut?.stage === "frozen"
+                        ? tut.frozenAt
+                        : performance.now();
+                const windowMs =
+                    i === 0 ? hit - tele.startAt : hits[i] - hits[i - 1];
+                const t = THREE.MathUtils.clamp(
+                    (hit - now) / Math.max(1, windowMs),
+                    0,
+                    1
+                );
+                const R_IN = 0.85;
+                const R_OUT = 2.6;
+                const r = R_IN + (R_OUT - R_IN) * t;
+
+                shrinkRingRef.current.visible = true;
+                targetRingRef.current.visible = true;
+                shrinkRingRef.current.scale.setScalar(r);
+                const mat = shrinkRingRef.current
+                    .material as THREE.MeshBasicMaterial;
+                mat.color.set(tele.ringColor ?? "#ffd54a");
+                mat.opacity = 0.35 + 0.55 * (1 - t);
+
+                // 차징 글로우: 타격이 가까울수록 밝아지고, 판정 윈도우에서 플래시
+                glowRef.current.color.set(tele.ringColor ?? "#ffd54a");
+                glowRef.current.intensity =
+                    0.5 + 4.5 * (1 - t) + (Math.abs(now - hit) < 90 ? 5 : 0);
+            } else {
+                shrinkRingRef.current.visible = false;
+                targetRingRef.current.visible = false;
+                glowRef.current.intensity = 0;
+            }
+        }
     });
 
     const url =
@@ -197,6 +254,49 @@ export function EnemyMesh({
                     side={THREE.DoubleSide}
                 />
             </mesh>
+
+            {/* 텔레그래프: 수축 링(색=공격 유형) — scale로 반지름 제어 (단위 반지름 1) */}
+            <mesh
+                ref={shrinkRingRef}
+                position={[0, 0.07, 0]}
+                rotation={[-Math.PI / 2, 0, 0]}
+                visible={false}
+                renderOrder={15}
+            >
+                <ringGeometry args={[0.9, 1.0, 48]} />
+                <meshBasicMaterial
+                    color="#ffd54a"
+                    transparent
+                    opacity={0.8}
+                    side={THREE.DoubleSide}
+                    depthTest={false}
+                />
+            </mesh>
+            {/* 타격 판정 기준선(고정 안쪽 링) — 수축 링이 여기 닿는 순간 입력 */}
+            <mesh
+                ref={targetRingRef}
+                position={[0, 0.07, 0]}
+                rotation={[-Math.PI / 2, 0, 0]}
+                visible={false}
+                renderOrder={14}
+            >
+                <ringGeometry args={[0.78, 0.85, 48]} />
+                <meshBasicMaterial
+                    color="#ffffff"
+                    transparent
+                    opacity={0.75}
+                    side={THREE.DoubleSide}
+                    depthTest={false}
+                />
+            </mesh>
+            {/* 차징 글로우 */}
+            <pointLight
+                ref={glowRef}
+                position={[0, 1.4, 0]}
+                intensity={0}
+                distance={6}
+                decay={2}
+            />
 
             <group
                 position={[0, BAR_Y, BAR_Z_OFFSET]}

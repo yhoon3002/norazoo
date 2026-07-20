@@ -219,7 +219,7 @@ export const battleActionsSlice = (set: any, get: any) => ({
             }
 
             // ===== Items That Need Target =====
-            if (id === "health_potion") {
+            if (id === "health_potion" || id === "mana_potion") {
                 const allies = s.player.party
                     .filter((c: any) => c.stats.hp > 0)
                     .map((c: any) => c.id);
@@ -285,11 +285,9 @@ export const battleActionsSlice = (set: any, get: any) => ({
 
             setTimeout(() => {
                 const st = get().combat;
-                if (
-                    st.phase === "playerQTE" &&
-                    st.startAt === startAt &&
-                    st.index === 0
-                ) {
+                // 진행 중(index>0)이어도 시간 초과면 실패 처리 — index===0 조건이
+                // 있으면 1탭 후 방치 시 QTE가 영원히 안 끝난다
+                if (st.phase === "playerQTE" && st.startAt === startAt) {
                     if (action.type === "skill") {
                         set({
                             combat: {
