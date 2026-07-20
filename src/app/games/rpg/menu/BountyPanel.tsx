@@ -46,7 +46,13 @@ export function BountyPanel() {
 
     // 보상 — 지급 후 기준점 삭제(재수락 가능하게)
     const claim = (b: Bounty) => {
-        const s = useGame.getState();
+        const s = useGame.getState() as any;
+        // 신선한 상태로 재검증 — 더블클릭 이중 지급 방지
+        const base = s.killCounts[`bounty_${b.id}_base`];
+        if (base === undefined) return;
+        const progress = (s.killCounts[b.template] ?? 0) - base;
+        if (progress < b.count) return;
+
         s.gainGold(b.rewardGold);
         b.rewardItems.forEach((it) => s.addItem(it.id, it.qty));
         s.spawnPopup({
