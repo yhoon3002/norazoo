@@ -26,7 +26,15 @@ export function StoryTriggers() {
 
         for (const t of STORY_TRIGGERS) {
             if (g.story.stage !== t.stage) continue;
-            if (g.flags[`story_${t.id}`]) continue;
+
+            const alreadyFired = !!g.flags[`story_${t.id}`];
+            // 전투 트리거는 승리 플래그(defeated_${battleId}_0)가 없는 한
+            // story_${id}가 이미 찍혀 있어도 재발동을 허용한다 — 패배 후 소프트락 방지.
+            // (그룹 전투는 전멸 시에만 victory이므로 첫 번째 fieldId 플래그로 승패를 대표할 수 있다)
+            const battleUnwon =
+                !!t.battle && !g.flags[`defeated_${t.battle.id}_0`];
+            if (alreadyFired && !battleUnwon) continue;
+
             if (t.near) {
                 if (!p) continue;
                 if (
@@ -36,35 +44,42 @@ export function StoryTriggers() {
             }
             if (t.flagsAll && !t.flagsAll.every((f) => g.flags[f])) continue;
 
-            // 발동 (1회성)
-            useGame.setState((s: { flags: Record<string, boolean> }) => ({
-                flags: { ...s.flags, [`story_${t.id}`]: true },
-            }));
+            // 발동 — story_${id} 플래그와 1회성 부가효과(스테이지 진행·보상)는 최초 발동에만 적용.
+            // 재발동(재도전)은 대사 재생 + 전투 재무장만 수행한다.
+            if (!alreadyFired) {
+                useGame.setState((s: { flags: Record<string, boolean> }) => ({
+                    flags: { ...s.flags, [`story_${t.id}`]: true },
+                }));
+            }
             if (t.dialogue) g.startDialogue(t.dialogue);
             // 대사 종료 후 전투 진입 — advanceDialogue가 큐 소진 시 소비
             if (t.battle) g.setPendingStoryBattle(t.battle);
-            const patch: {
-                stage?: string;
-                objective?: string;
-                target?: { x: number; z: number } | null;
-            } = {};
-            if (t.nextStage) patch.stage = t.nextStage;
-            if (t.objective) patch.objective = t.objective;
-            if (t.target !== undefined) patch.target = t.target;
-            if (Object.keys(patch).length) g.setStory(patch);
 
-            // 트리거 보상 지급
-            if (t.reward) {
-                if (t.reward.gold) g.gainGold(t.reward.gold);
-                if (t.reward.items)
-                    for (const it of t.reward.items) g.addItem(it.id, it.qty);
-                g.spawnPopup({
-                    side: "ally",
-                    text: `🎁 보상 획득!${
-                        t.reward.gold ? ` +${t.reward.gold}G` : ""
-                    }`,
-                    color: "#fbbf24",
-                });
+            if (!alreadyFired) {
+                const patch: {
+                    stage?: string;
+                    objective?: string;
+                    target?: { x: number; z: number } | null;
+                } = {};
+                if (t.nextStage) patch.stage = t.nextStage;
+                if (t.objective) patch.objective = t.objective;
+                if (t.target !== undefined) patch.target = t.target;
+                if (Object.keys(patch).length) g.setStory(patch);
+
+                // 트리거 보상 지급 (최초 1회만 — 재도전 시 중복 지급 방지)
+                if (t.reward) {
+                    if (t.reward.gold) g.gainGold(t.reward.gold);
+                    if (t.reward.items)
+                        for (const it of t.reward.items)
+                            g.addItem(it.id, it.qty);
+                    g.spawnPopup({
+                        side: "ally",
+                        text: `🎁 보상 획득!${
+                            t.reward.gold ? ` +${t.reward.gold}G` : ""
+                        }`,
+                        color: "#fbbf24",
+                    });
+                }
             }
             break; // 프레임당 1개만
         }

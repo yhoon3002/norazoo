@@ -131,6 +131,11 @@ export const combatSlice = (set: any, get: any) => ({
                         ? { ...s.flags, defense_tutorial_done: true }
                         : s.flags,
                 encounterFieldIds: enemies.map((e: any) => e.id),
+                // 재도전(다시하기) 시 이름 추론 없이 실제 인카운터 구성을 복원하기 위한 스냅샷 — 세이브엔 포함하지 않음
+                lastEncounterGroup: group as Array<{
+                    template: string;
+                    fieldId: string;
+                }>,
                 // 요리로 버프가 부여되기 전(패배 시 복귀 기준) 파티 스냅샷
                 battleStartPartyState: s.player.party.map((c: any) => ({
                     ...c,

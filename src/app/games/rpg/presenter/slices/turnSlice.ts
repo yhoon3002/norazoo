@@ -458,6 +458,7 @@ export const turnSlice = (set: any, get: any) => ({
                     popups: [],
                     battleStartPartyState: undefined,
                     battleStartPosition: undefined,
+                    lastEncounterGroup: undefined,
                 };
             }
 
@@ -480,6 +481,7 @@ export const turnSlice = (set: any, get: any) => ({
                     popups: [],
                     battleStartPartyState: undefined,
                     battleStartPosition: undefined,
+                    lastEncounterGroup: undefined,
                     // 복귀 위치가 적 접촉 반경 안일 수 있으므로 잠시 무적 (즉시 재조우 방지)
                     encounterCooldownUntil: performance.now() + 3000,
                 };
@@ -493,6 +495,7 @@ export const turnSlice = (set: any, get: any) => ({
                 popups: [],
                 battleStartPartyState: undefined,
                 battleStartPosition: undefined,
+                lastEncounterGroup: undefined,
             };
         }),
 

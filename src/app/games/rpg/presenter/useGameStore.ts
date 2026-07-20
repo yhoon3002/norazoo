@@ -54,6 +54,8 @@ export type GameState = ReturnType<typeof playerSlice> &
         encounterFieldIds?: string[];
         battleStartPartyState?: Character[];
         battleStartPosition?: Vec3;
+        // 재도전(다시하기)용 실제 인카운터 구성 — 세이브 미포함, 세션 내에서만 유효
+        lastEncounterGroup?: Array<{ template: string; fieldId: string }>;
     };
 
 // ===== Create Store =====

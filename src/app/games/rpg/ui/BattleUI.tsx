@@ -51,6 +51,14 @@ export function BattleUI() {
             });
         }
 
+        // 실제 인카운터 구성이 저장돼 있으면 그걸로 그대로 재도전 — 이름 기반 추론(구 방식)은
+        // 신규 템플릿(오크 족장, 태엽 병정 등)을 못 잡아내 잘못된 적으로 재도전시키는 문제가 있었다.
+        if (state.lastEncounterGroup && state.lastEncounterGroup.length > 0) {
+            startCombat({ group: state.lastEncounterGroup });
+            return;
+        }
+
+        // 폴백: 저장된 구성이 없을 때만 이름 추론 사용 (구버전 세이브 등 예외 상황 대비)
         if (encounterFieldIds && encounterFieldIds.length > 0) {
             const enemies = (combat as unknown as ActiveCombat).enemies ?? [];
 
