@@ -564,14 +564,23 @@ export function FieldPlayer({
             frameCount.current - lastGroundCheck.current > 30;
 
         if (needCheck) {
-            // 한 프레임 10m+ 이동은 스크립트 텔레포트/리스폰 — 전 범위 재스냅 허용
+            // 한 프레임 10m+ 이동은 스크립트 텔레포트/리스폰 — 재스냅 허용.
+            // 단, "가장 높은 표면"이 아니라 목표 y(±6m) 근처의 층을 우선한다 —
+            // 전범위 스냅은 컬럼 상공의 나무 상판/지붕에 착지시켜(실측: ne_water
+            // 깃발 Δy=7.9) 내려올 수 없는 곳에 갇힌다. 근처 층이 없을 때만 전범위 폴백.
             const teleported =
                 Math.abs(newX - lastXZ.current.x) > 10 ||
                 Math.abs(newZ - lastXZ.current.z) > 10;
-            const gy = sampleGround(newX, newZ, teleported ? 200 : y + 20, {
-                baseY: moved.needsGroundCheck ? y : cachedGroundY.current,
+            let gy = sampleGround(newX, newZ, teleported ? 200 : y + 20, {
+                // 텔레포트 시 기준은 목표 y(방금 설정된 worldPos.y) — 이전 지점의
+                // cachedGroundY로 밴드를 잡으면 층이 다른 목적지를 찾지 못한다
+                baseY: teleported
+                    ? y
+                    : moved.needsGroundCheck
+                    ? y
+                    : cachedGroundY.current,
                 maxRise: teleported
-                    ? 200
+                    ? 6
                     : moved.needsGroundCheck
                     ? TERRAIN_STEP_MAX + 0.01
                     : // 일반 보행: 잎 덤불 상면(+1.0 근처)을 밟을 수 있게 여유.
@@ -580,8 +589,16 @@ export function FieldPlayer({
                 // 점프가 없는 게임이라 내려가기도 지형 단차 한계(1.05+여유)로 대칭
                 // 제한 — 1m 블록 둔덕은 오르내리고, 그보다 깊은 구덩이(부두 아래
                 // 해변 등 되돌아올 수 없는 낙차)는 원천 방지
-                maxDrop: teleported ? 200 : TERRAIN_STEP_MAX + 0.02,
+                maxDrop: teleported ? 6 : TERRAIN_STEP_MAX + 0.02,
             });
+            if (gy === null && teleported) {
+                // 목표 y 근처에 층이 없으면(구세이브 좌표 등) 전범위 폴백
+                gy = sampleGround(newX, newZ, 200, {
+                    baseY: y,
+                    maxRise: 200,
+                    maxDrop: 200,
+                });
+            }
             if (gy !== null) {
                 newY = gy;
                 cachedGroundY.current = gy;
