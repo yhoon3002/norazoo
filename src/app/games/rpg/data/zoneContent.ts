@@ -15,7 +15,7 @@ export const ZONE_CONTENT: Record<
 > = {
     town: {
         gatherItems: ["herb", "slime_gel"],
-        roamerPacks: [["slime", "slime"]],
+        roamerPacks: [["slime", "slime"], ["wild_dog", "wild_dog", "wild_dog"], ["slime", "wild_dog"]],
         treasureLoot: [
             [{ id: "health_potion", qty: 2 }],
             [{ id: "herb", qty: 3 }, { id: "mana_potion", qty: 1 }],
@@ -24,7 +24,7 @@ export const ZONE_CONTENT: Record<
     },
     port: {
         gatherItems: ["clam", "sea_salt", "clam"],
-        roamerPacks: [["slime", "orc"]],
+        roamerPacks: [["slime", "orc"], ["wild_dog", "wild_dog"], ["ghoul", "slime"]],
         treasureLoot: [
             [{ id: "clam", qty: 3 }, { id: "health_potion", qty: 1 }],
             [{ id: "sea_salt", qty: 3 }],
@@ -33,7 +33,7 @@ export const ZONE_CONTENT: Record<
     },
     hill: {
         gatherItems: ["wind_flower", "herb"],
-        roamerPacks: [["orc", "orc"]],
+        roamerPacks: [["orc", "orc"], ["mad_bull"], ["orc_chief", "orc"], ["mad_bull", "orc"]],
         treasureLoot: [
             [{ id: "wind_flower", qty: 2 }, { id: "health_potion", qty: 1 }],
             [{ id: "orc_tusk", qty: 3 }],
@@ -42,7 +42,13 @@ export const ZONE_CONTENT: Record<
     },
     west_forest: {
         gatherItems: ["forest_mushroom", "tree_sap", "forest_mushroom"],
-        roamerPacks: [["zombie", "zombie"], ["zombie", "slime"], ["zombie", "zombie", "slime"]],
+        roamerPacks: [
+            ["zombie", "zombie"],
+            ["ghoul", "zombie"],
+            ["ghoul", "ghoul", "slime"],
+            ["zombie", "wild_dog", "wild_dog"],
+            ["ghoul", "mad_bull"],
+        ],
         treasureLoot: [
             [{ id: "forest_mushroom", qty: 3 }],
             [{ id: "tree_sap", qty: 2 }, { id: "health_potion", qty: 2 }],
@@ -51,7 +57,7 @@ export const ZONE_CONTENT: Record<
     },
     north_woods: {
         gatherItems: ["frost_moss", "iron_ore"],
-        roamerPacks: [["witch"], ["witch", "zombie"], ["witch", "witch"]],
+        roamerPacks: [["witch"], ["frost_witch", "zombie"], ["witch", "witch"], ["frost_witch", "ghoul"]],
         treasureLoot: [
             [{ id: "iron_ore", qty: 2 }],
             [{ id: "frost_moss", qty: 2 }, { id: "mana_potion", qty: 2 }],
@@ -60,7 +66,7 @@ export const ZONE_CONTENT: Record<
     },
     ne_water: {
         gatherItems: ["reed", "lotus", "silver_ore"],
-        roamerPacks: [["ninja"], ["ninja", "ninja"], ["ninja", "witch"]],
+        roamerPacks: [["ninja"], ["ninja", "ninja"], ["ninja", "witch"], ["ninja", "ghoul"], ["frost_witch", "ninja"]],
         treasureLoot: [
             [{ id: "silver_ore", qty: 2 }],
             [{ id: "lotus", qty: 2 }, { id: "mana_crystal", qty: 2 }],
@@ -69,11 +75,32 @@ export const ZONE_CONTENT: Record<
     },
     south_coast: {
         gatherItems: ["clam", "driftwood"],
-        roamerPacks: [["zombie", "orc"], ["orc", "slime", "slime"], ["zombie", "zombie"]],
+        roamerPacks: [
+            ["zombie", "orc"],
+            ["mad_bull", "mad_bull"],
+            ["ghoul", "ghoul"],
+            ["orc", "slime", "slime"],
+            ["wild_dog", "wild_dog", "mad_bull"],
+        ],
         treasureLoot: [
             [{ id: "driftwood", qty: 3 }],
             [{ id: "clam", qty: 3 }, { id: "health_potion", qty: 1 }],
             [{ id: "coral_fish", qty: 1 }, { id: "sea_salt", qty: 2 }],
+        ],
+    },
+    gorge: {
+        gatherItems: ["dark_crystal", "mana_crystal", "dark_crystal"],
+        roamerPacks: [
+            ["clockwork_soldier", "clockwork_soldier"],
+            ["shade_beast"],
+            ["clockwork_soldier", "shade_beast"],
+            ["shade_beast", "clockwork_soldier", "clockwork_soldier"],
+            ["shade_beast", "shade_beast"],
+        ],
+        treasureLoot: [
+            [{ id: "dark_crystal", qty: 2 }, { id: "health_potion", qty: 2 }],
+            [{ id: "silver_ore", qty: 2 }, { id: "mana_potion", qty: 2 }],
+            [{ id: "golden_herb", qty: 2 }, { id: "monster_core", qty: 2 }],
         ],
     },
 };

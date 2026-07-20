@@ -4,7 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useGame } from "../presenter/useGameStore";
 import { ModelAvatar } from "../actors/ModelAvatar";
-import { ENEMY_MODEL_BY_TEMPLATE } from "../data/gameData";
+import { ENEMY_MODEL_BY_TEMPLATE, ENEMY_TEMPLATES } from "../data/gameData";
 
 // ── CharacterMesh와 공유되는 모듈 레벨 텍스처 캐시 ────────────────────────────
 const STATUS_COLORS: Record<string, string> = {
@@ -221,6 +221,9 @@ export function EnemyMesh({
                 : "mage"
         ] || "/character/Goblin_Male.fbx";
 
+    // 템플릿의 scale 배율(보스급 대형 몬스터용) — 기본 1
+    const templateScale = ENEMY_TEMPLATES[enemy.template as string]?.scale ?? 1;
+
     const BAR_Z_OFFSET = -0.55,
         BAR_Y = 0.05,
         BAR_W = 1.3,
@@ -237,7 +240,7 @@ export function EnemyMesh({
                 position={[0, 0, 0]}
                 rotation={[0, Math.PI, 0]}
                 state={anim}
-                scale={0.01}
+                scale={0.01 * templateScale}
                 playNonce={playNonce}
             />
 

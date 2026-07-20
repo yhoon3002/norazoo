@@ -10,7 +10,8 @@ export type ZoneId =
     | "west_forest"
     | "north_woods"
     | "ne_water"
-    | "south_coast";
+    | "south_coast"
+    | "gorge";
 
 export type Spot = { x: number; y: number; z: number };
 
@@ -28,6 +29,7 @@ export const ZONE_DEFS: Array<{
     { id: "north_woods", label: "북부 숲길", cx: -110, cz: -250 },
     { id: "ne_water", label: "북동 수변 지구", cx: 150, cz: -190 },
     { id: "south_coast", label: "남부 해안", cx: -50, cz: 220 },
+    { id: "gorge", label: "어둠의 협곡", cx: 200, cz: 110 },
 ];
 
 export function zoneOf(x: number, z: number): ZoneId {
@@ -49,6 +51,7 @@ export const GEN_FLAGS: Array<{ zone: ZoneId } & Spot> = [
     { zone: "north_woods", x: -144.5, y: -31.25, z: -219.5 },
     { zone: "ne_water", x: 228.5, y: -47.25, z: -265.5 },
     { zone: "south_coast", x: -75.5, y: -33.25, z: 88.5 },
+    { zone: "gorge", x: 139.5, y: -42.25, z: 17.5 },
 ];
 
 /** 존별 채집 스폰 (길가 개방도 중간 지대, 간격 14m+) */
@@ -151,15 +154,24 @@ export const GEN_GATHER: Record<ZoneId, Spot[]> = {
         { x: -23.5, y: -31.25, z: 146.5 },
         { x: -153.5, y: -21.25, z: 266.5 },
     ],
+    gorge: [
+        { x: 136.5, y: -42.25, z: 1.5 }, { x: 214.5, y: -45.25, z: 92.5 },
+        { x: 142.5, y: -42.25, z: 152.5 }, { x: 136.5, y: -42.25, z: 36.5 },
+        { x: 190.5, y: -44.25, z: 102.5 }, { x: 289.5, y: -53.25, z: 161.5 },
+        { x: 287.5, y: -47.25, z: 51.5 }, { x: 281.5, y: -46.25, z: 112.5 },
+    ],
 };
 
 /** 존별 배회 몬스터 스폰 (공터, 간격 45m+) */
 export const GEN_ROAMERS: Record<ZoneId, Spot[]> = {
     town: [
         { x: -69.5, y: -31.25, z: -49.5 },
+        // 본토 배회 증설 — 신규 종 편입
+        { x: 8.5, y: -31.25, z: -18.5 }, { x: 35.5, y: -33.25, z: -33.5 },
     ],
     port: [
         { x: 202.5, y: -39.25, z: -59.5 },
+        { x: 150.5, y: -33.25, z: -74.5 }, { x: 170.5, y: -36.25, z: -18.5 },
     ],
     hill: [
         // 소형 존이라 표적 재샘플링(개방도 25·간격 30) — 스펙 티어(오크) 충족용
@@ -169,6 +181,7 @@ export const GEN_ROAMERS: Record<ZoneId, Spot[]> = {
         { x: -148.5, y: -17.25, z: 26.5 },
         { x: -121.5, y: -31.25, z: -11.5 },
         { x: -177.5, y: -34.25, z: -11.5 },
+        { x: -183.5, y: -29.25, z: -105.5 }, { x: -213.5, y: -29.25, z: -120.5 },
     ],
     north_woods: [
         // 표적 재샘플링 — 마녀 의뢰(witch_hunt)의 스폰 소스
@@ -180,11 +193,18 @@ export const GEN_ROAMERS: Record<ZoneId, Spot[]> = {
         { x: 157.5, y: -40.25, z: -106.5 },
         { x: 135.5, y: -32.25, z: -299.5 },
         { x: 230.5, y: -48.25, z: -313.5 },
+        { x: 151.5, y: -47.25, z: -164.5 }, { x: 273.5, y: -47.25, z: -275.5 },
     ],
     south_coast: [
         { x: -101.5, y: -15.25, z: 285.5 },
         { x: -55.5, y: -32.25, z: 302.5 },
         { x: -281.5, y: -31.25, z: 271.5 },
+        { x: -204.5, y: -31.25, z: 291.5 }, { x: -21.5, y: -33.25, z: 277.5 },
+    ],
+    gorge: [
+        { x: 162.5, y: -43.25, z: 192.5 }, { x: 237.5, y: -51.25, z: 148.5 },
+        { x: 247.5, y: -42.25, z: 187.5 }, { x: 190.5, y: -48.25, z: 145.5 },
+        { x: 121.5, y: -43.25, z: 184.5 },
     ],
 };
 
@@ -225,6 +245,9 @@ export const GEN_TREASURES: Record<ZoneId, Spot[]> = {
         { x: 69.5, y: -31.25, z: 134.5 },
         { x: -125.5, y: -34.25, z: 306.5 },
     ],
+    gorge: [
+        { x: 184.5, y: -42.25, z: 26.5 }, { x: 287.5, y: -42.25, z: 10.5 }, { x: 136.5, y: -42.25, z: 106.5 },
+    ],
 };
 
 /** 존별 전망 POI (고지대/물가) */
@@ -250,6 +273,7 @@ export const GEN_POIS: Record<ZoneId, Spot[]> = {
     south_coast: [
         { x: 49.5, y: -14.25, z: 197.5 },
     ],
+    gorge: [{ x: 141.5, y: -25.25, z: 73.5 }], // 제단 최고점
 };
 
 /** 낚시터 (물 인접 개방지) */
@@ -258,3 +282,7 @@ export const GEN_FISHING: Array<{ zone: ZoneId } & Spot> = [
     { zone: "south_coast", x: -64.5, y: -32.25, z: 144.5 },
     { zone: "west_forest", x: -263.5, y: -31.25, z: -53.5 },
 ];
+
+/** 협곡 상륙지(사공 배 도착 지점)·최종 보스 공터 — 스토리 시스템 소비 */
+export const GORGE_LANDING: Spot = { x: 139.5, y: -42.25, z: 17.5 };
+export const GORGE_BOSS_ARENA: Spot = { x: 268.5, y: -43.25, z: 42.5 };

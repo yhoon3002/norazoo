@@ -5,7 +5,7 @@ import { Suspense, useRef, useState } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { ModelAvatar } from "../actors/ModelAvatar";
-import { ENEMY_MODEL_BY_TEMPLATE, MERCHANT_POS, MERCHANT_KEEPOUT } from "../data/gameData";
+import { ENEMY_MODEL_BY_TEMPLATE, ENEMY_TEMPLATES, MERCHANT_POS, MERCHANT_KEEPOUT } from "../data/gameData";
 import { useGame } from "../presenter/useGameStore";
 import type { AnimState } from "../actors/ModelAvatar";
 
@@ -541,12 +541,15 @@ export default function FieldEnemyAvatar({ id, template, pos }: FieldEnemyAvatar
     const modelUrl = ENEMY_MODEL_BY_TEMPLATE[template];
     if (!modelUrl || defeated) return null;
 
+    // 템플릿의 scale 배율(보스급 대형 몬스터용) — 기본 1
+    const templateScale = ENEMY_TEMPLATES[template]?.scale ?? 1;
+
     return (
         <group ref={groupRef} position={[pos.x, pos.y, pos.z]}>
             <Suspense fallback={<EnemyMarker template={template} />}>
                 <ModelAvatar
                     url={modelUrl}
-                    scale={0.01}
+                    scale={0.01 * templateScale}
                     state={animState}
                     rotation={[0, Math.PI, 0]}
                 />

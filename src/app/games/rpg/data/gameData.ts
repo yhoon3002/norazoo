@@ -12,6 +12,14 @@ export const ENEMY_MODEL_BY_TEMPLATE: Record<string, string> = {
     zombie: "/character/Zombie_Male.fbx",
     witch: "/character/Witch.fbx",
     ninja: "/character/Ninja_Female.fbx",
+    ghoul: "/character/Zombie_Female.fbx",
+    mad_bull: "/character/Cow.fbx",
+    wild_dog: "/character/Pug.fbx",
+    orc_chief: "/character/Goblin_Male.fbx",
+    frost_witch: "/character/Witch.fbx",
+    clockwork_soldier: "/character/Goblin_Male.fbx",
+    shade_beast: "/character/Zombie_Male.fbx",
+    gear_devourer: "/character/Witch.fbx",
 };
 
 // 필드 적 데이터 단일 소스 — FieldScene(렌더링)·FieldPlayer(충돌) 공용
@@ -70,6 +78,7 @@ export const ITEM_PRICES: Record<string, number> = {
     driftwood: 9,
     silver_trout: 40,
     coral_fish: 55,
+    dark_crystal: 90,
 };
 
 export const SELL_RATIO = 0.5;
@@ -244,6 +253,14 @@ export const ENEMY_ATTACK_PROFILES: Record<
     zombie: { chargeMs: 1000, hits: [0, 600], parryable: true, ringColor: "#84cc16" }, // 굼뜬 2연타
     witch: { chargeMs: 1800, hits: [0], parryable: false, ringColor: "#a78bfa" }, // 긴 차지 회피 전용
     ninja: { chargeMs: 600, hits: [0, 300, 600], parryable: true, ringColor: "#f472b6" }, // 빠른 3연타
+    ghoul: { chargeMs: 800, hits: [0, 400], parryable: true, ringColor: "#a3e635" },
+    mad_bull: { chargeMs: 1100, hits: [0, 500], parryable: false, ringColor: "#f97316" }, // 돌진 — 회피 전용
+    wild_dog: { chargeMs: 500, hits: [0, 250, 500], parryable: true, ringColor: "#d4d4d8" },
+    orc_chief: { chargeMs: 750, hits: [0, 400, 800], parryable: true, ringColor: "#c084fc" },
+    frost_witch: { chargeMs: 1500, hits: [0], parryable: false, ringColor: "#67e8f9" },
+    clockwork_soldier: { chargeMs: 700, hits: [0, 350, 700], parryable: true, ringColor: "#fbbf24" },
+    shade_beast: { chargeMs: 1000, hits: [0, 650], parryable: true, ringColor: "#6b21a8" },
+    gear_devourer: { chargeMs: 900, hits: [0, 450, 900], parryable: true, ringColor: "#f59e0b" }, // 보스 — 3연타
 };
 
 export const DEFAULT_ATTACK_PROFILE = {
@@ -704,5 +721,210 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
                 { id: "monster_core", chance: 0.25 },
             ],
         },
+    },
+    ghoul: {
+        name: "구울",
+        model: "/character/Zombie_Female.fbx",
+        level: 7,
+        stats: {
+            hp: 120,
+            maxHp: 120,
+            mp: 0,
+            maxMp: 0,
+            atk: 24,
+            def: 8,
+            speed: 20,
+            luck: 5,
+        },
+        skills: ["slash"],
+        statusEffects: [],
+        aiPattern: "aggressive",
+        rewards: {
+            exp: 55,
+            gold: 40,
+            items: [
+                { id: "tree_sap", chance: 0.3 },
+                { id: "monster_core", chance: 0.2 },
+            ],
+        },
+    },
+    mad_bull: {
+        name: "미친 들소",
+        model: "/character/Cow.fbx",
+        level: 7,
+        stats: {
+            hp: 160,
+            maxHp: 160,
+            mp: 0,
+            maxMp: 0,
+            atk: 28,
+            def: 14,
+            speed: 12,
+            luck: 5,
+        },
+        skills: ["slash"],
+        statusEffects: [],
+        aiPattern: "aggressive",
+        rewards: {
+            exp: 65,
+            gold: 45,
+            items: [
+                { id: "herb", chance: 0.5 },
+                { id: "monster_core", chance: 0.2 },
+            ],
+        },
+    },
+    wild_dog: {
+        name: "안개 들개",
+        model: "/character/Pug.fbx",
+        level: 4,
+        stats: {
+            hp: 70,
+            maxHp: 70,
+            mp: 0,
+            maxMp: 0,
+            atk: 14,
+            def: 5,
+            speed: 24,
+            luck: 8,
+        },
+        skills: ["slash"],
+        statusEffects: [],
+        aiPattern: "aggressive",
+        rewards: {
+            exp: 30,
+            gold: 20,
+            items: [{ id: "slime_gel", chance: 0.3 }],
+        },
+    },
+    orc_chief: {
+        name: "오크 족장",
+        model: "/character/Goblin_Male.fbx",
+        level: 10,
+        stats: {
+            hp: 220,
+            maxHp: 220,
+            mp: 0,
+            maxMp: 0,
+            atk: 32,
+            def: 16,
+            speed: 14,
+            luck: 8,
+        },
+        skills: ["slash", "guard_break"],
+        statusEffects: [],
+        aiPattern: "smart",
+        rewards: {
+            exp: 120,
+            gold: 100,
+            items: [
+                { id: "orc_tusk", chance: 0.8 },
+                { id: "iron_ore", chance: 0.3 },
+                { id: "monster_core", chance: 0.3 },
+            ],
+        },
+    },
+    frost_witch: {
+        name: "서리 마녀",
+        model: "/character/Witch.fbx",
+        level: 10,
+        stats: {
+            hp: 140,
+            maxHp: 140,
+            mp: 60,
+            maxMp: 60,
+            atk: 34,
+            def: 10,
+            speed: 20,
+            luck: 12,
+        },
+        skills: ["ice_shard", "lightning"],
+        statusEffects: [],
+        aiPattern: "smart",
+        rewards: {
+            exp: 110,
+            gold: 90,
+            items: [
+                { id: "frost_moss", chance: 0.5 },
+                { id: "silver_ore", chance: 0.2 },
+                { id: "monster_core", chance: 0.3 },
+            ],
+        },
+    },
+    clockwork_soldier: {
+        name: "태엽 병정",
+        model: "/character/Goblin_Male.fbx",
+        level: 11,
+        stats: {
+            hp: 180,
+            maxHp: 180,
+            mp: 0,
+            maxMp: 0,
+            atk: 30,
+            def: 18,
+            speed: 16,
+            luck: 6,
+        },
+        skills: ["slash"],
+        statusEffects: [],
+        aiPattern: "balanced",
+        rewards: {
+            exp: 130,
+            gold: 95,
+            items: [
+                { id: "dark_crystal", chance: 0.35 },
+                { id: "monster_core", chance: 0.3 },
+            ],
+        },
+    },
+    shade_beast: {
+        name: "어둠 마수",
+        model: "/character/Zombie_Male.fbx",
+        level: 12,
+        stats: {
+            hp: 240,
+            maxHp: 240,
+            mp: 0,
+            maxMp: 0,
+            atk: 36,
+            def: 14,
+            speed: 15,
+            luck: 10,
+        },
+        skills: ["slash", "guard_break"],
+        statusEffects: [],
+        aiPattern: "aggressive",
+        rewards: {
+            exp: 160,
+            gold: 120,
+            items: [
+                { id: "dark_crystal", chance: 0.45 },
+                { id: "monster_core", chance: 0.35 },
+            ],
+        },
+    },
+    gear_devourer: {
+        name: "태엽을 삼킨 마수",
+        model: "/character/Witch.fbx",
+        level: 15,
+        stats: {
+            hp: 900,
+            maxHp: 900,
+            mp: 80,
+            maxMp: 80,
+            atk: 42,
+            def: 20,
+            speed: 18,
+            luck: 12,
+        },
+        skills: ["fireball", "lightning", "guard_break"],
+        statusEffects: [],
+        aiPattern: "smart",
+        rewards: {
+            exp: 800,
+            gold: 1500,
+            // 드롭 없음 — 스토리 보상
+        },
+        scale: 2.4,
     },
 };

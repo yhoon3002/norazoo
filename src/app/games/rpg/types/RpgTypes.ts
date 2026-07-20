@@ -88,6 +88,8 @@ export type Enemy = {
         gold: number;
         items?: Array<{ id: string; chance: number }>;
     };
+    /** 모델 스케일 배율 (기본 1) — 보스급 대형 몬스터용 */
+    scale?: number;
 };
 
 export type QTEType = "timing";

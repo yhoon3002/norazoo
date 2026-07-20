@@ -89,6 +89,7 @@ const MATERIALS: Record<string, { name: string }> = {
     driftwood: { name: "유목" },
     silver_trout: { name: "은빛송어" },
     coral_fish: { name: "산호어" },
+    dark_crystal: { name: "어둠 수정" },
 };
 
 type BagTab = "equipment" | "consumable" | "material";
