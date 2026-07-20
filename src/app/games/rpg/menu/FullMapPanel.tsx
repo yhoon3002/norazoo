@@ -9,6 +9,7 @@ import { MERCHANT_POS, FISHING_SPOTS } from "../data/gameData";
 import { SIDE_QUESTS } from "../data/questData";
 import { BOARD_POS } from "../field/BountyBoard";
 import { ZONE_DEFS } from "../data/placementData";
+import { zoneProgress } from "../data/zoneRewards";
 
 /** 낚시터 마커 툴팁용 어종 표시명 */
 const FISH_NAMES: Record<string, string> = {
@@ -60,16 +61,22 @@ export function FullMapPanel() {
                         className="rounded-xl border border-white/10"
                         style={{ maxWidth: "80vw", maxHeight: "70vh" }}
                     />
-                    {/* 존 라벨 */}
-                    {ZONE_DEFS.map((zd) => (
-                        <div
-                            key={zd.id}
-                            className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[10px] tracking-widest text-white/50"
-                            style={pct(zd.cx, zd.cz)}
-                        >
-                            {zd.label}
-                        </div>
-                    ))}
+                    {/* 존 라벨 — 정복 진행도(n/5) 및 완료 시 🏆 표시 */}
+                    {ZONE_DEFS.map((zd) => {
+                        const { done, total } = zoneProgress(zd.id, flags);
+                        const conquered = !!flags[`zone_done_${zd.id}`];
+                        return (
+                            <div
+                                key={zd.id}
+                                className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[10px] tracking-widest text-white/50"
+                                style={pct(zd.cx, zd.cz)}
+                            >
+                                {conquered
+                                    ? `🏆 ${zd.label}`
+                                    : `${zd.label} ${done}/${total}`}
+                            </div>
+                        );
+                    })}
                     {/* 낚시터 */}
                     {FISHING_SPOTS.map((sp) => (
                         <div

@@ -26,6 +26,7 @@ import { FieldGatherable } from "./FieldGatherable";
 import FieldEnemyAvatar from "./FieldEnemyAvatar";
 import { NavmeshController } from "./NavmeshController";
 import { RespawnController } from "./RespawnController";
+import { ZoneCompletionController } from "./ZoneCompletionController";
 import { FieldPoi } from "./FieldPoi";
 import { POIS } from "../data/poiData";
 import { FIELD_ENEMIES, FIELD_TREASURES, FIELD_GATHERABLES, GOLDEN_HERB_SPOTS, FISHING_SPOTS } from "../data/gameData";
@@ -169,6 +170,7 @@ export function FieldScene({
                 qty={1}
             />
             <RespawnController />
+            <ZoneCompletionController />
             {STORY_FLAGS.map((f) => (
                 <FieldFlag
                     key={f.id}
