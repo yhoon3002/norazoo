@@ -11,6 +11,7 @@ export const uiSlice = (set: any, get: any) => ({
         mapOpen: false,
         fishingOpen: false,
         smithOpen: false,
+        bountyOpen: false,
     },
 
     // ===== Toggle Pause =====
@@ -47,6 +48,10 @@ export const uiSlice = (set: any, get: any) => ({
     toggleSmith: () =>
         set((s: any) => ({ ui: { ...s.ui, smithOpen: !s.ui.smithOpen } })),
 
+    // ===== 사냥 의뢰판 =====
+    toggleBounty: () =>
+        set((s: any) => ({ ui: { ...s.ui, bountyOpen: !s.ui.bountyOpen } })),
+
     // ===== Close All UI =====
     closeAll: () =>
         set(() => ({
@@ -58,6 +63,7 @@ export const uiSlice = (set: any, get: any) => ({
                 mapOpen: false,
                 fishingOpen: false,
                 smithOpen: false,
+                bountyOpen: false,
             },
         })),
 });

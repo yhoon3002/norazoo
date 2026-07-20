@@ -439,6 +439,9 @@ export const turnSlice = (set: any, get: any) => ({
                 defeatedIds.forEach(
                     (id: any) => (newFlags[`defeated_${id}`] = true)
                 );
+                enemiesInCombat(s).forEach((e: any) => {
+                    if (e.template) get().addKill(e.template);
+                });
 
                 const restoredParty = s.player.party.map((c: any) => ({
                     ...c,
@@ -503,6 +506,7 @@ export const turnSlice = (set: any, get: any) => ({
             quests: d.quests || [],
             treasures: d.treasures || [],
             story: (d as any).story ?? s.story, // 구버전 세이브 호환
+            killCounts: (d as any).counters ?? {},
             dialogue: [],
             combat: { phase: "idle" },
             turnQueue: [],
@@ -521,6 +525,7 @@ export const turnSlice = (set: any, get: any) => ({
             quests: s.quests,
             treasures: s.treasures,
             story: s.story,
+            counters: s.killCounts,
             unlockedSkills: [],
             unlockedEquipment: [],
         };

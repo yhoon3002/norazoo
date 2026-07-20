@@ -212,6 +212,8 @@ export type SaveV1 = {
         target?: null | { x: number; z: number };
         respawn: null | { x: number; y: number; z: number; label: string };
     };
+    /** 처치 카운트/의뢰 기준점 (v1 후기 추가 — 없으면 빈 객체) */
+    counters?: Record<string, number>;
 };
 
 export type SaveData = SaveV1;

@@ -7,6 +7,7 @@ import { STORY_FLAGS, LORE_POINTS, stageAtLeast } from "../data/storyData";
 import { POIS } from "../data/poiData";
 import { MERCHANT_POS } from "../data/gameData";
 import { SIDE_QUESTS } from "../data/questData";
+import { BOARD_POS } from "../field/BountyBoard";
 
 export function FullMapPanel() {
     const open = useGame((s) => (s.ui as any).mapOpen);
@@ -70,6 +71,14 @@ export function FullMapPanel() {
                         title="요리사(상점)"
                     >
                         💰
+                    </div>
+                    {/* 사냥 의뢰판 */}
+                    <div
+                        className="absolute -translate-x-1/2 -translate-y-1/2 text-sm"
+                        style={pct(BOARD_POS.x, BOARD_POS.z)}
+                        title="사냥 의뢰판"
+                    >
+                        📋
                     </div>
                     {/* 발견한 전망 포인트 */}
                     {POIS.filter((p) => flags[`poi_${p.id}`]).map((p) => (
@@ -153,7 +162,7 @@ export function FullMapPanel() {
                 <div className="mt-2 flex items-center justify-between text-xs text-gray-400">
                     <span>
                         ▲ 현재 위치 · ◆ 목표 · 🚩 깃발(클릭: 빠른이동) · 💰 상인
-                        · 📜/🗿 조사 포인트 · 🏞️ 전망 · ❗ 의뢰
+                        · 📜/🗿 조사 포인트 · 🏞️ 전망 · ❗ 의뢰 · 📋 사냥 의뢰판
                     </span>
                     <span>M / ESC: 닫기</span>
                 </div>

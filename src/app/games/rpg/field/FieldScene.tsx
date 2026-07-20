@@ -11,6 +11,7 @@ import { FieldCompanions } from "./FieldCompanions";
 import { FieldMerchant } from "./FieldMerchant";
 import { FieldQuestNpc } from "./FieldQuestNpc";
 import { FieldSmith } from "./FieldSmith";
+import { BountyBoard } from "./BountyBoard";
 import { FieldFlag } from "./FieldFlag";
 import { FishingSpot } from "./FishingSpot";
 import { StoryTriggers } from "./StoryTriggers";
@@ -134,6 +135,9 @@ export function FieldScene({
 
             {/* 대장간 NPC — smith_core 완료 후 E로 강화로 오픈 */}
             <FieldSmith />
+
+            {/* 사냥 의뢰판 — 반복 토벌 의뢰 */}
+            <BountyBoard />
 
             {/* 스토리: 트리거 감시 + 목표 빛기둥 + 체크포인트 깃발 */}
             <StoryTriggers />

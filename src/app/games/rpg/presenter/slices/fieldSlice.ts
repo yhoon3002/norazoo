@@ -11,6 +11,18 @@ export const fieldSlice = (set: any, get: any) => ({
     /** 요리 버프 대기열 — 다음 전투 시작 시 파티 전원에게 적용 (5분 내 미사용 시 만료, 비영속) */
     pendingBuffs: [] as Array<{ type: string; value: number; duration: number; expiresAt: number }>,
 
+    /** 템플릿별 누적 처치 수 (+ 의뢰 기준점 `bounty_${id}_base`) — 세이브 영속 */
+    killCounts: {} as Record<string, number>,
+
+    addKill: (template: string) =>
+        set((s: any) => ({
+            killCounts: {
+                ...s.killCounts,
+                [template]: (s.killCounts[template] ?? 0) + 1,
+                "*": (s.killCounts["*"] ?? 0) + 1,
+            },
+        })),
+
     addPendingBuffs: (buffs: Array<{ type: string; value: number; duration: number }>) =>
         set((s: any) => ({
             pendingBuffs: [
