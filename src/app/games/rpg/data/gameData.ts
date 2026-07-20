@@ -387,6 +387,31 @@ export const EQUIPMENT: Record<string, Equipment> = {
     },
 };
 
+// ===== 장비 강화 파생 (+1~+3) — 모듈 로드 시 자동 생성 =====
+// id 규약: `${원본}_p{n}`. 스탯 ×1.15/1.30/1.50 반올림, 표시명 "+n".
+export const UPGRADE_MULT = [1.15, 1.3, 1.5];
+export const UPGRADE_COSTS: Array<{ needs: Array<{ id: string; qty: number }>; gold: number }> = [
+    { needs: [{ id: "iron_ore", qty: 2 }], gold: 100 },
+    { needs: [{ id: "iron_ore", qty: 3 }, { id: "monster_core", qty: 1 }], gold: 250 },
+    { needs: [{ id: "silver_ore", qty: 2 }, { id: "monster_core", qty: 2 }], gold: 600 },
+];
+for (const baseId of Object.keys(EQUIPMENT)) {
+    const base = EQUIPMENT[baseId];
+    for (let n = 1; n <= 3; n++) {
+        const stats: Record<string, number> = {};
+        for (const [k, v] of Object.entries(base.stats)) {
+            if (typeof v === "number") stats[k] = Math.round(v * UPGRADE_MULT[n - 1]);
+        }
+        EQUIPMENT[`${baseId}_p${n}`] = {
+            ...base,
+            name: `${base.name} +${n}`,
+            stats: stats as any,
+        };
+        if (ITEM_PRICES[baseId])
+            ITEM_PRICES[`${baseId}_p${n}`] = Math.round(ITEM_PRICES[baseId] * UPGRADE_MULT[n - 1]);
+    }
+}
+
 // ===== 파티 캐릭터 메타 — 표시명/고유색/초상화 단일 소스 (대사 UI·필드 마커·HUD 공용) =====
 export type PartyMeta = {
     displayName: string;

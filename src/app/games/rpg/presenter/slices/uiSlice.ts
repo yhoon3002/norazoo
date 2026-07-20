@@ -10,6 +10,7 @@ export const uiSlice = (set: any, get: any) => ({
         fastTravelOpen: false,
         mapOpen: false,
         fishingOpen: false,
+        smithOpen: false,
     },
 
     // ===== Toggle Pause =====
@@ -42,6 +43,10 @@ export const uiSlice = (set: any, get: any) => ({
     toggleFishing: () =>
         set((s: any) => ({ ui: { ...s.ui, fishingOpen: !s.ui.fishingOpen } })),
 
+    // ===== 대장간 강화 =====
+    toggleSmith: () =>
+        set((s: any) => ({ ui: { ...s.ui, smithOpen: !s.ui.smithOpen } })),
+
     // ===== Close All UI =====
     closeAll: () =>
         set(() => ({
@@ -52,6 +57,7 @@ export const uiSlice = (set: any, get: any) => ({
                 fastTravelOpen: false,
                 mapOpen: false,
                 fishingOpen: false,
+                smithOpen: false,
             },
         })),
 });

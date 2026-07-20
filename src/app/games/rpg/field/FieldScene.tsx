@@ -10,6 +10,7 @@ import { FieldPlayer } from "./FieldPlayer";
 import { FieldCompanions } from "./FieldCompanions";
 import { FieldMerchant } from "./FieldMerchant";
 import { FieldQuestNpc } from "./FieldQuestNpc";
+import { FieldSmith } from "./FieldSmith";
 import { FieldFlag } from "./FieldFlag";
 import { FishingSpot } from "./FishingSpot";
 import { StoryTriggers } from "./StoryTriggers";
@@ -130,6 +131,9 @@ export function FieldScene({
             {SIDE_QUESTS.map((q) => (
                 <FieldQuestNpc key={q.id} quest={q} />
             ))}
+
+            {/* 대장간 NPC — smith_core 완료 후 E로 강화로 오픈 */}
+            <FieldSmith />
 
             {/* 스토리: 트리거 감시 + 목표 빛기둥 + 체크포인트 깃발 */}
             <StoryTriggers />

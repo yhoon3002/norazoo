@@ -30,6 +30,7 @@ import { DamageFeed, EnemyHealthBarTop } from "../ui/DamageFeedUI";
 import { SlowMotionEffect } from "../ui/HitEffects";
 import { InventoryPanel, GameMenu } from "../menu/MenuUI";
 import { ShopPanel } from "../menu/ShopPanel";
+import { SmithPanel } from "../menu/SmithPanel";
 import { SaveLoadPanel } from "../menu/SaveLoadPanel";
 import { DialogueUI } from "../ui/DialogueUI";
 import { MiniMap } from "../ui/MiniMap";
@@ -110,20 +111,20 @@ export default function RpgGame() {
                 if (key === "escape") {
                     // 상점/패스트트래블/지도가 열려 있으면 ESC는 그것만 닫는다
                     const ui = useGame.getState().ui as any;
-                    if (ui.shopOpen || ui.fastTravelOpen || ui.mapOpen || ui.fishingOpen) {
+                    if (ui.shopOpen || ui.fastTravelOpen || ui.mapOpen || ui.fishingOpen || ui.smithOpen) {
                         closeAll();
                         return;
                     }
                     togglePause();
                 } else if (key === "i") {
                     const u = useGame.getState().ui as any;
-                    if (u.mapOpen || u.shopOpen || u.fastTravelOpen || u.fishingOpen) return;
+                    if (u.mapOpen || u.shopOpen || u.fastTravelOpen || u.fishingOpen || u.smithOpen) return;
                     toggleInventory();
                 } else if (key === "m") {
                     const st = useGame.getState();
                     if (st.dialogue.length > 0) return;
                     const u = st.ui as any;
-                    if (u.pauseOpen || u.inventoryOpen || u.shopOpen || u.fastTravelOpen || u.fishingOpen) return;
+                    if (u.pauseOpen || u.inventoryOpen || u.shopOpen || u.fastTravelOpen || u.fishingOpen || u.smithOpen) return;
                     document.exitPointerLock?.();
                     (st as any).toggleMap();
                 }
@@ -255,7 +256,8 @@ export default function RpgGame() {
                 !ui.shopOpen &&
                 !ui.fastTravelOpen &&
                 !ui.mapOpen &&
-                !ui.fishingOpen && <MiniMap />}
+                !ui.fishingOpen &&
+                !ui.smithOpen && <MiniMap />}
 
             {combat.phase === "idle" && <DialogueUI />}
 
@@ -279,6 +281,7 @@ export default function RpgGame() {
             <GameMenu />
             <InventoryPanel />
             {combat.phase === "idle" && <ShopPanel />}
+            {combat.phase === "idle" && <SmithPanel />}
             {combat.phase === "idle" && <FastTravelPanel />}
             {combat.phase === "idle" && <FullMapPanel />}
             {combat.phase === "idle" && <FishingPanel />}

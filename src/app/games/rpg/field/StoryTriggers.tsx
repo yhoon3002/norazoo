@@ -17,8 +17,8 @@ export function StoryTriggers() {
         const g = useGame.getState();
         if (g.combat.phase !== "idle") return;
         if (g.dialogue.length > 0) return; // 대화 중엔 다음 트리거 보류
-        const ui = g.ui as { mapOpen?: boolean; fishingOpen?: boolean };
-        if (ui.mapOpen || ui.fishingOpen) return; // 오버레이 중에도 보류
+        const ui = g.ui as { mapOpen?: boolean; fishingOpen?: boolean; smithOpen?: boolean };
+        if (ui.mapOpen || ui.fishingOpen || ui.smithOpen) return; // 오버레이 중에도 보류
 
         const p = state.scene.userData.__playerWorldPos as
             | THREE.Vector3

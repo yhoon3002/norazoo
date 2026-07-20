@@ -483,7 +483,8 @@ export function FieldPlayer({
         const inDialogue =
             gState.dialogue.length > 0 ||
             (gState.ui as any).mapOpen === true ||
-            (gState.ui as any).fishingOpen === true;
+            (gState.ui as any).fishingOpen === true ||
+            (gState.ui as any).smithOpen === true;
 
         const fwd = tmpV3.current;
         camera.getWorldDirection(fwd);
