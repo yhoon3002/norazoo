@@ -11,6 +11,7 @@ import { FieldCompanions } from "./FieldCompanions";
 import { FieldMerchant } from "./FieldMerchant";
 import { FieldQuestNpc } from "./FieldQuestNpc";
 import { FieldSmith } from "./FieldSmith";
+import { Boatman } from "./Boatman";
 import { BountyBoard } from "./BountyBoard";
 import { FieldFlag } from "./FieldFlag";
 import { FishingSpot } from "./FishingSpot";
@@ -138,6 +139,9 @@ export function FieldScene({
 
             {/* 대장간 NPC — smith_core 완료 후 E로 강화로 오픈 */}
             <FieldSmith />
+
+            {/* 사공 NPC — 항구 ↔ 협곡 상륙지 왕복 (ch5_gorge부터 표시) */}
+            <Boatman />
 
             {/* 사냥 의뢰판 — 반복 토벌 의뢰 */}
             <BountyBoard />

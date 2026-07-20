@@ -41,6 +41,8 @@ export function StoryTriggers() {
                 flags: { ...s.flags, [`story_${t.id}`]: true },
             }));
             if (t.dialogue) g.startDialogue(t.dialogue);
+            // 대사 종료 후 전투 진입 — advanceDialogue가 큐 소진 시 소비
+            if (t.battle) g.setPendingStoryBattle(t.battle);
             const patch: {
                 stage?: string;
                 objective?: string;
@@ -50,6 +52,20 @@ export function StoryTriggers() {
             if (t.objective) patch.objective = t.objective;
             if (t.target !== undefined) patch.target = t.target;
             if (Object.keys(patch).length) g.setStory(patch);
+
+            // 트리거 보상 지급
+            if (t.reward) {
+                if (t.reward.gold) g.gainGold(t.reward.gold);
+                if (t.reward.items)
+                    for (const it of t.reward.items) g.addItem(it.id, it.qty);
+                g.spawnPopup({
+                    side: "ally",
+                    text: `🎁 보상 획득!${
+                        t.reward.gold ? ` +${t.reward.gold}G` : ""
+                    }`,
+                    color: "#fbbf24",
+                });
+            }
             break; // 프레임당 1개만
         }
     });
