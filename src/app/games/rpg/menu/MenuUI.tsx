@@ -76,6 +76,19 @@ const MATERIALS: Record<string, { name: string }> = {
     fish_common: { name: "생선" },
     fish_rare: { name: "월광어" },
     kite: { name: "연" },
+    clam: { name: "조개" },
+    sea_salt: { name: "바닷소금" },
+    wind_flower: { name: "바람꽃" },
+    forest_mushroom: { name: "숲버섯" },
+    tree_sap: { name: "나무수액" },
+    frost_moss: { name: "서리이끼" },
+    iron_ore: { name: "철광석" },
+    silver_ore: { name: "은광석" },
+    reed: { name: "갈대" },
+    lotus: { name: "연꽃" },
+    driftwood: { name: "유목" },
+    silver_trout: { name: "은빛송어" },
+    coral_fish: { name: "산호어" },
 };
 
 type BagTab = "equipment" | "consumable" | "material";

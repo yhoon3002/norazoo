@@ -240,3 +240,6 @@ useFBX.preload("/character/VikingHelmet.fbx");
 useFBX.preload("/character/Viking_Female.fbx");
 useFBX.preload("/character/Cowboy_Hair.fbx");
 useFBX.preload("/character/Elf.fbx");
+useFBX.preload("/character/Zombie_Male.fbx");
+useFBX.preload("/character/Witch.fbx");
+useFBX.preload("/character/Ninja_Female.fbx");

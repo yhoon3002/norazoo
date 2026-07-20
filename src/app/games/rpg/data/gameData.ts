@@ -7,6 +7,9 @@ export const ENEMY_MODEL_BY_TEMPLATE: Record<string, string> = {
     slime: "/character/Zombie_Female.fbx",
     orc: "/character/Goblin_Male.fbx",
     mage: "/character/Wizard.fbx",
+    zombie: "/character/Zombie_Male.fbx",
+    witch: "/character/Witch.fbx",
+    ninja: "/character/Ninja_Female.fbx",
 };
 
 // 필드 적 데이터 단일 소스 — FieldScene(렌더링)·FieldPlayer(충돌) 공용
@@ -52,6 +55,19 @@ export const ITEM_PRICES: Record<string, number> = {
     golden_herb: 60,
     fish_common: 18,
     fish_rare: 90,
+    clam: 10,
+    sea_salt: 8,
+    wind_flower: 25,
+    forest_mushroom: 15,
+    tree_sap: 12,
+    frost_moss: 30,
+    iron_ore: 35,
+    silver_ore: 70,
+    reed: 6,
+    lotus: 28,
+    driftwood: 9,
+    silver_trout: 40,
+    coral_fish: 55,
 };
 
 export const SELL_RATIO = 0.5;
@@ -174,6 +190,9 @@ export const ENEMY_ATTACK_PROFILES: Record<
     slime: { chargeMs: 1200, hits: [0], parryable: true, ringColor: "#ffd54a" }, // 느긋한 단타 (입문)
     orc: { chargeMs: 700, hits: [0, 450], parryable: true, ringColor: "#c084fc" }, // 빠른 2연타
     mage: { chargeMs: 1600, hits: [0], parryable: false, ringColor: "#ff5252" }, // 긴 차지 후 회피 전용 마법
+    zombie: { chargeMs: 1000, hits: [0, 600], parryable: true, ringColor: "#84cc16" }, // 굼뜬 2연타
+    witch: { chargeMs: 1800, hits: [0], parryable: false, ringColor: "#a78bfa" }, // 긴 차지 회피 전용
+    ninja: { chargeMs: 600, hits: [0, 300, 600], parryable: true, ringColor: "#f472b6" }, // 빠른 3연타
 };
 
 export const DEFAULT_ATTACK_PROFILE = {
@@ -528,6 +547,84 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
                 { id: "mana_crystal", chance: 0.9 },
                 { id: "mage_staff", chance: 0.3 },
                 { id: "monster_core", chance: 0.15 },
+            ],
+        },
+    },
+    zombie: {
+        name: "썩은 좀비",
+        model: "/character/Zombie_Male.fbx",
+        level: 6,
+        stats: {
+            hp: 140,
+            maxHp: 140,
+            mp: 0,
+            maxMp: 0,
+            atk: 22,
+            def: 12,
+            speed: 8,
+            luck: 3,
+        },
+        skills: ["slash"],
+        statusEffects: [],
+        aiPattern: "aggressive",
+        rewards: {
+            exp: 45,
+            gold: 30,
+            items: [
+                { id: "tree_sap", chance: 0.35 },
+                { id: "monster_core", chance: 0.2 },
+            ],
+        },
+    },
+    witch: {
+        name: "숲의 마녀",
+        model: "/character/Witch.fbx",
+        level: 8,
+        stats: {
+            hp: 110,
+            maxHp: 110,
+            mp: 60,
+            maxMp: 60,
+            atk: 30,
+            def: 8,
+            speed: 18,
+            luck: 10,
+        },
+        skills: ["fireball", "lightning"],
+        statusEffects: [],
+        aiPattern: "smart",
+        rewards: {
+            exp: 70,
+            gold: 55,
+            items: [
+                { id: "frost_moss", chance: 0.4 },
+                { id: "monster_core", chance: 0.25 },
+            ],
+        },
+    },
+    ninja: {
+        name: "그림자 닌자",
+        model: "/character/Ninja_Female.fbx",
+        level: 9,
+        stats: {
+            hp: 130,
+            maxHp: 130,
+            mp: 20,
+            maxMp: 20,
+            atk: 26,
+            def: 10,
+            speed: 26,
+            luck: 12,
+        },
+        skills: ["slash", "ice_shard"],
+        statusEffects: [],
+        aiPattern: "smart",
+        rewards: {
+            exp: 85,
+            gold: 70,
+            items: [
+                { id: "silver_ore", chance: 0.2 },
+                { id: "monster_core", chance: 0.25 },
             ],
         },
     },
