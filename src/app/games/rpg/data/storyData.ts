@@ -6,6 +6,7 @@
 // 태엽 조각 3개를 찾아 항구 → 바람 언덕 → 어둠의 협곡으로 향한다.
 
 import type { PartyId } from "../types/RpgTypes";
+import { GEN_FLAGS, ZONE_DEFS } from "./placementData";
 
 export type DialogueLine = {
     text: string;
@@ -372,3 +373,14 @@ export const STORY_FLAGS: Array<{
     { id: "port", x: 218.6, z: -14.7, y: -38.25, label: "항구" },
     { id: "hill", x: 0, z: -210, label: "바람 언덕" },
 ];
+
+// 존 확장 깃발 — placementData 도로 개방도 최상위 지점 (도달 검증 완료)
+for (const f of GEN_FLAGS) {
+    STORY_FLAGS.push({
+        id: `z_${f.zone}`,
+        x: f.x,
+        z: f.z,
+        y: f.y,
+        label: ZONE_DEFS.find((z) => z.id === f.zone)!.label,
+    });
+}

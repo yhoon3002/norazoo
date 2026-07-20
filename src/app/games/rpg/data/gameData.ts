@@ -1,6 +1,8 @@
 // rpg/data/gameData.ts
 import * as THREE from "three";
 import type { Skill, Equipment, Character, Enemy, PartyId } from "../types/RpgTypes";
+import { ZONE_DEFS, GEN_GATHER, GEN_ROAMERS, GEN_TREASURES } from "./placementData";
+import { ZONE_CONTENT } from "./zoneContent";
 
 
 export const ENEMY_MODEL_BY_TEMPLATE: Record<string, string> = {
@@ -161,6 +163,34 @@ export const GOLDEN_HERB_SPOTS: Array<{ x: number; y: number; z: number }> = [
     { x: 112, y: -33.25, z: -32 },
     { x: 205, y: -38.25, z: 8 },
 ];
+
+// ===== 존 확장 배치 — placementData(도달 검증 좌표) × zoneContent(티어 구성) 전개 =====
+for (const zd of ZONE_DEFS) {
+    const zc = ZONE_CONTENT[zd.id];
+    GEN_GATHER[zd.id].forEach((s, i) => {
+        FIELD_GATHERABLES.push({
+            id: `z_${zd.id}_g${i}`,
+            pos: new THREE.Vector3(s.x, s.y, s.z),
+            item: zc.gatherItems[i % zc.gatherItems.length],
+            qty: 1,
+        });
+    });
+    GEN_ROAMERS[zd.id].forEach((s, i) => {
+        FIELD_ENEMIES.push({
+            id: `z_${zd.id}_r${i}`,
+            pos: new THREE.Vector3(s.x, s.y, s.z),
+            templates: zc.roamerPacks[i % zc.roamerPacks.length],
+            respawn: 180_000,
+        });
+    });
+    GEN_TREASURES[zd.id].forEach((s, i) => {
+        FIELD_TREASURES.push({
+            id: `z_${zd.id}_t${i}`,
+            pos: new THREE.Vector3(s.x, s.y, s.z),
+            items: zc.treasureLoot[i % zc.treasureLoot.length],
+        });
+    });
+}
 
 // ===== 요리사 미니퀘스트: 멈춘 화덕을 위한 재료 =====
 export const COOK_QUEST = {
