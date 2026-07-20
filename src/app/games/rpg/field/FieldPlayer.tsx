@@ -590,6 +590,9 @@ export function FieldPlayer({
                 // 제한 — 1m 블록 둔덕은 오르내리고, 그보다 깊은 구덩이(부두 아래
                 // 해변 등 되돌아올 수 없는 낙차)는 원천 방지
                 maxDrop: teleported ? 6 : TERRAIN_STEP_MAX + 0.02,
+                // 텔레포트는 밴드 내에서도 목표 y 최근접 층 우선 — 다리/바위 상판이
+                // 밴드에 걸려도 의도한 지면(깃발 데이터 y)으로 내려선다
+                preferClosest: teleported,
             });
             if (gy === null && teleported) {
                 // 목표 y 근처에 층이 없으면(구세이브 좌표 등) 전범위 폴백

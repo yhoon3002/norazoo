@@ -27,6 +27,8 @@ export function useEnvironmentGroundHeight(maxTiltDeg: number = MAX_SLOPE_DEG) {
             baseY?: number;
             maxRise?: number | null;
             maxDrop?: number | null;
+            /** 후보 중 "가장 높은 y" 대신 baseY에 가장 가까운 층을 선택 (텔레포트 착지용) */
+            preferClosest?: boolean;
         }
     ): number | null => {
         const targets =
@@ -81,9 +83,16 @@ export function useEnvironmentGroundHeight(maxTiltDeg: number = MAX_SLOPE_DEG) {
             const y = h.point.y;
             if (y > maxAllowedY || y < minAllowedY) continue;
 
+            const better = (cur: number | null) => {
+                if (cur == null) return true;
+                if (opts?.preferClosest && opts.baseY !== undefined) {
+                    return Math.abs(y - opts.baseY) < Math.abs(cur - opts.baseY);
+                }
+                return y > cur;
+            };
             if (isMask) {
-                if (bestMaskY == null || y > bestMaskY) bestMaskY = y;
-            } else if (bestY == null || y > bestY) {
+                if (better(bestMaskY)) bestMaskY = y;
+            } else if (better(bestY)) {
                 bestY = y;
             }
         }
