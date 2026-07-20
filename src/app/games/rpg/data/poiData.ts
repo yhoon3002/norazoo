@@ -47,6 +47,7 @@ const ZONE_POI_DESC: Record<string, string> = {
     north_woods: "서리 낀 숲 사이로 옛길이 보인다",
     ne_water: "갈대밭 너머 수로가 얽혀 있다",
     south_coast: "굳은 파도가 해안을 감싼다",
+    gorge: "시간을 삼킨 협곡의 심연이 내려다보인다",
 };
 for (const zd of ZONE_DEFS) {
     GEN_POIS[zd.id].forEach((s, i) => {

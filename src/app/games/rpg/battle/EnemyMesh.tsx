@@ -212,14 +212,18 @@ export function EnemyMesh({
         }
     });
 
+    // 템플릿 id 기반 모델 조회 — 이름 휴리스틱은 신규 종(구울·들소·보스 등)을
+    // 전부 mage로 오판하므로 template을 1순위로, 휴리스틱은 구세이브 폴백으로만
     const url =
+        (enemy.template && ENEMY_MODEL_BY_TEMPLATE[enemy.template]) ||
         ENEMY_MODEL_BY_TEMPLATE[
             enemy.name?.toLowerCase().includes("orc")
                 ? "orc"
                 : enemy.name?.toLowerCase().includes("slime")
                 ? "slime"
                 : "mage"
-        ] || "/character/Goblin_Male.fbx";
+        ] ||
+        "/character/Goblin_Male.fbx";
 
     // 템플릿의 scale 배율(보스급 대형 몬스터용) — 기본 1
     const templateScale = ENEMY_TEMPLATES[enemy.template as string]?.scale ?? 1;
