@@ -8,6 +8,7 @@ import {
     enemiesInCombat,
     getEnemyById,
     findNextAliveIndex,
+    effectiveStat,
 } from "../gameStoreHelpers";
 
 export const turnSlice = (set: any, get: any) => ({
@@ -291,7 +292,7 @@ export const turnSlice = (set: any, get: any) => ({
 
                     get().triggerAnimatedAction(actor.id, skillAnim, 1000);
 
-                    const actorAtk = actor.stats.atk || 0;
+                    const actorAtk = effectiveStat(actor, "atk") || 0;
                     const base = (sk.damage || 0) + actorAtk * 0.5;
 
                     const applyToEnemy = (enemyId: string) => {
@@ -300,7 +301,8 @@ export const turnSlice = (set: any, get: any) => ({
                         const damage = Math.max(
                             1,
                             Math.round(
-                                base * (1.05 + bonus) - enemy.stats.def * 0.3
+                                base * (1.05 + bonus) -
+                                    effectiveStat(enemy, "def") * 0.3
                             )
                         );
 

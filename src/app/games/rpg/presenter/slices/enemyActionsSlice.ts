@@ -7,7 +7,7 @@ import {
     ENEMY_ATTACK_PROFILES,
     DEFAULT_ATTACK_PROFILE,
 } from "../../data/gameData";
-import { enemiesInCombat, getEnemyById } from "../gameStoreHelpers";
+import { enemiesInCombat, getEnemyById, effectiveStat } from "../gameStoreHelpers";
 
 const PARRY_WINDOW = 90; // ±ms
 const DODGE_WINDOW = 180; // ±ms
@@ -455,8 +455,9 @@ export const enemyActionsSlice = (set: any, get: any) => ({
         const tele = s.combat.telegraph as Telegraph;
         const hits = tele.hits ?? [tele.hitAt];
         const sk = action.skillId ? SKILLS[action.skillId] : undefined;
-        const base = sk ? sk.damage + enemy.stats.atk * 0.5 : enemy.stats.atk;
-        const total = Math.max(1, Math.round(base - target.stats.def * 0.5));
+        const atk = effectiveStat(enemy, "atk");
+        const base = sk ? sk.damage + atk * 0.5 : atk;
+        const total = Math.max(1, Math.round(base - effectiveStat(target, "def") * 0.5));
         const dmg = Math.max(1, Math.round(total / hits.length));
 
         const party = s.player.party.filter((c: any) => c.stats.hp > 0);
@@ -523,7 +524,7 @@ export const enemyActionsSlice = (set: any, get: any) => ({
 
             const counter = Math.max(
                 1,
-                Math.round(target.stats.atk * 0.8 - enemy.stats.def * 0.3)
+                Math.round(effectiveStat(target, "atk") * 0.8 - effectiveStat(enemy, "def") * 0.3)
             );
 
             setTimeout(() => {

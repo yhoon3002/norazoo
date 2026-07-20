@@ -88,6 +88,24 @@ export const statusSlice = (set: any, get: any) => ({
                     // Buff effect handled elsewhere
                     break;
 
+                case "regen":
+                    // healCharacter 액션은 스토어에 없음(전역 검색 확인) — 직접 회복 처리
+                    set((state: any) => {
+                        const party = state.player.party.map((c: any) =>
+                            c.id === characterId
+                                ? { ...c, stats: { ...c.stats, hp: Math.min(c.stats.maxHp, c.stats.hp + effect.value) } }
+                                : c
+                        );
+                        return { player: { ...state.player, party } };
+                    });
+                    get().spawnPopup({
+                        side: char ? "ally" : "enemy",
+                        charId: characterId,
+                        text: `+${effect.value} (재생)`,
+                        color: "#4ade80",
+                    });
+                    break;
+
                 case "stun":
                 case "freeze":
                     get().spawnPopup({

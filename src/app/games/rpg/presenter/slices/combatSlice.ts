@@ -64,7 +64,10 @@ export const combatSlice = (set: any, get: any) => ({
         }),
 
     // ===== Start Combat =====
-    startCombat: (payload: any) =>
+    startCombat: (payload: any) => {
+        // ether 버프는 즉시 효과라 set() 밖에서 처리 — set 콜백 안에서 채워 넣는다
+        let cookedBuffs: Array<{ type: string; value: number; duration: number }> = [];
+
         set((s: any) => {
             const group =
                 "group" in payload
@@ -83,11 +86,34 @@ export const combatSlice = (set: any, get: any) => ({
                 return { id: fieldId, template, ...tpl };
             });
 
+            // 요리 버프 소비 — 파티 전원 statusEffects에 부여, ether는 즉시(아래 set 이후 처리)
+            const buffs = (get() as any).consumePendingBuffs?.() ?? [];
+            cookedBuffs = buffs;
+            const statusBuffs = buffs.filter((b: any) => b.type !== "ether");
+            const party = s.player.party.map((c: any) => ({
+                ...c,
+                statusEffects: [
+                    ...c.statusEffects,
+                    ...statusBuffs.map((b: any) => ({
+                        type: b.type,
+                        duration: b.duration,
+                        value: b.value,
+                    })),
+                ],
+            }));
+
+            // 유효 speed = stats.speed + Σ(speed 버프) — 요리 버프가 턴 순서에도 반영되도록
+            const effSpeed = (u: any) =>
+                u.stats.speed +
+                u.statusEffects
+                    .filter((e: any) => e.type === "speed")
+                    .reduce((sum: number, e: any) => sum + e.value, 0);
+
             const all = [
-                ...s.player.party
+                ...party
                     .filter((c: any) => c.stats.hp > 0)
-                    .map((c: any) => ({ id: c.id, speed: c.stats.speed })),
-                ...enemies.map((e: any) => ({ id: e.id, speed: e.stats.speed })),
+                    .map((c: any) => ({ id: c.id, speed: effSpeed(c) })),
+                ...enemies.map((e: any) => ({ id: e.id, speed: effSpeed(e) })),
             ].sort((a: any, b: any) => b.speed - a.speed);
 
             return {
@@ -96,6 +122,7 @@ export const combatSlice = (set: any, get: any) => ({
                 currentTurn: 0,
                 battleIndex: 0,
                 subMenuIndex: 0,
+                player: { ...s.player, party },
                 // 방어 튜토리얼은 "처음 실행된 전투" 한 판만 — 다음 전투부터는 종료 확정
                 defenseTutorial: null,
                 flags:
@@ -104,12 +131,18 @@ export const combatSlice = (set: any, get: any) => ({
                         ? { ...s.flags, defense_tutorial_done: true }
                         : s.flags,
                 encounterFieldIds: enemies.map((e: any) => e.id),
+                // 요리로 버프가 부여되기 전(패배 시 복귀 기준) 파티 스냅샷
                 battleStartPartyState: s.player.party.map((c: any) => ({
                     ...c,
                 })),
                 battleStartPosition: { ...s.player.pos },
             };
-        }),
+        });
+
+        // ether 버프는 즉시 섭취 효과 — set 완료 직후(액션 말미) 적용
+        for (const b of cookedBuffs.filter((x: any) => x.type === "ether"))
+            for (const c of get().player.party) get().gainEther(c.id, b.value);
+    },
 
     // ===== Turn Management =====
     nextTurn: () =>

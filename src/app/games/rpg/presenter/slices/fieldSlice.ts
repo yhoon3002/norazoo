@@ -8,6 +8,25 @@ export const fieldSlice = (set: any, get: any) => ({
     /** 황금 약초 스폰 지점 — 세션당 1회 롤 (전투로 FieldScene이 리마운트돼도 유지) */
     goldenHerbIdx: Math.floor(Math.random() * 3),
 
+    /** 요리 버프 대기열 — 다음 전투 시작 시 파티 전원에게 적용 (5분 내 미사용 시 만료, 비영속) */
+    pendingBuffs: [] as Array<{ type: string; value: number; duration: number; expiresAt: number }>,
+
+    addPendingBuffs: (buffs: Array<{ type: string; value: number; duration: number }>) =>
+        set((s: any) => ({
+            pendingBuffs: [
+                ...s.pendingBuffs,
+                ...buffs.map((b) => ({ ...b, expiresAt: Date.now() + 300_000 })),
+            ],
+        })),
+
+    /** 전투 시작 시 1회 소비 */
+    consumePendingBuffs: () => {
+        const now = Date.now();
+        const valid = get().pendingBuffs.filter((b: any) => b.expiresAt > now);
+        set({ pendingBuffs: [] });
+        return valid as Array<{ type: string; value: number; duration: number }>;
+    },
+
     scheduleRespawn: (key: string, delayMs: number) =>
         set((s: any) => ({
             fieldRespawn: { ...s.fieldRespawn, [key]: Date.now() + delayMs },
