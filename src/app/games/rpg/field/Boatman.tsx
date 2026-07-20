@@ -16,7 +16,9 @@ const INTERACT_RANGE = 2.6;
 // 부두 정박지 — 협곡 상륙지의 왕복 목적지
 const PIER_POS = { x: 224.9, y: -38.25, z: -16.1 };
 
-const PORT_POS = { x: 225.5, y: -38.25, z: -11.5 };
+// (225.5,-11.5)는 walkable 표면이 부두 지면보다 2.6m 높아(선착장 구조물) NPC가 공중 스냅됨
+// → 부두 끝 지면 셀로 배치 (헤드리스 nav 프로브로 지면 y≈-38.35 확인)
+const PORT_POS = { x: 224.5, y: -38.25, z: -15.5 };
 const GORGE_POS = { x: 137, y: -42.25, z: 15 };
 
 function BoatmanNode({

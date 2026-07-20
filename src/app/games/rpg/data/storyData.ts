@@ -216,7 +216,7 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         ],
         nextStage: "ch5_gorge",
         objective: "항구의 사공을 찾아가자 ⛵",
-        target: { x: 225.5, z: -11.5 },
+        target: { x: 224.5, z: -15.5 },
     },
     {
         id: "gorge_landing",
