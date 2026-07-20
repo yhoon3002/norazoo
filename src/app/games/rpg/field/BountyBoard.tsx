@@ -9,7 +9,8 @@ import { useGame } from "../presenter/useGameStore";
 
 const INTERACT_RANGE = 2.6;
 /** 전체지도(FullMapPanel) 마커도 이 좌표를 재사용 */
-export const BOARD_POS = { x: 16.5, y: -33.25, z: -13 };
+// 상인(12.8,-14)과 상호작용 반경이 겹치지 않게 8m+ 이격
+export const BOARD_POS = { x: 20.5, y: -33.25, z: -10 };
 
 export function BountyBoard() {
     const groupRef = useRef<THREE.Group>(null);

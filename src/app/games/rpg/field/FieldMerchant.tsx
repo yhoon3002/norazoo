@@ -82,7 +82,8 @@ export function FieldMerchant() {
             const s = useGame.getState();
             if (s.combat.phase !== "idle") return;
             if (s.dialogue.length > 0) return;
-            if ((s.ui as any).mapOpen) return;
+            const ui = s.ui as any;
+            if (ui.mapOpen || ui.fishingOpen || ui.smithOpen || ui.bountyOpen) return;
 
             // ── 미니퀘스트: 멈춘 화덕을 위한 재료 ──
             if (COOK_QUEST.availableFrom.includes(s.story.stage)) {

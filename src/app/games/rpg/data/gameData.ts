@@ -425,6 +425,7 @@ for (const baseId of Object.keys(EQUIPMENT)) {
         }
         EQUIPMENT[`${baseId}_p${n}`] = {
             ...base,
+            id: `${baseId}_p${n}`,
             name: `${base.name} +${n}`,
             stats: stats as any,
         };

@@ -56,6 +56,12 @@ export function ShopPanel() {
 
     const cook = (r: Recipe) => {
         const s = useGame.getState() as any;
+        // 신선한 상태로 재료 재검증 — 더블클릭 이중 버프 방지 (claim()과 동일 규약)
+        const fresh = useGame.getState();
+        const ok = r.needs.every(
+            (n) => (fresh.bag.find((b: any) => b.id === n.id)?.qty ?? 0) >= n.qty
+        );
+        if (!ok) return;
         // 재료 차감
         useGame.setState((st: any) => {
             let bag = [...st.bag];

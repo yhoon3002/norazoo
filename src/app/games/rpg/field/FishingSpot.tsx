@@ -62,7 +62,7 @@ export function FishingSpot({
             if (s.combat.phase !== "idle") return;
             if (s.dialogue.length > 0) return;
             const ui = s.ui as any;
-            if (ui.mapOpen || ui.shopOpen || ui.fishingOpen) return;
+            if (ui.mapOpen || ui.shopOpen || ui.fishingOpen || ui.smithOpen || ui.bountyOpen) return;
             document.exitPointerLock?.();
             (s as any).openFishing(spot.id);
         };
