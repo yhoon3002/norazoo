@@ -10,21 +10,15 @@ export function useEnvironmentGroundHeight(maxTiltDeg: number = MAX_SLOPE_DEG) {
     const ray = useMemo(() => new THREE.Raycaster(), []);
     const normalMat = useMemo(() => new THREE.Matrix3(), []);
     const UP = useMemo(() => new THREE.Vector3(0, 1, 0), []);
+    // 호출마다 new THREE.Vector3() 방지 — 재사용 가능한 인스턴스
+    const _origin = useMemo(() => new THREE.Vector3(), []);
+    const _dir = useMemo(() => new THREE.Vector3(0, -1, 0), []);
     const cosMax = Math.cos(THREE.MathUtils.degToRad(maxTiltDeg));
 
     useEffect(() => {
         ray.layers.set(0); // Environment 레이어만
     }, [ray]);
 
-    /**
-     * 샘플러
-     * @param x
-     * @param z
-     * @param fromY   위에서 쏠 시작 높이
-     * @param opts    { baseY, maxRise, maxDrop }
-     *   - baseY가 있으면 baseY + maxRise 이하, baseY - maxDrop 이상만 바닥 후보로 채택
-     *   - 없으면 가장 위의 유효한 바닥을 반환(초기 스냅 시엔 baseY를 주는 걸 권장)
-     */
     return (
         x: number,
         z: number,
@@ -39,11 +33,14 @@ export function useEnvironmentGroundHeight(maxTiltDeg: number = MAX_SLOPE_DEG) {
             (scene.userData.__environmentMeshes as THREE.Object3D[]) ??
             scene.children;
 
-        ray.set(new THREE.Vector3(x, fromY, z), new THREE.Vector3(0, -1, 0));
+        _origin.set(x, fromY, z);
+        // _dir는 항상 (0,-1,0)이므로 재할당 불필요
+        ray.set(_origin, _dir);
         ray.near = 0;
         ray.far = 500;
 
-        const hits = ray.intersectObjects(targets, true);
+        // __environmentMeshes는 leaf mesh 배열 → recursive=false 사용
+        const hits = ray.intersectObjects(targets, false);
         if (hits.length === 0) return null;
 
         let maxAllowedY = Infinity;
@@ -55,12 +52,22 @@ export function useEnvironmentGroundHeight(maxTiltDeg: number = MAX_SLOPE_DEG) {
             if (opts.maxDrop != null) minAllowedY = b - opts.maxDrop;
         }
 
-        // 조건을 만족하는 후보 중 "가장 높은 y"를 선택
+        // 조건을 만족하는 후보 중 "가장 높은 y"를 선택.
+        // 알파마스크(잎/식생) 상면은 1순위 지면이 아니다 — 긴 풀 위가 "지면"으로
+        // 잡히면 풀 진입이 상승 한계에 걸려 이동이 취소된다. 진짜 지면은 그 아래
+        // 흙/돌 블록. 단, 잎 덤불이 놓인 컬럼은 익스포터가 그 아래 지면 윗면을
+        // 컬링해서 불투명 지면이 아예 없다(실측: 스폰 우측 덤불 컬럼) — 그 경우에만
+        // 잎 상면을 폴백 지면으로 사용해 덤불 위를 밟고 지나가게 한다.
         let bestY: number | null = null;
+        let bestMaskY: number | null = null;
 
         for (const h of hits) {
             const obj: any = h.object;
             if (!h.face) continue;
+
+            const rawMat = obj.material;
+            const m = Array.isArray(rawMat) ? rawMat[0] : rawMat;
+            const isMask = !!m && (m.alphaTest ?? 0) > 0;
 
             // 슬로프/천장 거르기
             const n = h.face.normal.clone();
@@ -74,9 +81,13 @@ export function useEnvironmentGroundHeight(maxTiltDeg: number = MAX_SLOPE_DEG) {
             const y = h.point.y;
             if (y > maxAllowedY || y < minAllowedY) continue;
 
-            if (bestY == null || y > bestY) bestY = y;
+            if (isMask) {
+                if (bestMaskY == null || y > bestMaskY) bestMaskY = y;
+            } else if (bestY == null || y > bestY) {
+                bestY = y;
+            }
         }
 
-        return bestY;
+        return bestY ?? bestMaskY;
     };
 }

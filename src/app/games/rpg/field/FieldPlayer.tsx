@@ -236,7 +236,11 @@ export function FieldPlayer({
     }
 
     // 머리 공간 검사: 지면 위 1.7 안에 천장(아래를 향한 면)이 있으면 그 틈에는
-    // 캐릭터(키 ~1.9)가 들어갈 수 없다 — 천막/차양 아래, 잎 캐노피 속 진입 차단.
+    // 캐릭터(키 ~1.9)가 들어갈 수 없다 — 천막/차양 아래 진입 차단.
+    // 잎/식생(알파마스크) 캐노피는 천장으로 치지 않는다 — 덤불·낮은 나뭇잎 밑을
+    // 지나가는 것은 자연스럽고, 차단하면 풀숲 지대 전체가 통행 불가가 된다
+    // (실측: 스폰 우측 풀숲이 지면 동일 높이(g1=0.00)인데 머리 게이트로 전부 차단).
+    // 잎 '벽'(산울타리 측면)은 castBlockedOptimized가 계속 막는다.
     function headroomAt(px: number, pz: number, baseY: number): boolean {
         tmpV3.current.set(px, baseY + 0.2, pz);
         moveDir.current.set(0, 1, 0);
@@ -246,6 +250,7 @@ export function FieldPlayer({
         const hits = wallRay.intersectObjects(envTargets.current, false);
         for (const h of hits) {
             if (!h.face) continue;
+            if (isMaskMat(h.object)) continue; // 잎 캐노피 — 통과 허용
             _faceNormal.copy(h.face.normal);
             normalMat.getNormalMatrix(h.object.matrixWorld);
             _faceNormal.applyNormalMatrix(normalMat).normalize();
@@ -567,7 +572,9 @@ export function FieldPlayer({
                     ? 200
                     : moved.needsGroundCheck
                     ? TERRAIN_STEP_MAX + 0.01
-                    : STEP_MAX_UP + 0.1,
+                    : // 일반 보행: 잎 덤불 상면(+1.0 근처)을 밟을 수 있게 여유.
+                      // 펜스 접근은 차단 분기(연속성 검사)를 거치므로 안전.
+                      STEP_MAX_UP + 0.25,
                 // 점프가 없는 게임이라 내려가기도 지형 단차 한계(1.05+여유)로 대칭
                 // 제한 — 1m 블록 둔덕은 오르내리고, 그보다 깊은 구덩이(부두 아래
                 // 해변 등 되돌아올 수 없는 낙차)는 원천 방지
@@ -579,6 +586,18 @@ export function FieldPlayer({
                 lastGoodXZ.current = { x: newX, z: newZ };
             } else {
                 // 맵 경계 밖/허공 — 마지막 지면 확인 지점으로 복귀 (맵 이탈 방지)
+                // 이 경로는 차단 게이트를 안 거치므로(무음 정지) 진단 로그를 남긴다
+                const dbg = window as unknown as { __debugMove?: boolean; __debugMoveLast2?: number };
+                if (dbg.__debugMove) {
+                    const now = performance.now();
+                    if (now - (dbg.__debugMoveLast2 ?? 0) > 250) {
+                        dbg.__debugMoveLast2 = now;
+                        console.log(
+                            `[MoveDebug] 지면탐색 실패 → 복귀: 시도(${newX.toFixed(2)}, ${newZ.toFixed(2)}) baseY=${(moved.needsGroundCheck ? y : cachedGroundY.current).toFixed(2)} ` +
+                            `허용밴드[+${(moved.needsGroundCheck ? TERRAIN_STEP_MAX + 0.01 : STEP_MAX_UP + 0.1).toFixed(2)}/-${(TERRAIN_STEP_MAX + 0.02).toFixed(2)}] → lastGood(${lastGoodXZ.current.x.toFixed(2)}, ${lastGoodXZ.current.z.toFixed(2)})`
+                        );
+                    }
+                }
                 newX = lastGoodXZ.current.x;
                 newZ = lastGoodXZ.current.z;
                 newY = cachedGroundY.current;
