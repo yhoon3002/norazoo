@@ -38,6 +38,10 @@ export type StoryTrigger = {
     objective?: string;
     /** 다음 목표 지점 — 빛기둥 비콘과 HUD 거리 표시 */
     target?: { x: number; z: number } | null;
+    /** 대사 종료 후 전투 진입 — Task 4가 파이프라인 구현 */
+    battle?: { id: string; templates: string[] };
+    /** 발동 시 지급 — Task 4 구현 */
+    reward?: { gold?: number; items?: Array<{ id: string; qty: number }> };
 };
 
 export const INITIAL_STAGE = "prologue";
@@ -52,6 +56,8 @@ export const STAGE_ORDER = [
     "ch2_cleanup",
     "ch3_port",
     "ch4_hill",
+    "ch5_gorge",
+    "epilogue",
 ] as const;
 
 export function stageAtLeast(current: string, target: string): boolean {
@@ -189,7 +195,82 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         objective: "북쪽 바람 언덕의 제단으로 가자 🚩",
         target: { x: 0, z: -210 },
     },
-    // ch4_hill(제단 수호전), 최종장 협곡(보스)은 Phase 3에서 확장
+    {
+        id: "hill_altar",
+        stage: "ch4_hill",
+        near: { x: 0, z: -210, radius: 8 },
+        dialogue: [
+            { speakerId: "theo", text: "제단이에요. 두 번째 태엽 조각의 파동이… 바로 아래에서 느껴집니다." },
+            { speakerId: "arin", text: "기척이 있다. 수호자다 — 무기 들어." },
+        ],
+        battle: { id: "guardians", templates: ["orc_chief", "orc", "orc"] },
+    },
+    {
+        id: "hill_altar_done",
+        stage: "ch4_hill",
+        flagsAll: ["defeated_guardians_0", "defeated_guardians_1", "defeated_guardians_2"],
+        dialogue: [
+            { speakerId: "lotti", text: "두 번째 조각이다! 반짝반짝… 갓 구운 파이처럼 탐스러운걸." },
+            { speakerId: "theo", text: "남은 건 하나 — 쪽지의 '협곡'이군요. 바다 건너 남동쪽 군도입니다." },
+            { speakerId: "arin", text: "항구로 간다. 배를 내줄 사람을 찾지." },
+        ],
+        nextStage: "ch5_gorge",
+        objective: "항구의 사공을 찾아가자 ⛵",
+        target: { x: 225.5, z: -11.5 },
+    },
+    {
+        id: "gorge_landing",
+        stage: "ch5_gorge",
+        near: { x: 139.5, z: 17.5, radius: 10 },
+        dialogue: [
+            { speakerId: "arin", text: "…공기가 다르다. 여기가 어둠의 협곡이군." },
+            { speakerId: "theo", text: "시간의 정체가 가장 짙어요. 태엽 조각이 — 아니, '삼킨 자'가 깊은 곳에 있습니다." },
+            { speakerId: "lotti", text: "발밑 조심해. 뭔가… 움직이고 있어." },
+        ],
+        objective: "협곡 깊은 곳의 기척을 쫓자",
+        target: { x: 268.5, z: 42.5 },
+    },
+    {
+        id: "gorge_boss_intro",
+        stage: "ch5_gorge",
+        near: { x: 268.5, z: 42.5, radius: 10 },
+        flagsAll: ["story_gorge_landing"],
+        dialogue: [
+            { speakerId: "theo", text: "저기! 태엽 조각을… 몸에 박아 넣은 마수예요. 시간을 삼키며 자란 겁니다." },
+            { speaker: "태엽을 삼킨 마수", text: "…돌아가라. 시간은 이제, 나의 것이다." },
+            { speakerId: "arin", text: "노라의 것을 돌려받겠다. 간다!" },
+        ],
+        battle: { id: "gorge_boss", templates: ["gear_devourer", "clockwork_soldier", "clockwork_soldier"] },
+    },
+    {
+        id: "gorge_boss_done",
+        stage: "ch5_gorge",
+        flagsAll: ["defeated_gorge_boss_0", "defeated_gorge_boss_1", "defeated_gorge_boss_2"],
+        dialogue: [
+            { speakerId: "lotti", text: "해냈어…! 마지막 조각이야!" },
+            { speakerId: "theo", text: "세 조각이 공명하고 있어요. 시계탑이 부르는 겁니다." },
+            { speakerId: "arin", text: "돌아가자. 노라의 아침을 되찾으러." },
+        ],
+        objective: "노라로 돌아가 시계탑을 깨우자 🔔",
+        target: { x: 24.5, z: -17 },
+    },
+    {
+        id: "finale",
+        stage: "ch5_gorge",
+        near: { x: 24.5, z: -17, radius: 6 },
+        flagsAll: ["story_gorge_boss_done"],
+        dialogue: [
+            { speakerId: "theo", text: "조각을 끼웁니다… 하나, 둘… 셋!" },
+            { speaker: "요리사", text: "종이… 종이 울린다! 오오, 거리를 봐 — 모두 깨어나고 있어!" },
+            { speakerId: "arin", text: "임무 완료다. …수고했다, 둘 다." },
+            { speakerId: "lotti", text: "끝나고 나니 배고파! 사부님, 축하 잔치 해요!" },
+            { speakerId: "theo", text: "노라의 시간이 다시 흐릅니다. 우리가, 해냈어요." },
+        ],
+        nextStage: "epilogue",
+        objective: "되살아난 노라를 자유롭게 여행하자",
+        target: null,
+        reward: { gold: 3000, items: [ { id: "golden_herb", qty: 3 }, { id: "monster_core", qty: 5 } ] },
+    },
 ];
 
 // ===== 길잡이 마커 경로 (스테이지별) =====
@@ -273,6 +354,12 @@ export const CHAPTER_TITLES: Record<
     },
     ch3_port: { sub: "태엽 조각 · 첫 번째", title: "2장 — 잠든 항구" },
     ch4_hill: { sub: "태엽 조각 · 두 번째", title: "3장 — 바람 언덕" },
+    ch5_gorge: { sub: "태엽 조각 · 마지막", title: "종장 — 어둠의 협곡" },
+    epilogue: {
+        sub: "노라의 아침",
+        title: "종막 — 시계탑이 깨어나다",
+        detail: "멈췄던 시간이 다시 흐른다",
+    },
 };
 
 // ===== 조사 포인트 — 멈춘 주민(석상)과 일지 =====
@@ -301,6 +388,10 @@ export const LORE_POINTS: LorePoint[] = [
             { speakerId: "lotti", text: "빨래 바구니를 든 채로 굳었어… 옷이 아직 축축해. 멈춘 지 얼마 안 됐단 뜻이야." },
             { speakerId: "arin", text: "몸은 따뜻하다. 죽은 게 아니야 — 잠든 거다. 되돌릴 수 있어." },
         ],
+        awakeAtStage: "epilogue",
+        awakeLines: [
+            { speaker: "아낙", text: "어머, 빨래가 다 말랐네! …당신들이 구해준 거죠? 고마워요!" },
+        ],
     },
     {
         id: "smith",
@@ -310,6 +401,10 @@ export const LORE_POINTS: LorePoint[] = [
         lines: [
             { speakerId: "theo", text: "망치를 치켜든 채 굳었네요. 모루 위의 검은 반만 접혀 있고요. 정지 단면이 이렇게 깨끗하다니." },
             { speakerId: "arin", text: "시계탑 종이 울리던 그 순간, 마을 전체가 한꺼번에 멈춘 거다." },
+        ],
+        awakeAtStage: "epilogue",
+        awakeLines: [
+            { speaker: "대장장이", text: "망치가… 움직인다! 하하, 밀린 일감이 산더미군. 고맙네, 원정대!" },
         ],
     },
     {
@@ -347,6 +442,10 @@ export const LORE_POINTS: LorePoint[] = [
         label: "굳은 어부",
         lines: [
             { speakerId: "lotti", text: "그물을 당기다 굳었어. 그물 속 물고기도… 공중에 멈춰 있어. 아깝다, 싱싱해 보이는데." },
+        ],
+        awakeAtStage: "epilogue",
+        awakeLines: [
+            { speaker: "어부", text: "그물이 이렇게 무거웠나! 이봐, 오늘 잡은 건 전부 자네들 몫일세!" },
         ],
     },
     {
