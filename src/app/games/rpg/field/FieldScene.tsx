@@ -28,7 +28,7 @@ import { NavmeshController } from "./NavmeshController";
 import { RespawnController } from "./RespawnController";
 import { FieldPoi } from "./FieldPoi";
 import { POIS } from "../data/poiData";
-import { FIELD_ENEMIES, FIELD_TREASURES, FIELD_GATHERABLES, GOLDEN_HERB_SPOTS } from "../data/gameData";
+import { FIELD_ENEMIES, FIELD_TREASURES, FIELD_GATHERABLES, GOLDEN_HERB_SPOTS, FISHING_SPOTS } from "../data/gameData";
 import { SIDE_QUESTS } from "../data/questData";
 import { useGame } from "../presenter/useGameStore";
 
@@ -125,8 +125,10 @@ export function FieldScene({
             {/* 상인 NPC */}
             <FieldMerchant />
 
-            {/* 부두 낚시터 */}
-            <FishingSpot />
+            {/* 낚시터 — 부두 + 존 물가 3곳 */}
+            {FISHING_SPOTS.map((sp) => (
+                <FishingSpot key={sp.id} spot={sp} />
+            ))}
 
             {/* 사이드 퀘스트 NPC */}
             {SIDE_QUESTS.map((q) => (

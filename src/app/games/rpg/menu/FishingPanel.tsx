@@ -3,11 +3,21 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useGame } from "../presenter/useGameStore";
+import { FISHING_SPOTS } from "../data/gameData";
 
 const ROUNDS = 3;
 
+/** 낚시 어종 표시명 — MenuUI MATERIALS와 동일 표기 */
+const FISH_NAMES: Record<string, string> = {
+    fish_common: "생선",
+    fish_rare: "월광어",
+    silver_trout: "은빛송어",
+    coral_fish: "산호어",
+};
+
 export function FishingPanel() {
     const open = useGame((s) => (s.ui as any).fishingOpen);
+    const fishingSpotId = useGame((s) => (s.ui as any).fishingSpotId);
     const closeAll = useGame((s) => s.closeAll);
     const addItem = useGame((s) => s.addItem);
     const [round, setRound] = useState(0);
@@ -65,8 +75,11 @@ export function FishingPanel() {
                 setRound((r) => r + 1);
                 return;
             }
-            // 결과 — 초록 존(acc>0.7) 성공, 밝은 존(acc>0.92) 퍼펙트 2회↑면 월광어
+            // 결과 — 초록 존(acc>0.7) 성공, 밝은 존(acc>0.92) 퍼펙트 2회↑면 희귀 어종
             const s = useGame.getState() as any;
+            const table =
+                FISHING_SPOTS.find((sp) => sp.id === fishingSpotId)?.table ??
+                FISHING_SPOTS[0].table;
             const perfect = newHits.filter((a) => a > 0.92).length;
             const catches = newHits.filter((a) => a > 0.7).length;
             if (catches === 0) {
@@ -76,17 +89,17 @@ export function FishingPanel() {
                     color: "#94a3b8",
                 });
             } else if (perfect >= 2) {
-                addItem("fish_rare", 1);
+                addItem(table.rare, 1);
                 s.spawnPopup({
                     side: "ally",
-                    text: "🌕 월광어를 낚았다!",
+                    text: `🌕 ${FISH_NAMES[table.rare] ?? table.rare}을(를) 낚았다!`,
                     color: "#7dd3fc",
                 });
             } else {
-                addItem("fish_common", catches);
+                addItem(table.common, catches);
                 s.spawnPopup({
                     side: "ally",
-                    text: `🐟 생선 ×${catches}`,
+                    text: `🐟 ${FISH_NAMES[table.common] ?? table.common} ×${catches}`,
                     color: "#8fd67a",
                 });
             }
@@ -94,7 +107,7 @@ export function FishingPanel() {
         };
         window.addEventListener("keydown", h);
         return () => window.removeEventListener("keydown", h);
-    }, [open, hits, addItem, closeAll]);
+    }, [open, hits, addItem, closeAll, fishingSpotId]);
 
     if (!open) return null;
 

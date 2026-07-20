@@ -13,6 +13,7 @@ export const uiSlice = (set: any, get: any) => ({
         smithOpen: false,
         bountyOpen: false,
     },
+    fishingSpotId: null as string | null,
 
     // ===== Toggle Pause =====
     togglePause: () =>
@@ -40,9 +41,9 @@ export const uiSlice = (set: any, get: any) => ({
     toggleMap: () =>
         set((s: any) => ({ ui: { ...s.ui, mapOpen: !s.ui.mapOpen } })),
 
-    // ===== 낚시 (부두 낚시터) =====
-    toggleFishing: () =>
-        set((s: any) => ({ ui: { ...s.ui, fishingOpen: !s.ui.fishingOpen } })),
+    // ===== 낚시 (부두 + 존 낚시터) =====
+    openFishing: (spotId: string) =>
+        set((s: any) => ({ ui: { ...s.ui, fishingOpen: true }, fishingSpotId: spotId })),
 
     // ===== 대장간 강화 =====
     toggleSmith: () =>

@@ -7,10 +7,13 @@ import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import { useGame } from "../presenter/useGameStore";
 
-const SPOT = { x: 222.5, y: -38.25, z: -18.9 }; // 부두 끝 근처
 const INTERACT_RANGE = 2.6;
 
-export function FishingSpot() {
+export function FishingSpot({
+    spot,
+}: {
+    spot: { id: string; x: number; y: number; z: number };
+}) {
     const groupRef = useRef<THREE.Group>(null);
     const [inRange, setInRange] = useState(false);
     const inRangeRef = useRef(false);
@@ -27,7 +30,7 @@ export function FishingSpot() {
                 | THREE.Vector3
                 | undefined;
             if (!navFindWalkable || !p) return;
-            const found = navFindWalkable(SPOT.x, SPOT.z, SPOT.y);
+            const found = navFindWalkable(spot.x, spot.z, spot.y);
             if (found)
                 groupRef.current.position.set(found.x, found.y, found.z);
             snapped.current = true;
@@ -61,14 +64,14 @@ export function FishingSpot() {
             const ui = s.ui as any;
             if (ui.mapOpen || ui.shopOpen || ui.fishingOpen) return;
             document.exitPointerLock?.();
-            (s as any).toggleFishing();
+            (s as any).openFishing(spot.id);
         };
         window.addEventListener("keydown", h);
         return () => window.removeEventListener("keydown", h);
-    }, [inRange]);
+    }, [inRange, spot.id]);
 
     return (
-        <group ref={groupRef} position={[SPOT.x, SPOT.y, SPOT.z]}>
+        <group ref={groupRef} position={[spot.x, spot.y, spot.z]}>
             {/* 꽂아 둔 낚싯대 */}
             <mesh position={[0.2, 0.7, 0]} rotation={[0, 0, -0.7]} castShadow>
                 <cylinderGeometry args={[0.02, 0.03, 1.6, 6]} />

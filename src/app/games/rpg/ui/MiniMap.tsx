@@ -7,7 +7,7 @@ import { useGame } from "../presenter/useGameStore";
 import { useMapStore } from "../presenter/mapStore";
 import { STORY_FLAGS, stageAtLeast } from "../data/storyData";
 import { POIS, HIDDEN_TREASURE_IDS } from "../data/poiData";
-import { MERCHANT_POS, FIELD_TREASURES } from "../data/gameData";
+import { MERCHANT_POS, FIELD_TREASURES, FISHING_SPOTS } from "../data/gameData";
 import { SIDE_QUESTS } from "../data/questData";
 
 const SIZE = 160; // px
@@ -56,6 +56,7 @@ export function MiniMap() {
         if (flags[`flag_${f.id}`]) markers.push({ x: f.x, z: f.z, icon: "🚩" });
     }
     markers.push({ x: MERCHANT_POS.x, z: MERCHANT_POS.z, icon: "💰" });
+    for (const sp of FISHING_SPOTS) markers.push({ x: sp.x, z: sp.z, icon: "🎣" });
     // 미발견 탐험 요소 — 25m 이내 접근 시 '?'로 호기심 유도
     for (const poi of POIS) {
         if (flags[`poi_${poi.id}`]) continue;

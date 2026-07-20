@@ -5,9 +5,18 @@ import { useGame } from "../presenter/useGameStore";
 import { useMapStore, worldToUV } from "../presenter/mapStore";
 import { STORY_FLAGS, LORE_POINTS, stageAtLeast } from "../data/storyData";
 import { POIS } from "../data/poiData";
-import { MERCHANT_POS } from "../data/gameData";
+import { MERCHANT_POS, FISHING_SPOTS } from "../data/gameData";
 import { SIDE_QUESTS } from "../data/questData";
 import { BOARD_POS } from "../field/BountyBoard";
+import { ZONE_DEFS } from "../data/placementData";
+
+/** 낚시터 마커 툴팁용 어종 표시명 */
+const FISH_NAMES: Record<string, string> = {
+    fish_common: "생선",
+    fish_rare: "월광어",
+    silver_trout: "은빛송어",
+    coral_fish: "산호어",
+};
 
 export function FullMapPanel() {
     const open = useGame((s) => (s.ui as any).mapOpen);
@@ -51,6 +60,27 @@ export function FullMapPanel() {
                         className="rounded-xl border border-white/10"
                         style={{ maxWidth: "80vw", maxHeight: "70vh" }}
                     />
+                    {/* 존 라벨 */}
+                    {ZONE_DEFS.map((zd) => (
+                        <div
+                            key={zd.id}
+                            className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[10px] tracking-widest text-white/50"
+                            style={pct(zd.cx, zd.cz)}
+                        >
+                            {zd.label}
+                        </div>
+                    ))}
+                    {/* 낚시터 */}
+                    {FISHING_SPOTS.map((sp) => (
+                        <div
+                            key={sp.id}
+                            className="absolute -translate-x-1/2 -translate-y-1/2 text-sm"
+                            style={pct(sp.x, sp.z)}
+                            title={`낚시터 — ${FISH_NAMES[sp.table.common] ?? sp.table.common}/${FISH_NAMES[sp.table.rare] ?? sp.table.rare}`}
+                        >
+                            🎣
+                        </div>
+                    ))}
                     {/* 조사 포인트 — 조사 완료는 흐리게 */}
                     {LORE_POINTS.map((lp) => (
                         <div
@@ -163,6 +193,7 @@ export function FullMapPanel() {
                     <span>
                         ▲ 현재 위치 · ◆ 목표 · 🚩 깃발(클릭: 빠른이동) · 💰 상인
                         · 📜/🗿 조사 포인트 · 🏞️ 전망 · ❗ 의뢰 · 📋 사냥 의뢰판
+                        · 🎣 낚시터
                     </span>
                     <span>M / ESC: 닫기</span>
                 </div>

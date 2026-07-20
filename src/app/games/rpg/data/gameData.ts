@@ -1,7 +1,7 @@
 // rpg/data/gameData.ts
 import * as THREE from "three";
 import type { Skill, Equipment, Character, Enemy, PartyId } from "../types/RpgTypes";
-import { ZONE_DEFS, GEN_GATHER, GEN_ROAMERS, GEN_TREASURES } from "./placementData";
+import { ZONE_DEFS, GEN_GATHER, GEN_ROAMERS, GEN_TREASURES, GEN_FISHING } from "./placementData";
 import { ZONE_CONTENT } from "./zoneContent";
 
 
@@ -162,6 +162,27 @@ export const GOLDEN_HERB_SPOTS: Array<{ x: number; y: number; z: number }> = [
     { x: 52, y: -33.25, z: -24 },
     { x: 112, y: -33.25, z: -32 },
     { x: 205, y: -38.25, z: 8 },
+];
+
+// ===== 낚시터 — 부두(기존) + 존 물가 3곳 (placementData 도달 검증 좌표) =====
+export const FISHING_SPOTS: Array<{
+    id: string;
+    x: number;
+    y: number;
+    z: number;
+    table: { common: string; rare: string };
+}> = [
+    { id: "pier", x: 222.5, y: -38.25, z: -18.9, table: { common: "fish_common", rare: "fish_rare" } },
+    ...GEN_FISHING.map((f) => ({
+        id: `z_fish_${f.zone}`,
+        x: f.x,
+        y: f.y,
+        z: f.z,
+        table:
+            f.zone === "south_coast"
+                ? { common: "fish_common", rare: "coral_fish" }
+                : { common: "silver_trout", rare: "fish_rare" },
+    })),
 ];
 
 // ===== 존 확장 배치 — placementData(도달 검증 좌표) × zoneContent(티어 구성) 전개 =====
