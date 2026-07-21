@@ -106,6 +106,11 @@ export const ITEM_PRICES: Record<string, number> = {
     knight_greatsword: 450,
     clock_staff: 480,
     chef_blade: 460,
+    // ===== 아낙 재봉소 (에필로그 해금) =====
+    reed_cloak: 260,
+    frost_coat: 300,
+    sailor_gloves: 280,
+    festival_dress: 520,
 };
 
 export const SELL_RATIO = 0.5;
@@ -699,6 +704,35 @@ export const EQUIPMENT: Record<string, Equipment> = {
         name: "명장의 조리검",
         type: "weapon",
         stats: { atk: 32, speed: 6 },
+        rarity: "epic",
+    },
+    // ===== 아낙 재봉소 신규 4종 (에필로그 해금, tailorData.ts TAILOR_RECIPES 산출물) =====
+    reed_cloak: {
+        id: "reed_cloak",
+        name: "갈대 망토",
+        type: "accessory",
+        stats: { def: 6, speed: 5 },
+        rarity: "rare",
+    },
+    frost_coat: {
+        id: "frost_coat",
+        name: "서리털 외투",
+        type: "armor",
+        stats: { def: 14, maxHp: 20 },
+        rarity: "rare",
+    },
+    sailor_gloves: {
+        id: "sailor_gloves",
+        name: "뱃사람 장갑",
+        type: "accessory",
+        stats: { atk: 6, def: 6 },
+        rarity: "rare",
+    },
+    festival_dress: {
+        id: "festival_dress",
+        name: "축제의 옷",
+        type: "armor",
+        stats: { def: 10, speed: 6, luck: 10 },
         rarity: "epic",
     },
 };

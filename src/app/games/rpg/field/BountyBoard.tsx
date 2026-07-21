@@ -75,7 +75,7 @@ export function BountyBoard() {
             if (s.combat.phase !== "idle") return;
             if (s.dialogue.length > 0) return;
             const ui = s.ui as any;
-            if (ui.mapOpen || ui.shopOpen || ui.fishingOpen || ui.smithOpen) return;
+            if (ui.mapOpen || ui.shopOpen || ui.fishingOpen || ui.smithOpen || ui.tailorOpen) return;
 
             document.exitPointerLock?.();
             (s as any).toggleBounty();

@@ -65,7 +65,7 @@ export function FieldSmith() {
             if (s.combat.phase !== "idle") return;
             if (s.dialogue.length > 0) return;
             const ui = s.ui as any;
-            if (ui.mapOpen || ui.shopOpen || ui.fishingOpen || ui.bountyOpen) return;
+            if (ui.mapOpen || ui.shopOpen || ui.fishingOpen || ui.bountyOpen || ui.tailorOpen) return;
 
             if (!s.flags.quest_smith_core_done) {
                 s.startDialogue([

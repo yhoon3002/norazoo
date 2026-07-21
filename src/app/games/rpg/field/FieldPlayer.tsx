@@ -485,7 +485,8 @@ export function FieldPlayer({
             (gState.ui as any).mapOpen === true ||
             (gState.ui as any).fishingOpen === true ||
             (gState.ui as any).smithOpen === true ||
-            (gState.ui as any).bountyOpen === true;
+            (gState.ui as any).bountyOpen === true ||
+            (gState.ui as any).tailorOpen === true;
 
         const fwd = tmpV3.current;
         camera.getWorldDirection(fwd);

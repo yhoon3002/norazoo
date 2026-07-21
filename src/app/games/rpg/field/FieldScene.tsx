@@ -11,6 +11,7 @@ import { FieldCompanions } from "./FieldCompanions";
 import { FieldMerchant } from "./FieldMerchant";
 import { FieldQuestNpc } from "./FieldQuestNpc";
 import { FieldSmith } from "./FieldSmith";
+import { FieldTailor } from "./FieldTailor";
 import { Boatman } from "./Boatman";
 import { BountyBoard } from "./BountyBoard";
 import { FieldFlag } from "./FieldFlag";
@@ -139,6 +140,9 @@ export function FieldScene({
 
             {/* 대장간 NPC — smith_core 완료 후 E로 강화로 오픈 */}
             <FieldSmith />
+
+            {/* 아낙 재봉소 NPC — 에필로그부터 표시, E로 재봉 패널 오픈 */}
+            <FieldTailor />
 
             {/* 사공 NPC — 항구 ↔ 협곡 상륙지 왕복 (ch5_gorge부터 표시) */}
             <Boatman />

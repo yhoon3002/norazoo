@@ -12,6 +12,7 @@ export const uiSlice = (set: any, get: any) => ({
         fishingOpen: false,
         smithOpen: false,
         bountyOpen: false,
+        tailorOpen: false,
     },
     fishingSpotId: null as string | null,
 
@@ -53,6 +54,10 @@ export const uiSlice = (set: any, get: any) => ({
     toggleBounty: () =>
         set((s: any) => ({ ui: { ...s.ui, bountyOpen: !s.ui.bountyOpen } })),
 
+    // ===== 아낙 재봉소 =====
+    toggleTailor: () =>
+        set((s: any) => ({ ui: { ...s.ui, tailorOpen: !s.ui.tailorOpen } })),
+
     // ===== Close All UI =====
     closeAll: () =>
         set(() => ({
@@ -65,6 +70,7 @@ export const uiSlice = (set: any, get: any) => ({
                 fishingOpen: false,
                 smithOpen: false,
                 bountyOpen: false,
+                tailorOpen: false,
             },
         })),
 });
