@@ -1,6 +1,7 @@
 // rpg/field/FieldScene.tsx
 import { useRef } from "react";
 import { Canvas } from "@react-three/fiber";
+import { Suspense } from "react";
 import { Environment as HDRI } from "@react-three/drei";
 import * as THREE from "three";
 import { EnvironmentModel } from "../environment/EnvironmentModel";
@@ -81,11 +82,14 @@ export function FieldScene({
                 shadow-mapSize-height={512}
             />
             <hemisphereLight args={["#bcdfff", "#4a3b2a", 0.55]} />
-            <HDRI
-                preset="city"
-                backgroundIntensity={0.5}
-                environmentIntensity={0.5}
-            />
+            {/* 환경광 HDR — 로컬 벤더링(외부 CDN 의존 제거) + Suspense 격리로 로드 실패에도 씬 마운트 보장 */}
+            <Suspense fallback={null}>
+                <HDRI
+                    files="/hdri/potsdamer_platz_1k.hdr"
+                    backgroundIntensity={0.5}
+                    environmentIntensity={0.5}
+                />
+            </Suspense>
             <InteriorLighting />
 
             <EnvironmentModel
@@ -144,13 +148,13 @@ export function FieldScene({
             <FieldSmith />
 
             {/* 아낙 재봉소 NPC — 에필로그부터 표시, E로 재봉 패널 오픈 */}
-            <FieldTailor />
+            {false && <FieldTailor />}
 
             {/* 어부 반복 납품 NPC — 에필로그부터 표시, E로 어종 세트 납품 */}
-            <FieldFishTrade />
+            {false && <FieldFishTrade />}
 
             {/* 광장 재건 기부함 — 게이트 없음, E로 단계별 기부 */}
-            <DonationBox />
+            {false && <DonationBox />}
 
             {/* 사공 NPC — 항구 ↔ 협곡 상륙지 왕복 (ch5_gorge부터 표시) */}
             <Boatman />
