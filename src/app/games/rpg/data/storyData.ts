@@ -27,6 +27,8 @@ export const NPC_SPEAKERS: Record<string, { icon: string }> = {
     아낙: { icon: "🧺" },
     대장장이: { icon: "🔨" },
     어부: { icon: "🎣" },
+    파수꾼: { icon: "🛡️" },
+    "견습 대장장이": { icon: "⚒️" },
 };
 
 export type StoryTrigger = {
