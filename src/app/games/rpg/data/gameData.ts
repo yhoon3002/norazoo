@@ -79,6 +79,9 @@ export const ITEM_PRICES: Record<string, number> = {
     silver_trout: 40,
     coral_fish: 55,
     dark_crystal: 90,
+    ether_elixir: 60,
+    war_elixir: 90,
+    guard_elixir: 90,
 };
 
 export const SELL_RATIO = 0.5;

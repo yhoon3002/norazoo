@@ -64,6 +64,9 @@ const SKILL_TYPE_LABEL: Record<string, string> = {
 const CONSUMABLES: Record<string, { name: string; effect: string }> = {
     health_potion: { name: "회복 물약", effect: "HP +50" },
     mana_potion: { name: "마나 물약", effect: "에테르 +3" },
+    ether_elixir: { name: "에테르 정수", effect: "전원 에테르 +2" },
+    war_elixir: { name: "용맹의 비약", effect: "전투 중 공격 +20%" },
+    guard_elixir: { name: "수호의 비약", effect: "전투 중 방어 +20%" },
 };
 
 const MATERIALS: Record<string, { name: string }> = {

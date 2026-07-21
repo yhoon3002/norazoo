@@ -9,6 +9,7 @@ import {
     EQUIPMENT,
 } from "../data/gameData";
 import { RECIPES, type Recipe } from "../data/recipeData";
+import { ALCHEMY_RECIPES, type AlchemyRecipe } from "../data/alchemyData";
 
 function itemLabel(id: string): string {
     return EQUIPMENT[id]?.name ?? id.replace(/_/g, " ");
@@ -33,6 +34,9 @@ const MATERIAL_NAMES: Record<string, string> = {
     fish_rare: "월광어",
     reed: "갈대",
     lotus: "연꽃",
+    mana_crystal: "마나 수정",
+    tree_sap: "나무수액",
+    frost_moss: "서리이끼",
 };
 
 function displayName(id: string): string {
@@ -46,7 +50,7 @@ export function ShopPanel() {
     const buyItem = useGame((s) => s.buyItem);
     const sellItem = useGame((s) => s.sellItem);
     const toggleShop = useGame((s) => s.toggleShop);
-    const [tab, setTab] = useState<"buy" | "sell" | "cook">("buy");
+    const [tab, setTab] = useState<"buy" | "sell" | "cook" | "craft">("buy");
 
     if (!isOpen) return null;
 
@@ -73,6 +77,26 @@ export function ShopPanel() {
         });
         s.addPendingBuffs(r.buffs);
         s.spawnPopup({ side: "ally", text: `${r.icon} ${r.name} — 다음 전투에 적용!`, color: "#fbbf24" });
+    };
+
+    const craft = (r: AlchemyRecipe) => {
+        const s = useGame.getState() as any;
+        // 신선한 상태로 재료·골드 재검증 — 더블클릭 이중 제작 방지 (cook()과 동일 규약)
+        const fresh = useGame.getState();
+        const ok =
+            fresh.player.gold >= r.gold &&
+            r.needs.every((n) => (fresh.bag.find((b: any) => b.id === n.id)?.qty ?? 0) >= n.qty);
+        if (!ok) return;
+        useGame.setState((st: any) => {
+            let bag = [...st.bag];
+            for (const n of r.needs)
+                bag = bag
+                    .map((b: any) => (b.id === n.id ? { ...b, qty: b.qty - n.qty } : b))
+                    .filter((b: any) => b.qty > 0);
+            return { bag, player: { ...st.player, gold: st.player.gold - r.gold } };
+        });
+        s.addItem(r.id, 1);
+        s.spawnPopup({ side: "ally", text: `${r.icon} ${r.name} 제작!`, color: "#a78bfa" });
     };
 
     return (
@@ -115,6 +139,16 @@ export function ShopPanel() {
                         }`}
                     >
                         요리 🍲
+                    </button>
+                    <button
+                        onClick={() => setTab("craft")}
+                        className={`flex-1 py-2 rounded-lg font-semibold ${
+                            tab === "craft"
+                                ? "bg-yellow-600 text-black"
+                                : "bg-gray-800 text-gray-300"
+                        }`}
+                    >
+                        조합 ⚗️
                     </button>
                 </div>
 
@@ -235,6 +269,52 @@ export function ShopPanel() {
                             })}
                             <div className="pt-1 text-center text-xs text-gray-400">
                                 조리한 요리는 바로 먹는다 — 효과는 다음 전투에 적용 (5분 내)
+                            </div>
+                        </div>
+                    )}
+
+                    {tab === "craft" && (
+                        <div className="space-y-2">
+                            {ALCHEMY_RECIPES.map((r) => {
+                                const can =
+                                    gold >= r.gold &&
+                                    r.needs.every(
+                                        (n) =>
+                                            (bag.find((b) => b.id === n.id)?.qty ?? 0) >= n.qty
+                                    );
+                                return (
+                                    <div
+                                        key={r.id}
+                                        className="flex items-center justify-between rounded-xl border border-purple-400/30 bg-purple-500/5 px-4 py-3"
+                                    >
+                                        <div>
+                                            <div className="font-bold text-purple-100">
+                                                {r.icon} {r.name}
+                                            </div>
+                                            <div className="text-xs text-gray-400">
+                                                {r.desc} · 재료:{" "}
+                                                {r.needs
+                                                    .map((n) => `${displayName(n.id)}×${n.qty}`)
+                                                    .join(", ")}{" "}
+                                                · {r.gold} G
+                                            </div>
+                                        </div>
+                                        <button
+                                            disabled={!can}
+                                            onClick={() => craft(r)}
+                                            className={`rounded-lg px-3 py-1.5 text-sm ${
+                                                can
+                                                    ? "bg-purple-500/20 text-purple-200 hover:bg-purple-500/40"
+                                                    : "cursor-not-allowed bg-white/5 text-gray-500"
+                                            }`}
+                                        >
+                                            조합
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                            <div className="pt-1 text-center text-xs text-gray-400">
+                                조합한 비약은 가방에 저장 — 전투 중 아이템 메뉴에서 사용
                             </div>
                         </div>
                     )}

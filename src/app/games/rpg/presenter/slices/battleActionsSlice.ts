@@ -242,6 +242,20 @@ export const battleActionsSlice = (set: any, get: any) => ({
                 };
             }
 
+            // ===== Alchemy Elixirs (Battle Effects) =====
+            if (id === "ether_elixir") {
+                for (const c of s.player.party)
+                    if ((c.stats?.hp ?? 0) > 0) get().gainEther(c.id, 2);
+            }
+            if (id === "war_elixir" || id === "guard_elixir") {
+                const key = id === "war_elixir" ? "atk" : "def";
+                get().applyStatusEffect(actor.id, {
+                    type: id === "war_elixir" ? "buff_atk" : "buff_def",
+                    duration: 99, // 사실상 전투 전체 (턴당 -1)
+                    value: Math.round(((actor.stats as any)?.[key] ?? 0) * 0.2),
+                });
+            }
+
             // ===== Instant Consume Items =====
             const bag = [...s.bag];
             bag[idx] = { id, qty: bag[idx].qty - 1 };
