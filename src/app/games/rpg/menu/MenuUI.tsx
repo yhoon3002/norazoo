@@ -67,6 +67,12 @@ const CONSUMABLES: Record<string, { name: string; effect: string }> = {
     ether_elixir: { name: "에테르 정수", effect: "전원 에테르 +2" },
     war_elixir: { name: "용맹의 비약", effect: "전투 중 공격 +20%" },
     guard_elixir: { name: "수호의 비약", effect: "전투 중 방어 +20%" },
+    revive_elixir: { name: "부활의 정수", effect: "쓰러진 아군 부활 (HP 50%)" },
+    purify_elixir: { name: "정화의 정수", effect: "파티 전원 해로운 효과 제거" },
+    blast_elixir: { name: "폭염 정수", effect: "적 전체 60 피해" },
+    frost_elixir: { name: "서리 정수", effect: "적 전체 빙결 1턴" },
+    swift_elixir: { name: "신속의 비약", effect: "사용자 속도 +10 (99턴)" },
+    vital_elixir: { name: "활력의 비약", effect: "사용자 매 턴 HP 8 회복 (4턴)" },
 };
 
 /** 전투 중에만 사용 가능한 비약 — bagSlice.useItem 은 이 아이템들에 필드 효과를 정의하지 않으므로
@@ -75,6 +81,12 @@ const BATTLE_ONLY_CONSUMABLES = new Set([
     "ether_elixir",
     "war_elixir",
     "guard_elixir",
+    "revive_elixir",
+    "purify_elixir",
+    "blast_elixir",
+    "frost_elixir",
+    "swift_elixir",
+    "vital_elixir",
 ]);
 
 const MATERIALS: Record<string, { name: string }> = {

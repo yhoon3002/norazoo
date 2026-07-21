@@ -55,6 +55,48 @@ export const RECIPES: Recipe[] = [
         needs: [ { id: "lotus", qty: 1 }, { id: "reed", qty: 2 } ],
         buffs: [{ type: "ether", value: 2, duration: 0 }],
     },
+    {
+        id: "trout_braise", name: "은송어 조림", icon: "🐟",
+        desc: "다음 전투: 매 턴 HP 10 회복 (4턴)",
+        needs: [ { id: "silver_trout", qty: 1 }, { id: "sea_salt", qty: 1 } ],
+        buffs: [{ type: "regen", value: 10, duration: 4 }],
+    },
+    {
+        id: "coral_soup", name: "산호어 스프", icon: "🍜",
+        desc: "다음 전투: 방어 +8 (4턴)",
+        needs: [ { id: "coral_fish", qty: 1 }, { id: "clam", qty: 1 } ],
+        buffs: [{ type: "buff_def", value: 8, duration: 4 }],
+    },
+    {
+        id: "lotus_tea", name: "연꽃탕", icon: "🫖",
+        desc: "즉시: 파티 전원 에테르 +3",
+        needs: [{ id: "lotus", qty: 2 }],
+        buffs: [{ type: "ether", value: 3, duration: 0 }],
+    },
+    {
+        id: "reed_porridge", name: "갈대죽", icon: "🥣",
+        desc: "다음 전투: 속도 +6 (4턴)",
+        needs: [ { id: "reed", qty: 2 }, { id: "herb", qty: 1 } ],
+        buffs: [{ type: "speed", value: 6, duration: 4 }],
+    },
+    {
+        id: "golden_salad", name: "황금 샐러드", icon: "🥗",
+        desc: "다음 전투: 공격 +10·매 턴 HP 6 회복 (4턴)",
+        needs: [ { id: "golden_herb", qty: 1 }, { id: "forest_mushroom", qty: 2 } ],
+        buffs: [
+            { type: "buff_atk", value: 10, duration: 4 },
+            { type: "regen", value: 6, duration: 4 },
+        ],
+    },
+    {
+        id: "frost_tea", name: "서리이끼 차", icon: "☕",
+        desc: "다음 전투: 방어 +6·속도 +4 (4턴)",
+        needs: [ { id: "frost_moss", qty: 1 }, { id: "wind_flower", qty: 1 } ],
+        buffs: [
+            { type: "buff_def", value: 6, duration: 4 },
+            { type: "speed", value: 4, duration: 4 },
+        ],
+    },
 ];
 
 // ===== 영구 만찬 — 상한제 영구 성장 (골든허브 + 특산 재료 + 점증 골드) =====

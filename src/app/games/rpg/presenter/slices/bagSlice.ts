@@ -81,6 +81,21 @@ export const bagSlice = (set: any, get: any) => ({
                 );
                 return { bag, player: { ...s.player, party } };
             }
+            // revive_elixir: 사망 아군 부활 — HP 50%
+            if (id === "revive_elixir" && targetId) {
+                const party = s.player.party.map((c: any) =>
+                    c.id === targetId && c.stats.hp <= 0
+                        ? {
+                              ...c,
+                              stats: {
+                                  ...c.stats,
+                                  hp: Math.round(c.stats.maxHp * 0.5),
+                              },
+                          }
+                        : c
+                );
+                return { bag, player: { ...s.player, party } };
+            }
             // mana_potion: 에테르 +3 회복
             if (id === "mana_potion" && targetId) {
                 const party = s.player.party.map((c: any) =>

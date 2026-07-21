@@ -38,6 +38,10 @@ const MATERIAL_NAMES: Record<string, string> = {
     mana_crystal: "마나 수정",
     tree_sap: "나무수액",
     frost_moss: "서리이끼",
+    driftwood: "유목",
+    silver_trout: "은빛송어",
+    coral_fish: "산호어",
+    dark_crystal: "어둠 수정",
 };
 
 function displayName(id: string): string {

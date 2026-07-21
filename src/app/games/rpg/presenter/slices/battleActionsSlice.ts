@@ -242,6 +242,39 @@ export const battleActionsSlice = (set: any, get: any) => ({
                 };
             }
 
+            // ===== Revive Elixir (Target = Dead Party Members Only) =====
+            if (id === "revive_elixir") {
+                const dead = s.player.party
+                    .filter((c: any) => c.stats.hp <= 0)
+                    .map((c: any) => c.id);
+                if (dead.length === 0) {
+                    return {
+                        combat: {
+                            phase: "playerMenu",
+                            enemies: enemiesInCombat(s),
+                        },
+                        battleSubMenu: [],
+                    };
+                }
+                return {
+                    combat: {
+                        phase: "targetSelect",
+                        enemies: enemiesInCombat(s),
+                        pending: {
+                            kind: "item",
+                            actorId: actor.id,
+                            itemId: id,
+                        },
+                        allowedTargets: dead,
+                        index: 0,
+                    },
+                    battleSubMenu: dead.map(
+                        (cid: any) =>
+                            s.player.party.find((c: any) => c.id === cid)!.name
+                    ),
+                };
+            }
+
             // ===== Alchemy Elixirs (Battle Effects) =====
             if (id === "ether_elixir") {
                 for (const c of s.player.party)
@@ -255,6 +288,56 @@ export const battleActionsSlice = (set: any, get: any) => ({
                     value: Math.round(((actor.stats as any)?.[key] ?? 0) * 0.2),
                 });
             }
+            if (id === "purify_elixir") {
+                const HARMFUL = ["poison", "burn", "freeze", "stun"];
+                set((st: any) => ({
+                    player: {
+                        ...st.player,
+                        party: st.player.party.map((c: any) => ({
+                            ...c,
+                            statusEffects: c.statusEffects.filter(
+                                (e: any) => !HARMFUL.includes(e.type)
+                            ),
+                        })),
+                    },
+                }));
+            }
+            if (id === "blast_elixir") {
+                for (const e of aliveEnemies(s)) {
+                    get().applyDamage(e.id, 60);
+                    get().spawnPopup({
+                        side: "enemy",
+                        charId: e.id,
+                        text: "-60",
+                        color: "#ef4444",
+                    });
+                }
+                // 적 전멸 시 승리 처리 — 아래 공용 폴백이 turnEnd로 덮어쓰지 않도록 먼저 체크
+                get().checkCombatEnd();
+            }
+            if (id === "frost_elixir") {
+                for (const e of aliveEnemies(s)) {
+                    get().applyStatusEffect(e.id, {
+                        type: "freeze",
+                        duration: 1,
+                        value: 1,
+                    });
+                }
+            }
+            if (id === "swift_elixir") {
+                get().applyStatusEffect(actor.id, {
+                    type: "speed",
+                    duration: 99,
+                    value: 10,
+                });
+            }
+            if (id === "vital_elixir") {
+                get().applyStatusEffect(actor.id, {
+                    type: "regen",
+                    duration: 4,
+                    value: 8,
+                });
+            }
 
             // ===== Instant Consume Items =====
             const bag = [...s.bag];
@@ -266,9 +349,17 @@ export const battleActionsSlice = (set: any, get: any) => ({
                 if (!["victory", "defeat"].includes(get().combat.phase))
                     get().endPlayerTurn();
             }, 450);
+
+            // 위 즉발 분기들이 combat.enemies/player.party를 이미 최신 상태로 갱신했을 수 있으므로
+            // (예: frost의 빙결, blast의 피해+승리 전환) 폐쇄된(stale) s가 아닌 get()의 최신 상태를 기준으로 병합.
+            // blast가 이미 victory/defeat로 전환했다면 turnEnd로 덮어쓰지 않는다.
+            const latestPhase = get().combat.phase;
+            if (latestPhase === "victory" || latestPhase === "defeat") {
+                return { bag, battleSubMenu: [] };
+            }
             return {
                 bag,
-                combat: { phase: "turnEnd", enemies: enemiesInCombat(s) },
+                combat: { phase: "turnEnd", enemies: enemiesInCombat(get()) },
                 battleSubMenu: [],
             };
         }),
