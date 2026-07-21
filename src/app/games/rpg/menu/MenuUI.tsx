@@ -112,6 +112,10 @@ const MATERIALS: Record<string, { name: string }> = {
     driftwood: { name: "유목" },
     silver_trout: { name: "은빛송어" },
     coral_fish: { name: "산호어" },
+    wind_trout: { name: "바람송어" },
+    ice_fish: { name: "빙어" },
+    deep_fish: { name: "심연어" },
+    gold_carp: { name: "황금잉어" },
     dark_crystal: { name: "어둠 수정" },
 };
 

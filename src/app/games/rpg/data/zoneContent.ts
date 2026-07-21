@@ -33,7 +33,7 @@ export const ZONE_CONTENT: Record<
     },
     hill: {
         gatherItems: ["wind_flower", "herb"],
-        // hill은 배회 스폰이 1곳뿐이라 index 0만 실사용 — 다양성 조합을 앞에 둔다
+        // hill 배회 스폰 4곳(index 0~3) — 팩 4개 전부 실사용
         roamerPacks: [["mad_bull", "orc"], ["orc", "orc"], ["orc_chief", "orc"], ["mad_bull"]],
         treasureLoot: [
             [{ id: "wind_flower", qty: 2 }, { id: "health_potion", qty: 1 }, { id: "hunter_ring", qty: 1 }],
@@ -46,7 +46,7 @@ export const ZONE_CONTENT: Record<
         roamerPacks: [
             ["zombie", "zombie"],
             ["ghoul", "zombie"],
-            ["ghoul", "ghoul", "slime"],
+            ["mage", "ghoul"],
             ["zombie", "wild_dog", "wild_dog"],
             ["ghoul", "mad_bull"],
         ],

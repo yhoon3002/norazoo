@@ -78,6 +78,10 @@ export const ITEM_PRICES: Record<string, number> = {
     driftwood: 9,
     silver_trout: 40,
     coral_fish: 55,
+    wind_trout: 30,
+    ice_fish: 35,
+    deep_fish: 45,
+    gold_carp: 120,
     dark_crystal: 90,
     ether_elixir: 60,
     war_elixir: 90,
@@ -198,7 +202,17 @@ export const GOLDEN_HERB_SPOTS: Array<{ x: number; y: number; z: number }> = [
     { x: 205, y: -38.25, z: 8 },
 ];
 
-// ===== 낚시터 — 부두(기존) + 존 물가 3곳 (placementData 도달 검증 좌표) =====
+// ===== 낚시터 — 부두(기존) + 존 물가 7곳 (placementData 도달 검증 좌표) =====
+const ZONE_FISH_TABLE: Record<string, { common: string; rare: string }> = {
+    ne_water: { common: "silver_trout", rare: "fish_rare" },
+    south_coast: { common: "fish_common", rare: "coral_fish" },
+    west_forest: { common: "silver_trout", rare: "fish_rare" },
+    hill: { common: "wind_trout", rare: "fish_rare" },
+    north_woods: { common: "ice_fish", rare: "fish_rare" },
+    gorge: { common: "deep_fish", rare: "gold_carp" },
+    town: { common: "fish_common", rare: "gold_carp" },
+};
+
 export const FISHING_SPOTS: Array<{
     id: string;
     x: number;
@@ -212,10 +226,7 @@ export const FISHING_SPOTS: Array<{
         x: f.x,
         y: f.y,
         z: f.z,
-        table:
-            f.zone === "south_coast"
-                ? { common: "fish_common", rare: "coral_fish" }
-                : { common: "silver_trout", rare: "fish_rare" },
+        table: ZONE_FISH_TABLE[f.zone],
     })),
 ];
 
