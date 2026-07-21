@@ -194,7 +194,9 @@ export const battleActionsSlice = (set: any, get: any) => ({
             }
 
             get().startPlayerQTE(action);
-            return s;
+            // 주의: 여기서 s(이전 상태 전체)를 반환하면 중첩 set(startPlayerQTE의
+            // phase 전환·spendEther 차감)이 병합 단계에서 되돌아간다 — 빈 패치 반환.
+            return {};
         }),
 
     // ===== Select Item =====

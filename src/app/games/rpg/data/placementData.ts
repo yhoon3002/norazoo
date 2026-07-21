@@ -289,7 +289,7 @@ export const GEN_FISHING: Array<{ zone: ZoneId } & Spot> = [
     { zone: "south_coast", x: -64.5, y: -32.25, z: 144.5 },
     { zone: "west_forest", x: -263.5, y: -31.25, z: -53.5 },
     // GEN_FISHING (3→7)
-    { zone: "hill", x: 3.5, y: -32.75, z: -131.5 },
+    { zone: "hill", x: 9.5, y: -33.25, z: -127.5 },
     { zone: "north_woods", x: -139.5, y: -31.25, z: -315.5 },
     { zone: "gorge", x: 137.5, y: -42.25, z: 21.5 },
     { zone: "town", x: 148.5, y: -37.25, z: 4.5 },
