@@ -130,6 +130,8 @@ export default function RpgGame() {
                     (st as any).toggleMap();
                 }
                 else if (key === "tab") {
+                    const st = useGame.getState();
+                    if (st.dialogue.length > 0) return;
                     e.preventDefault();
                     setShowSavePanel((v) => !v);
                 }

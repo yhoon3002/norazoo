@@ -281,6 +281,7 @@ export function BattleUI() {
                                             popups: [],
                                             battleStartPartyState: undefined,
                                             battleStartPosition: undefined,
+                                            lastEncounterGroup: undefined,
                                             encounterCooldownUntil:
                                                 performance.now() + 3000,
                                         }));

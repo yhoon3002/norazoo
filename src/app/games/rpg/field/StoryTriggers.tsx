@@ -9,6 +9,12 @@ import { STORY_TRIGGERS } from "../data/storyData";
 
 export function StoryTriggers() {
     const frame = useRef(0);
+    // 재도전 대기 중인 전투 트리거 중, 반경 밖으로 한 번이라도 나간 적이 있는 트리거 id 집합.
+    // 체크포인트 깃발이 트리거 반경 안에 있으면 패배→복귀가 즉시 재발동으로 이어져
+    // 대사가 이동을 잠그고 전투가 재시작되는 소프트락이 생긴다 — 한 번 반경을 벗어났다
+    // 돌아와야 재발동을 허용해 이를 막는다. FieldScene은 전투마다 리마운트되므로 이 ref는
+    // 매 전투 후 초기화된다(= 다시 한 번 반경을 벗어나야 함) — 의도된 동작.
+    const exitedRadiusOnce = useRef<Set<string>>(new Set());
 
     useFrame((state) => {
         frame.current++;
@@ -24,6 +30,20 @@ export function StoryTriggers() {
             | THREE.Vector3
             | undefined;
 
+        // 재도전 대기 중인 전투 트리거의 반경 이탈 여부를 매 틱 갱신 —
+        // 이번 프레임에 발동할 트리거가 아니어도(1개만 발동하고 break) 전부 갱신한다.
+        if (p) {
+            for (const t of STORY_TRIGGERS) {
+                if (g.story.stage !== t.stage || !t.battle || !t.near) continue;
+                const alreadyFired = !!g.flags[`story_${t.id}`];
+                const battleUnwon = !g.flags[`defeated_${t.battle.id}_0`];
+                if (!alreadyFired || !battleUnwon) continue;
+                const outside =
+                    Math.hypot(p.x - t.near.x, p.z - t.near.z) > t.near.radius;
+                if (outside) exitedRadiusOnce.current.add(t.id);
+            }
+        }
+
         for (const t of STORY_TRIGGERS) {
             if (g.story.stage !== t.stage) continue;
 
@@ -35,6 +55,12 @@ export function StoryTriggers() {
                 !!t.battle && !g.flags[`defeated_${t.battle.id}_0`];
             if (alreadyFired && !battleUnwon) continue;
 
+            // 재발동(재도전) 케이스: 반경이 있는 트리거는 한 번 벗어났다 돌아와야 재발동 허용
+            // (반경이 없는 전투 트리거는 위치 재진입 개념이 없으므로 게이트를 걸지 않는다)
+            if (alreadyFired && battleUnwon && t.near) {
+                if (!exitedRadiusOnce.current.has(t.id)) continue;
+            }
+
             if (t.near) {
                 if (!p) continue;
                 if (
@@ -44,7 +70,10 @@ export function StoryTriggers() {
             }
             if (t.flagsAll && !t.flagsAll.every((f) => g.flags[f])) continue;
 
-            // 발동 — story_${id} 플래그와 1회성 부가효과(스테이지 진행·보상)는 최초 발동에만 적용.
+            // 발동 — 재도전 소비: 다음 재도전을 위해선 다시 반경을 벗어났다 돌아와야 한다.
+            exitedRadiusOnce.current.delete(t.id);
+
+            // story_${id} 플래그와 1회성 부가효과(스테이지 진행·보상)는 최초 발동에만 적용.
             // 재발동(재도전)은 대사 재생 + 전투 재무장만 수행한다.
             if (!alreadyFired) {
                 useGame.setState((s: { flags: Record<string, boolean> }) => ({

@@ -511,6 +511,9 @@ export const turnSlice = (set: any, get: any) => ({
             story: (d as any).story ?? s.story, // 구버전 세이브 호환
             killCounts: (d as any).counters ?? {},
             dialogue: [],
+            // 대사 종료 대기 중이던 스토리 전투 예약도 함께 초기화 —
+            // 안 그러면 새 타임라인에서 엉뚱한 전투가 다음 대사 종료 시 발동한다.
+            pendingStoryBattle: null,
             combat: { phase: "idle" },
             turnQueue: [],
             currentTurn: 0,

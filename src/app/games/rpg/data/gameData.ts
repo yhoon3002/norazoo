@@ -224,8 +224,8 @@ for (const zd of ZONE_DEFS) {
 
 // ===== 요리사 미니퀘스트: 멈춘 화덕을 위한 재료 =====
 export const COOK_QUEST = {
-    /** 수락 가능 스테이지 (튜토리얼 전투 이후) */
-    availableFrom: ["ch2_cleanup", "ch3_port", "ch4_hill"],
+    /** 수락 가능 스테이지 (튜토리얼 전투 이후) — 종장 이후에도 수락/turn-in 가능하게 유지 */
+    availableFrom: ["ch2_cleanup", "ch3_port", "ch4_hill", "ch5_gorge", "epilogue"],
     needs: [
         { id: "herb", qty: 3, name: "약초" },
         { id: "slime_gel", qty: 2, name: "슬라임 젤" },

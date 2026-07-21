@@ -83,7 +83,7 @@ function BoatmanNode({
             if (s.combat.phase !== "idle") return;
             if (s.dialogue.length > 0) return;
             const ui = s.ui as any;
-            if (ui.mapOpen || ui.shopOpen || ui.fishingOpen || ui.smithOpen || ui.bountyOpen) return;
+            if (ui.mapOpen || ui.shopOpen || ui.fishingOpen || ui.smithOpen || ui.bountyOpen || ui.fastTravelOpen || ui.inventoryOpen || ui.pauseOpen) return;
 
             s.startDialogue([{ speaker: "사공", text: line }]);
             s.requestTeleport(destination);

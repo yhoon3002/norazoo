@@ -22,6 +22,11 @@ export const NPC_SPEAKERS: Record<string, { icon: string }> = {
     일지: { icon: "📜" },
     쪽지: { icon: "📜" },
     소년: { icon: "🧒" },
+    "태엽을 삼킨 마수": { icon: "⚙️" },
+    사공: { icon: "⛵" },
+    아낙: { icon: "🧺" },
+    대장장이: { icon: "🔨" },
+    어부: { icon: "🎣" },
 };
 
 export type StoryTrigger = {
