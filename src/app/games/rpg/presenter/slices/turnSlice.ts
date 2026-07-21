@@ -446,6 +446,8 @@ export const turnSlice = (set: any, get: any) => ({
                 const restoredParty = s.player.party.map((c: any) => ({
                     ...c,
                     ether: 3,
+                    // 전투 한정 버프/상태는 승리 종료 시 소멸 — 비약(99턴)이 다음 전투로 이월되는 것 방지
+                    statusEffects: [],
                 }));
 
                 return {
