@@ -40,6 +40,10 @@ const MATERIAL_NAMES: Record<string, string> = {
     frost_moss: "서리이끼",
     driftwood: "유목",
     silver_trout: "은빛송어",
+    wind_trout: "바람송어",
+    ice_fish: "빙어",
+    deep_fish: "심연어",
+    gold_carp: "황금잉어",
     coral_fish: "산호어",
     dark_crystal: "어둠 수정",
 };
