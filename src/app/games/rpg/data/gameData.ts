@@ -671,7 +671,7 @@ export const EQUIPMENT: Record<string, Equipment> = {
         id: "clock_staff",
         name: "태엽 지팡이",
         type: "weapon",
-        stats: { atk: 30, maxMp: 15 },
+        stats: { atk: 30, speed: 4 },
         skills: ["lightning"],
         rarity: "epic",
     },

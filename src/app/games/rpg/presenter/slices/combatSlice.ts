@@ -3,7 +3,7 @@
 
 import type { CombatState, Enemy } from "../../types/RpgTypes";
 import { ENEMY_TEMPLATES } from "../../data/gameData";
-import { enemiesInCombat, findNextAliveIndex } from "../gameStoreHelpers";
+import { enemiesInCombat, findNextAliveIndex, effSpeed } from "../gameStoreHelpers";
 
 export const combatSlice = (set: any, get: any) => ({
     // ===== State =====
@@ -103,12 +103,7 @@ export const combatSlice = (set: any, get: any) => ({
             }));
 
             // 유효 speed = stats.speed + Σ(speed 버프) — 요리 버프가 턴 순서에도 반영되도록
-            const effSpeed = (u: any) =>
-                u.stats.speed +
-                u.statusEffects
-                    .filter((e: any) => e.type === "speed")
-                    .reduce((sum: number, e: any) => sum + e.value, 0);
-
+            // (gameStoreHelpers.effSpeed와 동일 규칙 — 라운드 경계 재정렬(turnSlice)도 이를 공유)
             const all = [
                 ...party
                     .filter((c: any) => c.stats.hp > 0)

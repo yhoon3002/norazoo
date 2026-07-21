@@ -79,7 +79,7 @@ Slash→**베기**, Fireball→**화염구**, Heal→**치유**, Lightning Strik
 | hunter_ring | 사냥꾼의 반지 | accessory | epic | atk 12, speed 3 | — | hill 보물 |
 | sage_pendant | 현자의 목걸이 | accessory | epic | atk 8, luck 8 | ["ice_shard"] | ne_water 보물 |
 | knight_greatsword | 기사단 대검 | weapon | epic | atk 40, speed -3 | — | 상점 450G |
-| clock_staff | 태엽 지팡이 | weapon | epic | atk 30, maxMp 15 | ["lightning"] | north_woods 보물 |
+| clock_staff | 태엽 지팡이 | weapon | epic | atk 30, speed 4 | ["lightning"] | north_woods 보물 |
 | chef_blade | 명장의 조리검 | weapon | epic | atk 32, speed 6 | — | south_coast 보물 |
 
 - ITEM_PRICES 전 11종 필수(파생/판매): scout_leather 100, gear_robe 220, chef_apron 240, dragon_scale 520, silver_watch 240, guard_charm 260, hunter_ring 320, sage_pendant 340, knight_greatsword 450, clock_staff 480, chef_blade 460.

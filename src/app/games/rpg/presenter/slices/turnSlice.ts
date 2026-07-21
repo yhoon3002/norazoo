@@ -9,7 +9,18 @@ import {
     getEnemyById,
     findNextAliveIndex,
     effectiveStat,
+    buildTurnQueue,
 } from "../gameStoreHelpers";
+
+// 다음 턴 인덱스가 현재 인덱스보다 앞서지 않으면(모듈로 wrap) 한 라운드가 끝난 것 —
+// 라운드 경계마다 현재 유효 speed(속도 버프 반영)로 턴 큐를 재정렬한다.
+// s.turnQueue/s.currentTurn과 next를 받아 { turnQueue?, currentTurn } partial을 반환.
+function advanceTurnOrRewrap(s: any, next: number) {
+    if (next > s.currentTurn) return { currentTurn: next };
+    const queue = buildTurnQueue(s);
+    if (queue.length === 0) return { currentTurn: next };
+    return { turnQueue: queue, currentTurn: 0 };
+}
 
 export const turnSlice = (set: any, get: any) => ({
     // ===== Turn Management =====
@@ -74,7 +85,7 @@ export const turnSlice = (set: any, get: any) => ({
         set((s: any) => {
             if (s.turnQueue.length === 0) return s;
             const next = findNextAliveIndex(s, s.currentTurn);
-            return { currentTurn: next };
+            return advanceTurnOrRewrap(s, next);
         });
 
         setTimeout(() => get().beginNextTurn(), 350);
@@ -84,7 +95,7 @@ export const turnSlice = (set: any, get: any) => ({
         set((s: any) => {
             if (s.turnQueue.length === 0) return s;
             const next = findNextAliveIndex(s, s.currentTurn);
-            return { currentTurn: next };
+            return advanceTurnOrRewrap(s, next);
         });
 
         setTimeout(() => get().beginNextTurn(), 350);
@@ -462,7 +473,10 @@ export const turnSlice = (set: any, get: any) => ({
                     if (e.template) get().addKill(e.template);
                 });
 
-                const restoredParty = s.player.party.map((c: any) => ({
+                // gainExp가 nested set()으로 exp/레벨업을 이미 반영했으므로, 여기서
+                // s.player.party(호출 당시의 stale snapshot)를 쓰면 그 갱신이 병합 시 되돌아간다.
+                // get().player.party로 최신 상태를 읽어야 exp/레벨업이 유지된다.
+                const restoredParty = get().player.party.map((c: any) => ({
                     ...c,
                     ether: 3,
                     // 전투 한정 버프/상태는 승리 종료 시 소멸 — 비약(99턴)이 다음 전투로 이월되는 것 방지

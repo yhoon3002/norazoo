@@ -18,10 +18,24 @@ export const statusSlice = (set: any, get: any) => ({
                 const party = [...s.player.party];
                 const char = { ...party[partyIndex] };
 
+                const existing = char.statusEffects.find(
+                    (e: any) => e.type === effect.type
+                );
                 char.statusEffects = char.statusEffects.filter(
                     (e: any) => e.type !== effect.type
                 );
-                char.statusEffects.push({ ...effect });
+                char.statusEffects.push(
+                    existing
+                        ? {
+                              ...effect,
+                              value: Math.max(existing.value, effect.value),
+                              duration: Math.max(
+                                  existing.duration,
+                                  effect.duration
+                              ),
+                          }
+                        : { ...effect }
+                );
 
                 party[partyIndex] = char;
                 return { player: { ...s.player, party } };
@@ -36,10 +50,24 @@ export const statusSlice = (set: any, get: any) => ({
                 if (enemyIndex >= 0) {
                     const enemy = { ...enemies[enemyIndex] };
 
+                    const existing = enemy.statusEffects.find(
+                        (e: any) => e.type === effect.type
+                    );
                     enemy.statusEffects = enemy.statusEffects.filter(
                         (e: any) => e.type !== effect.type
                     );
-                    enemy.statusEffects.push({ ...effect });
+                    enemy.statusEffects.push(
+                        existing
+                            ? {
+                                  ...effect,
+                                  value: Math.max(existing.value, effect.value),
+                                  duration: Math.max(
+                                      existing.duration,
+                                      effect.duration
+                                  ),
+                              }
+                            : { ...effect }
+                    );
 
                     enemies[enemyIndex] = enemy;
 
