@@ -235,52 +235,71 @@ export const turnSlice = (set: any, get: any) => ({
                     get().triggerAnimatedAction(actor.id, skillAnim, 900);
 
                     const healVal = Math.abs(sk.damage || 0);
+                    let targetIdList: string[] = [];
                     if (sk.targetType === "all" && action.targetIds) {
-                        const party = s.player.party.map((c: any) =>
-                            action.targetIds!.includes(c.id)
-                                ? {
-                                      ...c,
-                                      stats: {
-                                          ...c.stats,
-                                          hp: Math.min(
-                                              c.stats.maxHp,
-                                              c.stats.hp +
-                                                  healVal * (1.1 + bonus)
-                                          ),
-                                      },
-                                  }
-                                : c
-                        );
-                        get().spawnPopup({
-                            side: "ally",
-                            text: "+ALL",
-                            color: "#22c55e",
-                        });
-                        set({ player: { ...s.player, party } });
+                        targetIdList = action.targetIds;
+                        if (sk.damage !== 0) {
+                            const party = s.player.party.map((c: any) =>
+                                action.targetIds!.includes(c.id)
+                                    ? {
+                                          ...c,
+                                          stats: {
+                                              ...c.stats,
+                                              hp: Math.min(
+                                                  c.stats.maxHp,
+                                                  c.stats.hp +
+                                                      healVal * (1.1 + bonus)
+                                              ),
+                                          },
+                                      }
+                                    : c
+                            );
+                            get().spawnPopup({
+                                side: "ally",
+                                text: "+ALL",
+                                color: "#22c55e",
+                            });
+                            set({ player: { ...s.player, party } });
+                        }
                     } else {
                         const tId = action.targetId ?? actor.id;
-                        const party = s.player.party.map((c: any) =>
-                            c.id === tId
-                                ? {
-                                      ...c,
-                                      stats: {
-                                          ...c.stats,
-                                          hp: Math.min(
-                                              c.stats.maxHp,
-                                              c.stats.hp +
-                                                  healVal * (1.2 + bonus)
-                                          ),
-                                      },
-                                  }
-                                : c
-                        );
-                        get().spawnPopup({
-                            side: "ally",
-                            charId: tId,
-                            text: `+${healVal}`,
-                            color: "#22c55e",
-                        });
-                        set({ player: { ...s.player, party } });
+                        targetIdList = [tId];
+                        if (sk.damage !== 0) {
+                            const party = s.player.party.map((c: any) =>
+                                c.id === tId
+                                    ? {
+                                          ...c,
+                                          stats: {
+                                              ...c.stats,
+                                              hp: Math.min(
+                                                  c.stats.maxHp,
+                                                  c.stats.hp +
+                                                      healVal * (1.2 + bonus)
+                                              ),
+                                          },
+                                      }
+                                    : c
+                            );
+                            get().spawnPopup({
+                                side: "ally",
+                                charId: tId,
+                                text: `+${healVal}`,
+                                color: "#22c55e",
+                            });
+                            set({ player: { ...s.player, party } });
+                        }
+                    }
+
+                    if (sk.statusEffect) {
+                        for (const tid of targetIdList) {
+                            get().applyStatusEffect(tid, sk.statusEffect);
+                            get().spawnPopup({
+                                side: "ally",
+                                charId: tid,
+                                text: `${sk.statusEffect.type}!`,
+                                color: "#a78bfa",
+                            });
+                        }
                     }
                 } else {
                     // ===== Damage Skills =====

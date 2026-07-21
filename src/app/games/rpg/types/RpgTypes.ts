@@ -26,6 +26,10 @@ export type Skill = {
         duration: number;
         value: number;
     };
+    /** 전용 캐릭터 — 지정 시 해당 캐릭터만 습득 */
+    character?: PartyId;
+    /** 습득 레벨 — 지정 시 해당 레벨부터 자동 습득 (기본 1) */
+    unlockLevel?: number;
 };
 
 export type Equipment = {

@@ -38,6 +38,10 @@ function getAvailableSkills(character: Character): Skill[] {
         if (eq && EQUIPMENT[eq]?.skills)
             EQUIPMENT[eq]!.skills!.forEach((id) => ids.add(id));
     });
+    Object.values(SKILLS).forEach((sk) => {
+        if (sk.character === character.id && character.level >= (sk.unlockLevel ?? 1))
+            ids.add(sk.id);
+    });
     return Array.from(ids)
         .map((id) => SKILLS[id])
         .filter(Boolean);
