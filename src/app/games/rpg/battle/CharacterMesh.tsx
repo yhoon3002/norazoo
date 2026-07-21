@@ -175,7 +175,7 @@ export function CharacterMesh({
             <mesh
                 position={[0, 0.05, 0]}
                 rotation={[-Math.PI / 2, 0, 0]}
-                visible={isTargeted && hp > 0}
+                visible={isTargeted}
             >
                 <ringGeometry args={[1.2, 1.5, 32]} />
                 <meshBasicMaterial
