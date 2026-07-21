@@ -69,6 +69,14 @@ const CONSUMABLES: Record<string, { name: string; effect: string }> = {
     guard_elixir: { name: "수호의 비약", effect: "전투 중 방어 +20%" },
 };
 
+/** 전투 중에만 사용 가능한 비약 — bagSlice.useItem 은 이 아이템들에 필드 효과를 정의하지 않으므로
+ *  필드 인벤토리에서 사용하면 무효 소모(수량만 차감)된다. 배틀 전용 UI 에서만 사용 버튼 활성화. */
+const BATTLE_ONLY_CONSUMABLES = new Set([
+    "ether_elixir",
+    "war_elixir",
+    "guard_elixir",
+]);
+
 const MATERIALS: Record<string, { name: string }> = {
     herb: { name: "약초" },
     slime_gel: { name: "슬라임 젤" },
@@ -390,6 +398,7 @@ export function InventoryPanel() {
 
     const consumableDisabled =
         !selectedChar ||
+        (!!selectedItem && BATTLE_ONLY_CONSUMABLES.has(selectedItem.id)) ||
         (selectedItem?.id === "health_potion" && hp >= maxHp) ||
         (selectedItem?.id === "mana_potion" &&
             (selectedChar?.ether ?? 0) >= (selectedChar?.maxEther ?? 0));
@@ -1060,7 +1069,11 @@ export function InventoryPanel() {
                                                     className="mt-1.5 text-center text-[10px]"
                                                     style={{ color: MUTED }}
                                                 >
-                                                    이미 가득 찼습니다
+                                                    {BATTLE_ONLY_CONSUMABLES.has(
+                                                        selectedItem.id
+                                                    )
+                                                        ? "전투 중에만 사용 가능"
+                                                        : "이미 가득 찼습니다"}
                                                 </div>
                                             )}
                                     </>
