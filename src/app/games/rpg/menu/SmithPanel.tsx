@@ -1,13 +1,18 @@
-// rpg/menu/SmithPanel.tsx — 대장간 강화 패널 (가방 속 장비 +1~+3 강화)
+// rpg/menu/SmithPanel.tsx — 대장간 강화 패널 (가방 속 장비 +1~+5 강화, +4부터 에필로그 해금)
 "use client";
 import { useGame } from "../presenter/useGameStore";
 import { EQUIPMENT, UPGRADE_COSTS } from "../data/gameData";
+import { stageAtLeast } from "../data/storyData";
+
+const MAX_UPGRADE = UPGRADE_COSTS.length; // 5
 
 /** 재료 표시명 — EQUIPMENT에 없는 강화 재료 id는 여기서 보강 */
 const MATERIAL_NAMES: Record<string, string> = {
     iron_ore: "철광석",
     silver_ore: "은광석",
     monster_core: "마물 결정",
+    dark_crystal: "어둠 수정",
+    orc_tusk: "오크 송곳니",
 };
 
 function displayName(id: string): string {
@@ -24,7 +29,7 @@ function statText(id: string): string {
 
 // 현재 강화 단계: id의 _p{n} 접미로 판정 (없으면 0)
 function upgradeInfo(id: string) {
-    const m = id.match(/^(.*)_p([123])$/);
+    const m = id.match(/^(.*)_p([1-5])$/);
     return m ? { baseId: m[1], level: Number(m[2]) } : { baseId: id, level: 0 };
 }
 
@@ -32,6 +37,7 @@ export function SmithPanel() {
     const isOpen = useGame((s) => s.ui.smithOpen);
     const gold = useGame((s) => s.player.gold);
     const bag = useGame((s) => s.bag);
+    const stage = useGame((s) => s.story.stage);
     const toggleSmith = useGame((s) => s.toggleSmith);
 
     if (!isOpen) return null;
@@ -44,7 +50,8 @@ export function SmithPanel() {
 
     const upgrade = (item: { id: string; qty: number }) => {
         const { baseId, level } = upgradeInfo(item.id);
-        if (level >= 3) return;
+        if (level >= MAX_UPGRADE) return;
+        if (level >= 3 && !stageAtLeast(useGame.getState().story.stage, "epilogue")) return;
         const cost = UPGRADE_COSTS[level];
         const s = useGame.getState();
         if (s.player.gold < cost.gold) return;
@@ -101,8 +108,9 @@ export function SmithPanel() {
                     ) : (
                         equipItems.map((item: { id: string; qty: number }) => {
                             const { baseId, level } = upgradeInfo(item.id);
-                            const maxed = level >= 3;
-                            const cost = maxed ? null : UPGRADE_COSTS[level];
+                            const maxed = level >= MAX_UPGRADE;
+                            const locked = !maxed && level >= 3 && !stageAtLeast(stage, "epilogue");
+                            const cost = maxed || locked ? null : UPGRADE_COSTS[level];
                             const affordable =
                                 !!cost &&
                                 gold >= cost.gold &&
@@ -139,6 +147,10 @@ export function SmithPanel() {
                                     {maxed ? (
                                         <span className="shrink-0 px-3 py-1 rounded-lg text-sm font-semibold bg-gray-700 text-amber-300">
                                             최대 강화
+                                        </span>
+                                    ) : locked ? (
+                                        <span className="shrink-0 px-3 py-1 rounded-lg text-sm font-semibold bg-gray-700 text-amber-300">
+                                            💤 대장장이가 깨어나면 +4 강화가 열린다
                                         </span>
                                     ) : (
                                         <button

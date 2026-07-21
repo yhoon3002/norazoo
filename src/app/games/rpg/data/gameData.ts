@@ -425,17 +425,19 @@ export const EQUIPMENT: Record<string, Equipment> = {
     },
 };
 
-// ===== 장비 강화 파생 (+1~+3) — 모듈 로드 시 자동 생성 =====
-// id 규약: `${원본}_p{n}`. 스탯 ×1.15/1.30/1.50 반올림, 표시명 "+n".
-export const UPGRADE_MULT = [1.15, 1.3, 1.5];
+// ===== 장비 강화 파생 (+1~+5) — 모듈 로드 시 자동 생성 =====
+// id 규약: `${원본}_p{n}`. 스탯 ×1.15/1.30/1.50/1.75/2.05 반올림, 표시명 "+n".
+export const UPGRADE_MULT = [1.15, 1.3, 1.5, 1.75, 2.05];
 export const UPGRADE_COSTS: Array<{ needs: Array<{ id: string; qty: number }>; gold: number }> = [
     { needs: [{ id: "iron_ore", qty: 2 }], gold: 100 },
     { needs: [{ id: "iron_ore", qty: 3 }, { id: "monster_core", qty: 1 }], gold: 250 },
     { needs: [{ id: "silver_ore", qty: 2 }, { id: "monster_core", qty: 2 }], gold: 600 },
+    { needs: [{ id: "dark_crystal", qty: 2 }, { id: "orc_tusk", qty: 2 }], gold: 1200 },
+    { needs: [{ id: "dark_crystal", qty: 3 }, { id: "orc_tusk", qty: 3 }], gold: 2500 },
 ];
 for (const baseId of Object.keys(EQUIPMENT)) {
     const base = EQUIPMENT[baseId];
-    for (let n = 1; n <= 3; n++) {
+    for (let n = 1; n <= UPGRADE_MULT.length; n++) {
         const stats: Record<string, number> = {};
         for (const [k, v] of Object.entries(base.stats)) {
             if (typeof v === "number") stats[k] = Math.round(v * UPGRADE_MULT[n - 1]);
