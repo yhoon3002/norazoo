@@ -104,4 +104,126 @@ export const SIDE_QUESTS: SideQuest[] = [
         rewards: [{ id: "mana_crystal", qty: 2 }],
         rewardGold: 100,
     },
+    // ===== 웨이브2 — 외곽 5존 사이드퀘스트 =====
+    {
+        id: "herb_witch",
+        npc: { x: -212.5, z: 106.5, y: -18.25, label: "약초술사", model: "/character/Witch.fbx" },
+        availableFrom: "ch3_port",
+        accept: [
+            { speaker: "약초술사", text: "이 숲 깊숙한 곳에서 약을 짓고 있었는데… 시계탑이 멈추며 화로 불씨도 죽어버렸어요." },
+            { speaker: "약초술사", text: "숲버섯 5개와 나무수액 2병만 있으면 다시 불을 지필 수 있을 텐데." },
+            { speakerId: "theo", text: "숲버섯이라면 이 근방 그늘에, 나무수액은 오래된 나무 밑동에 흔하죠. 어렵지 않겠네요." },
+        ],
+        progress: [
+            { speaker: "약초술사", text: "숲버섯 5개, 나무수액 2병이에요. 서두르지 않아도 괜찮으니 천천히 모아다 주세요." },
+        ],
+        complete: [
+            { speaker: "약초술사", text: "이제야 화로에 다시 불이 붙네요! 정성껏 기른 황금 약초예요, 받아 두세요." },
+            { speakerId: "lotti", text: "약초 냄새가 좋다! 이걸로 회복약 만들면 진짜 잘 들을 것 같아." },
+        ],
+        needs: [
+            { id: "forest_mushroom", qty: 5 },
+            { id: "tree_sap", qty: 2 },
+        ],
+        rewards: [{ id: "golden_herb", qty: 2 }],
+        rewardGold: 150,
+    },
+    {
+        id: "lost_hunter",
+        npc: { x: -139.5, z: -215.5, y: -31.25, label: "사냥꾼", model: "/character/Ninja_Female.fbx" },
+        availableFrom: "ch4_hill",
+        accept: [
+            { speaker: "사냥꾼", text: "이 숲에 마녀 둘이 진을 치고 짐승들을 홀려버렸어. 사냥감이 씨가 말랐다고." },
+            { speaker: "사냥꾼", text: "서쪽 능선 아래 야영지에 있을 거야. 처리해주면 사례하지." },
+            { speakerId: "arin", text: "위치는 파악했다. 정리하고 오지." },
+        ],
+        progress: [
+            { speaker: "사냥꾼", text: "서쪽 능선 아래야. 마녀 둘 — 조심해서 가라고." },
+        ],
+        complete: [
+            { speaker: "사냥꾼", text: "숲이 다시 조용해졌군! 덕분에 사냥할 만해졌어. 이거 받게." },
+            { speakerId: "lotti", text: "이제 사냥꾼 아저씨도 마음 놓고 다니겠다!" },
+        ],
+        kills: ["qw_nw_0", "qw_nw_1"],
+        rewards: [
+            { id: "silver_ore", qty: 2 },
+            { id: "mana_potion", qty: 2 },
+        ],
+        rewardGold: 180,
+    },
+    {
+        id: "reed_hermit",
+        npc: { x: 233.5, z: -261.5, y: -47.25, label: "강태공", model: "/character/Elf.fbx" },
+        availableFrom: "ch4_hill",
+        accept: [
+            { speaker: "강태공", text: "낚시나 하며 세월을 보내고 있었는데… 미끼로 쓸 연꽃 2송이랑 갈대 3줄기가 똑 떨어졌지 뭔가." },
+            { speaker: "강태공", text: "이 물가 갈대밭을 뒤지면 나올 걸세. 가져다주면 섭섭지 않게 챙겨주지." },
+            { speakerId: "theo", text: "연꽃과 갈대라… 미끼치고는 흥미로운 조합이네요. 뭔가 비법이 있나 봅니다." },
+        ],
+        progress: [
+            { speaker: "강태공", text: "연꽃 2송이, 갈대 3줄기일세. 이 갈대밭 어딘가에 있을 거야." },
+        ],
+        complete: [
+            { speaker: "강태공", text: "허허, 고맙네! 자, 오늘 낚은 월광어랑 비약일세. 받아두게." },
+            { speakerId: "arin", text: "낚시로 세월을 보내는 것도 나쁘지 않겠군." },
+        ],
+        needs: [
+            { id: "lotus", qty: 2 },
+            { id: "reed", qty: 3 },
+        ],
+        rewards: [
+            { id: "fish_rare", qty: 2 },
+            { id: "guard_elixir", qty: 1 },
+        ],
+        rewardGold: 160,
+    },
+    {
+        id: "drift_trader",
+        npc: { x: -80.5, z: 82.5, y: -33.25, label: "퇴역 뱃사람", model: "/character/VikingHelmet.fbx" },
+        availableFrom: "ch3_port",
+        accept: [
+            { speaker: "퇴역 뱃사람", text: "예전엔 이 바다를 누비던 뱃사람이었지… 이젠 다리도 성치 않아 해안이나 어슬렁거리네." },
+            { speaker: "퇴역 뱃사람", text: "유목 3개랑 바닷소금 2줌만 구해다 주면, 옛날에 배운 대로 물약 하나 만들어 주지." },
+            { speakerId: "lotti", text: "유목이랑 바닷소금? 해안가를 뒤지면 금방 찾겠다!" },
+        ],
+        progress: [
+            { speaker: "퇴역 뱃사람", text: "유목 3개, 바닷소금 2줌이야. 해안을 따라 걸으면 눈에 띌 걸세." },
+        ],
+        complete: [
+            { speaker: "퇴역 뱃사람", text: "고맙네, 젊은이들. 오래 묵혀둔 비법 물약일세. 몸 성히 다니게나." },
+            { speakerId: "theo", text: "노련한 뱃사람의 손맛이네요. 성분이 예사롭지 않습니다." },
+        ],
+        needs: [
+            { id: "driftwood", qty: 3 },
+            { id: "sea_salt", qty: 2 },
+        ],
+        rewards: [
+            { id: "war_elixir", qty: 1 },
+            { id: "health_potion", qty: 2 },
+        ],
+        rewardGold: 140,
+    },
+    {
+        id: "gear_goblin",
+        npc: { x: 199.5, z: 153.5, y: -49.25, label: "태엽기술자", model: "/character/Goblin_Male.fbx" },
+        availableFrom: "ch5_gorge",
+        accept: [
+            { speaker: "태엽기술자", text: "끄응… 시계탑 톱니바퀴를 구하러 협곡까지 왔다가 배를 놓쳐버렸지 뭐야." },
+            { speaker: "태엽기술자", text: "설상가상으로 내가 손대던 태엽 병정 둘이 폭주해서 협곡을 헤매고 있어. 저것들부터 멈춰줘!" },
+            { speakerId: "arin", text: "네가 만든 것 아닌가. …알겠다, 처리하고 오지." },
+        ],
+        progress: [
+            { speaker: "태엽기술자", text: "협곡 안쪽이야. 태엽 병정 둘 — 폭주 상태니 방심하지 말라고." },
+        ],
+        complete: [
+            { speaker: "태엽기술자", text: "오오, 해냈군! 이 은혜는 잊지 않겠어. 협곡에서 캐 온 결정이랑 마물 핵일세, 받아둬." },
+            { speakerId: "lotti", text: "고블린인데 나쁜 애가 아니었네! 다행이다." },
+        ],
+        kills: ["qw_gorge_0", "qw_gorge_1"],
+        rewards: [
+            { id: "dark_crystal", qty: 3 },
+            { id: "monster_core", qty: 3 },
+        ],
+        rewardGold: 250,
+    },
 ];

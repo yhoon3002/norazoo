@@ -5,11 +5,13 @@ import { useGame } from "../presenter/useGameStore";
 import {
     ITEM_PRICES,
     SHOP_STOCK,
+    SHOP_UNLOCK_STAGE,
     SELL_RATIO,
     EQUIPMENT,
 } from "../data/gameData";
 import { RECIPES, type Recipe, FEAST_DEFS, FEAST_GOLD, FEAST_MAX, type FeastDef } from "../data/recipeData";
 import { ALCHEMY_RECIPES, type AlchemyRecipe } from "../data/alchemyData";
+import { stageAtLeast } from "../data/storyData";
 
 function itemLabel(id: string): string {
     return EQUIPMENT[id]?.name ?? id.replace(/_/g, " ");
@@ -54,6 +56,7 @@ function displayName(id: string): string {
 
 export function ShopPanel() {
     const isOpen = useGame((s) => s.ui.shopOpen);
+    const stage = useGame((s) => s.story.stage);
     const gold = useGame((s) => s.player.gold);
     const bag = useGame((s) => s.bag);
     const buyItem = useGame((s) => s.buyItem);
@@ -200,7 +203,7 @@ export function ShopPanel() {
 
                 <div className="space-y-2 overflow-y-auto flex-1">
                     {tab === "buy" &&
-                        SHOP_STOCK.map((id) => {
+                        SHOP_STOCK.filter((id) => stageAtLeast(stage, SHOP_UNLOCK_STAGE[id] ?? "prologue")).map((id) => {
                             const price = ITEM_PRICES[id] ?? 0;
                             const affordable = gold >= price;
                             return (

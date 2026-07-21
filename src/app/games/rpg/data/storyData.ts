@@ -29,6 +29,12 @@ export const NPC_SPEAKERS: Record<string, { icon: string }> = {
     어부: { icon: "🎣" },
     파수꾼: { icon: "🛡️" },
     "견습 대장장이": { icon: "⚒️" },
+    // 웨이브2 — 외곽 5존 사이드퀘스트 NPC
+    약초술사: { icon: "🧪" },
+    사냥꾼: { icon: "🏹" },
+    강태공: { icon: "🎣" },
+    "퇴역 뱃사람": { icon: "⚓" },
+    태엽기술자: { icon: "⚙️" },
 };
 
 export type StoryTrigger = {

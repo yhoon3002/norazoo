@@ -41,6 +41,9 @@ export const FIELD_ENEMIES: Array<
     { id: "r5", pos: new THREE.Vector3(196, -37.25, 2), templates: ["slime", "slime", "slime"], respawn: 180_000 },
     // 파수꾼 퀘스트 전용 무리 (리스폰 없음 — Task 4에서 사용)
     { id: "bounty1", pos: new THREE.Vector3(52, -33.25, -46), templates: ["orc", "orc"] },
+    // 웨이브2 토벌 전용 캠프 (리스폰 없음 — bounty1과 동일 규약, 퀘스트 플래그 영구 보존)
+    { id: "qw_nw", pos: new THREE.Vector3(-155.5, -32.25, -205.5), templates: ["witch", "witch"] },
+    { id: "qw_gorge", pos: new THREE.Vector3(215.5, -44.25, 110.5), templates: ["clockwork_soldier", "clockwork_soldier"] },
 ];
 
 // ===== 상점 =====
@@ -125,6 +128,22 @@ export const SHOP_STOCK: string[] = [
     "guard_charm",
     "knight_greatsword",
 ];
+
+/** 상점 재고 해금 스테이지 — 미기재 id는 처음부터 판매 */
+export const SHOP_UNLOCK_STAGE: Record<string, string> = {
+    steel_sword: "ch2_cleanup",
+    scout_leather: "ch2_cleanup",
+    mage_staff: "ch3_port",
+    mage_robes: "ch3_port",
+    chain_mail: "ch3_port",
+    silver_watch: "ch3_port",
+    power_ring: "ch4_hill",
+    health_amulet: "ch4_hill",
+    gear_robe: "ch4_hill",
+    guard_charm: "ch4_hill",
+    flame_blade: "ch5_gorge",
+    knight_greatsword: "ch5_gorge",
+};
 
 // 상인 위치 (y는 의도한 층의 지면 — navmesh 스냅 기준으로 사용)
 // (구 위치 (4,-4)는 돌담 안쪽이라 스폰 지역에서 걸어서 도달 불가)
