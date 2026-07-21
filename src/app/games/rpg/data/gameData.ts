@@ -82,6 +82,17 @@ export const ITEM_PRICES: Record<string, number> = {
     ether_elixir: 60,
     war_elixir: 90,
     guard_elixir: 90,
+    scout_leather: 100,
+    gear_robe: 220,
+    chef_apron: 240,
+    dragon_scale: 520,
+    silver_watch: 240,
+    guard_charm: 260,
+    hunter_ring: 320,
+    sage_pendant: 340,
+    knight_greatsword: 450,
+    clock_staff: 480,
+    chef_blade: 460,
 };
 
 export const SELL_RATIO = 0.5;
@@ -98,6 +109,11 @@ export const SHOP_STOCK: string[] = [
     "mage_robes",
     "power_ring",
     "health_amulet",
+    "scout_leather",
+    "gear_robe",
+    "silver_watch",
+    "guard_charm",
+    "knight_greatsword",
 ];
 
 // 상인 위치 (y는 의도한 층의 지면 — navmesh 스냅 기준으로 사용)
@@ -568,6 +584,86 @@ export const EQUIPMENT: Record<string, Equipment> = {
         type: "accessory",
         stats: { maxHp: 50, def: 5 },
         rarity: "rare",
+    },
+    // ===== 신규 11종 (액세서리·에픽 방어구·캐릭터 무기) =====
+    scout_leather: {
+        id: "scout_leather",
+        name: "정찰병 경갑",
+        type: "armor",
+        stats: { def: 8, speed: 4 },
+        rarity: "common",
+    },
+    gear_robe: {
+        id: "gear_robe",
+        name: "태엽 로브",
+        type: "armor",
+        stats: { def: 10, maxHp: 10, atk: 5 },
+        rarity: "rare",
+    },
+    chef_apron: {
+        id: "chef_apron",
+        name: "셰프의 앞치마",
+        type: "armor",
+        stats: { def: 12, maxHp: 25 },
+        rarity: "rare",
+    },
+    dragon_scale: {
+        id: "dragon_scale",
+        name: "용린 갑옷",
+        type: "armor",
+        stats: { def: 22, maxHp: 40, speed: -2 },
+        rarity: "epic",
+    },
+    silver_watch: {
+        id: "silver_watch",
+        name: "은빛 회중시계",
+        type: "accessory",
+        stats: { speed: 8 },
+        rarity: "rare",
+    },
+    guard_charm: {
+        id: "guard_charm",
+        name: "수호 부적",
+        type: "accessory",
+        stats: { def: 8, maxHp: 15 },
+        rarity: "rare",
+    },
+    hunter_ring: {
+        id: "hunter_ring",
+        name: "사냥꾼의 반지",
+        type: "accessory",
+        stats: { atk: 12, speed: 3 },
+        rarity: "epic",
+    },
+    sage_pendant: {
+        id: "sage_pendant",
+        name: "현자의 목걸이",
+        type: "accessory",
+        stats: { atk: 8, luck: 8 },
+        skills: ["ice_shard"],
+        rarity: "epic",
+    },
+    knight_greatsword: {
+        id: "knight_greatsword",
+        name: "기사단 대검",
+        type: "weapon",
+        stats: { atk: 40, speed: -3 },
+        rarity: "epic",
+    },
+    clock_staff: {
+        id: "clock_staff",
+        name: "태엽 지팡이",
+        type: "weapon",
+        stats: { atk: 30, maxMp: 15 },
+        skills: ["lightning"],
+        rarity: "epic",
+    },
+    chef_blade: {
+        id: "chef_blade",
+        name: "명장의 조리검",
+        type: "weapon",
+        stats: { atk: 32, speed: 6 },
+        rarity: "epic",
     },
 };
 

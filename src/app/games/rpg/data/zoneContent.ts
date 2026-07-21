@@ -36,7 +36,7 @@ export const ZONE_CONTENT: Record<
         // hill은 배회 스폰이 1곳뿐이라 index 0만 실사용 — 다양성 조합을 앞에 둔다
         roamerPacks: [["mad_bull", "orc"], ["orc", "orc"], ["orc_chief", "orc"], ["mad_bull"]],
         treasureLoot: [
-            [{ id: "wind_flower", qty: 2 }, { id: "health_potion", qty: 1 }],
+            [{ id: "wind_flower", qty: 2 }, { id: "health_potion", qty: 1 }, { id: "hunter_ring", qty: 1 }],
             [{ id: "orc_tusk", qty: 3 }],
             [{ id: "golden_herb", qty: 1 }],
         ],
@@ -51,7 +51,7 @@ export const ZONE_CONTENT: Record<
             ["ghoul", "mad_bull"],
         ],
         treasureLoot: [
-            [{ id: "forest_mushroom", qty: 3 }],
+            [{ id: "forest_mushroom", qty: 3 }, { id: "chef_apron", qty: 1 }],
             [{ id: "tree_sap", qty: 2 }, { id: "health_potion", qty: 2 }],
             [{ id: "monster_core", qty: 2 }],
         ],
@@ -60,7 +60,7 @@ export const ZONE_CONTENT: Record<
         gatherItems: ["frost_moss", "iron_ore"],
         roamerPacks: [["witch"], ["frost_witch", "zombie"], ["witch", "witch"], ["frost_witch", "ghoul"]],
         treasureLoot: [
-            [{ id: "iron_ore", qty: 2 }],
+            [{ id: "iron_ore", qty: 2 }, { id: "clock_staff", qty: 1 }],
             [{ id: "frost_moss", qty: 2 }, { id: "mana_potion", qty: 2 }],
             [{ id: "silver_ore", qty: 1 }],
         ],
@@ -69,7 +69,7 @@ export const ZONE_CONTENT: Record<
         gatherItems: ["reed", "lotus", "silver_ore"],
         roamerPacks: [["ninja"], ["ninja", "ninja"], ["ninja", "witch"], ["ninja", "ghoul"], ["frost_witch", "ninja"]],
         treasureLoot: [
-            [{ id: "silver_ore", qty: 2 }],
+            [{ id: "silver_ore", qty: 2 }, { id: "sage_pendant", qty: 1 }],
             [{ id: "lotus", qty: 2 }, { id: "mana_crystal", qty: 2 }],
             [{ id: "monster_core", qty: 2 }, { id: "golden_herb", qty: 1 }],
         ],
@@ -84,7 +84,7 @@ export const ZONE_CONTENT: Record<
             ["wild_dog", "wild_dog", "mad_bull"],
         ],
         treasureLoot: [
-            [{ id: "driftwood", qty: 3 }],
+            [{ id: "driftwood", qty: 3 }, { id: "chef_blade", qty: 1 }],
             [{ id: "clam", qty: 3 }, { id: "health_potion", qty: 1 }],
             [{ id: "coral_fish", qty: 1 }, { id: "sea_salt", qty: 2 }],
         ],
@@ -99,7 +99,7 @@ export const ZONE_CONTENT: Record<
             ["shade_beast", "shade_beast"],
         ],
         treasureLoot: [
-            [{ id: "dark_crystal", qty: 2 }, { id: "health_potion", qty: 2 }],
+            [{ id: "dark_crystal", qty: 2 }, { id: "health_potion", qty: 2 }, { id: "dragon_scale", qty: 1 }],
             [{ id: "silver_ore", qty: 2 }, { id: "mana_potion", qty: 2 }],
             [{ id: "golden_herb", qty: 2 }, { id: "monster_core", qty: 2 }],
         ],
