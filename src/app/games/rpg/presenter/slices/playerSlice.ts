@@ -107,6 +107,22 @@ export const playerSlice = (set: any, get: any) => ({
             return { player: { ...s.player, party } };
         }),
 
+    // 만찬: 파티 전원 baseStats[stat] += delta 후 재파생.
+    // 성장은 반드시 baseStats에 — 파생 stats에 더하면 calculateStats 재계산 시 소실(레벨업 규약 동일).
+    feastStat: (stat: "maxHp" | "atk" | "def" | "speed", delta: number) =>
+        set((s: any) => ({
+            player: {
+                ...s.player,
+                party: s.player.party.map((c: Character) =>
+                    calculateStats({
+                        ...c,
+                        baseStats: { ...c.baseStats, [stat]: (c.baseStats as any)[stat] + delta },
+                        stats: undefined, // 레벨업과 동일 — 완전 회복
+                    })
+                ),
+            },
+        })),
+
     // ===== Equipment =====
     // 가방의 장비를 캐릭터에 장착 — 같은 부위의 기존 장비는 가방으로 돌아간다
     equipItem: (characterId: string, equipId: string): boolean => {

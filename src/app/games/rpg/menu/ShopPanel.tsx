@@ -8,7 +8,7 @@ import {
     SELL_RATIO,
     EQUIPMENT,
 } from "../data/gameData";
-import { RECIPES, type Recipe } from "../data/recipeData";
+import { RECIPES, type Recipe, FEAST_DEFS, FEAST_GOLD, FEAST_MAX, type FeastDef } from "../data/recipeData";
 import { ALCHEMY_RECIPES, type AlchemyRecipe } from "../data/alchemyData";
 
 function itemLabel(id: string): string {
@@ -26,6 +26,7 @@ function statText(id: string): string {
 /** 요리 재료 표시명 — EQUIPMENT에 없는 재료 id는 여기서 보강 */
 const MATERIAL_NAMES: Record<string, string> = {
     herb: "약초",
+    golden_herb: "황금 약초",
     clam: "조개",
     sea_salt: "바닷소금",
     wind_flower: "바람꽃",
@@ -50,7 +51,8 @@ export function ShopPanel() {
     const buyItem = useGame((s) => s.buyItem);
     const sellItem = useGame((s) => s.sellItem);
     const toggleShop = useGame((s) => s.toggleShop);
-    const [tab, setTab] = useState<"buy" | "sell" | "cook" | "craft">("buy");
+    const killCounts = useGame((s: any) => s.killCounts);
+    const [tab, setTab] = useState<"buy" | "sell" | "cook" | "craft" | "feast">("buy");
 
     if (!isOpen) return null;
 
@@ -97,6 +99,32 @@ export function ShopPanel() {
         });
         s.addItem(r.id, 1);
         s.spawnPopup({ side: "ally", text: `${r.icon} ${r.name} 제작!`, color: "#a78bfa" });
+    };
+
+    const feast = (d: FeastDef) => {
+        const s = useGame.getState() as any;
+        const fresh = useGame.getState() as any;
+        const n = fresh.killCounts[`feast_${d.stat}`] ?? 0;
+        if (n >= FEAST_MAX) return;
+        const gold = FEAST_GOLD[n];
+        const ok =
+            fresh.player.gold >= gold &&
+            d.needs.every((x: any) => (fresh.bag.find((b: any) => b.id === x.id)?.qty ?? 0) >= x.qty);
+        if (!ok) return;
+        useGame.setState((st: any) => {
+            let bag = [...st.bag];
+            for (const x of d.needs)
+                bag = bag
+                    .map((b: any) => (b.id === x.id ? { ...b, qty: b.qty - x.qty } : b))
+                    .filter((b: any) => b.qty > 0);
+            return {
+                bag,
+                player: { ...st.player, gold: st.player.gold - gold },
+                killCounts: { ...st.killCounts, [`feast_${d.stat}`]: n + 1 },
+            };
+        });
+        s.feastStat(d.stat, d.delta);
+        s.spawnPopup({ side: "ally", text: `${d.icon} ${d.name}! 파티가 강해졌다`, color: "#fbbf24" });
     };
 
     return (
@@ -149,6 +177,16 @@ export function ShopPanel() {
                         }`}
                     >
                         조합 ⚗️
+                    </button>
+                    <button
+                        onClick={() => setTab("feast")}
+                        className={`flex-1 py-2 rounded-lg font-semibold ${
+                            tab === "feast"
+                                ? "bg-yellow-600 text-black"
+                                : "bg-gray-800 text-gray-300"
+                        }`}
+                    >
+                        만찬 🍖
                     </button>
                 </div>
 
@@ -315,6 +353,65 @@ export function ShopPanel() {
                             })}
                             <div className="pt-1 text-center text-xs text-gray-400">
                                 조합한 비약은 가방에 저장 — 전투 중 아이템 메뉴에서 사용
+                            </div>
+                        </div>
+                    )}
+
+                    {tab === "feast" && (
+                        <div className="space-y-2">
+                            {FEAST_DEFS.map((d) => {
+                                const n = killCounts[`feast_${d.stat}`] ?? 0;
+                                const maxed = n >= FEAST_MAX;
+                                const cost = FEAST_GOLD[Math.min(n, FEAST_MAX - 1)];
+                                const can =
+                                    !maxed &&
+                                    gold >= cost &&
+                                    d.needs.every(
+                                        (x) =>
+                                            (bag.find((b) => b.id === x.id)?.qty ?? 0) >= x.qty
+                                    );
+                                return (
+                                    <div
+                                        key={d.stat}
+                                        className="flex items-center justify-between rounded-xl border border-yellow-400/30 bg-yellow-500/5 px-4 py-3"
+                                    >
+                                        <div>
+                                            <div className="font-bold text-yellow-100">
+                                                {d.icon} {d.name}{" "}
+                                                <span className="text-xs text-gray-400">
+                                                    {n}/{FEAST_MAX}
+                                                </span>
+                                            </div>
+                                            <div className="text-xs text-gray-400">
+                                                {d.desc} · 재료:{" "}
+                                                {d.needs
+                                                    .map((x) => `${displayName(x.id)}×${x.qty}`)
+                                                    .join(", ")}{" "}
+                                                {!maxed && `· ${cost} G`}
+                                            </div>
+                                        </div>
+                                        {maxed ? (
+                                            <span className="rounded-lg px-3 py-1.5 text-sm text-yellow-300">
+                                                🏅 최고 경지
+                                            </span>
+                                        ) : (
+                                            <button
+                                                disabled={!can}
+                                                onClick={() => feast(d)}
+                                                className={`rounded-lg px-3 py-1.5 text-sm ${
+                                                    can
+                                                        ? "bg-yellow-500/20 text-yellow-200 hover:bg-yellow-500/40"
+                                                        : "cursor-not-allowed bg-white/5 text-gray-500"
+                                                }`}
+                                            >
+                                                만찬
+                                            </button>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                            <div className="pt-1 text-center text-xs text-gray-400">
+                                파티 전원에게 영구 적용 — 스탯별 최대 5회
                             </div>
                         </div>
                     )}

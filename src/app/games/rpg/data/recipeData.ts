@@ -56,3 +56,23 @@ export const RECIPES: Recipe[] = [
         buffs: [{ type: "ether", value: 2, duration: 0 }],
     },
 ];
+
+// ===== 영구 만찬 — 상한제 영구 성장 (골든허브 + 특산 재료 + 점증 골드) =====
+export type FeastDef = {
+    stat: "maxHp" | "atk" | "def" | "speed";
+    name: string; icon: string; desc: string;
+    delta: number;                              // maxHp 5, 나머지 1
+    needs: Array<{ id: string; qty: number }>;  // golden_herb×1 + 특산 1종
+};
+export const FEAST_DEFS: FeastDef[] = [
+    { stat: "maxHp", name: "생명의 만찬", icon: "🍖", desc: "파티 전원 최대 HP +5", delta: 5,
+      needs: [{ id: "golden_herb", qty: 1 }, { id: "forest_mushroom", qty: 3 }] },
+    { stat: "atk", name: "용사의 만찬", icon: "🍱", desc: "파티 전원 공격 +1", delta: 1,
+      needs: [{ id: "golden_herb", qty: 1 }, { id: "fish_rare", qty: 1 }] },
+    { stat: "def", name: "수호의 만찬", icon: "🥟", desc: "파티 전원 방어 +1", delta: 1,
+      needs: [{ id: "golden_herb", qty: 1 }, { id: "clam", qty: 3 }] },
+    { stat: "speed", name: "질풍의 만찬", icon: "🍜", desc: "파티 전원 속도 +1", delta: 1,
+      needs: [{ id: "golden_herb", qty: 1 }, { id: "wind_flower", qty: 3 }] },
+];
+export const FEAST_GOLD = [300, 600, 900, 1200, 1500]; // 스탯별 회차 비용 (상한 5회)
+export const FEAST_MAX = FEAST_GOLD.length;
