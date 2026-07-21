@@ -148,13 +148,13 @@ export function FieldScene({
             <FieldSmith />
 
             {/* 아낙 재봉소 NPC — 에필로그부터 표시, E로 재봉 패널 오픈 */}
-            {false && <FieldTailor />}
+            <FieldTailor />
 
             {/* 어부 반복 납품 NPC — 에필로그부터 표시, E로 어종 세트 납품 */}
-            {false && <FieldFishTrade />}
+            <FieldFishTrade />
 
             {/* 광장 재건 기부함 — 게이트 없음, E로 단계별 기부 */}
-            {false && <DonationBox />}
+            <DonationBox />
 
             {/* 사공 NPC — 항구 ↔ 협곡 상륙지 왕복 (ch5_gorge부터 표시) */}
             <Boatman />
