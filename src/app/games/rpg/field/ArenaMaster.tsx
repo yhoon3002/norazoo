@@ -12,7 +12,7 @@ import { stageAtLeast } from "../data/storyData";
 import { arenaWaveOf, arenaReward } from "../data/arenaData";
 
 const INTERACT_RANGE = 2.6;
-const ARENA_POS = { x: 8.5, y: -33.25, z: -24.5 };
+const ARENA_POS = { x: 20.5, y: -33.25, z: -4.5 };
 
 export function ArenaMaster() {
     const stage = useGame((s) => s.story.stage);

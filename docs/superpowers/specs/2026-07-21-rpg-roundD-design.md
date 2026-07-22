@@ -55,7 +55,7 @@ ACHIEVEMENTS 12종(정의 순서 = 칭호 우선순위, 뒤가 상위):
 
 ## ② 투기장
 
-- `field/ArenaMaster.tsx` 신규 — NPC (8.5, -33.25, -24.5), model `/character/Ninja_Female.fbx`, 라벨 "투기장 관장", 🏟️ Html. `stageAtLeast(stage, "ch2_cleanup")` 게이트. E 가드는 최신 규약(6오버레이+combat+dialogue).
+- `field/ArenaMaster.tsx` 신규 — NPC (20.5, -33.25, -4.5), model `/character/Ninja_Female.fbx`, 라벨 "투기장 관장", 🏟️ Html. `stageAtLeast(stage, "ch2_cleanup")` 게이트. E 가드는 최신 규약(6오버레이+combat+dialogue).
 - `data/arenaData.ts` 신규:
 
 ```ts
