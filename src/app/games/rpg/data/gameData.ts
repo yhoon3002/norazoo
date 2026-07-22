@@ -903,7 +903,6 @@ export const DEFAULT_PARTY: Character[] = [
             speed: 14,
             luck: 4,
         },
-        preferredAttack: "punch", // 프라이팬 콘셉 — 클립 부재 시 ModelAvatar 폴백으로 안전
         skills: ["slash", "ice_shard"],
         equipment: {
             weapon: "iron_sword",
@@ -915,7 +914,7 @@ export const DEFAULT_PARTY: Character[] = [
         ether: 3,
         maxEther: 9,
         modelUrl: "/character/Chef_Hat.fbx",
-        preferredAttack: "attack", // 기본공격은 Punch 애니메이션 사용
+        preferredAttack: "punch", // 프라이팬 콘셉 — Punch 계열 클립 사용(부재 시 폴백 안전)
     },
 ];
 
