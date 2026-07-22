@@ -59,6 +59,10 @@ export function TailorPanel() {
             };
         });
         useGame.getState().addItem(r.id, 1);
+        // 도감 기록 — 재봉별 제작 성공 횟수 (killCounts 네임스페이스)
+        useGame.setState((st: any) => ({
+            killCounts: { ...st.killCounts, [`made_${r.id}`]: (st.killCounts[`made_${r.id}`] ?? 0) + 1 },
+        }));
         useGame.getState().spawnPopup({
             side: "ally",
             text: `🧵 ${EQUIPMENT[r.id]?.name ?? r.id} 완성!`,

@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useGame } from "../presenter/useGameStore";
 import { EQUIPMENT, SKILLS } from "../data/gameData";
 import type { Character, Equipment, Stats } from "../types/RpgTypes";
+import { ACHIEVEMENTS } from "../data/achievementData";
+import { CodexPane } from "./CodexPane";
 
 /* ─────────────────────────── 공용 상수 ─────────────────────────── */
 
@@ -119,12 +121,13 @@ const MATERIALS: Record<string, { name: string }> = {
     dark_crystal: { name: "어둠 수정" },
 };
 
-type BagTab = "equipment" | "consumable" | "material";
+type BagTab = "equipment" | "consumable" | "material" | "codex";
 
 const TAB_LABEL: Record<BagTab, string> = {
     equipment: "장비",
     consumable: "소모품",
     material: "재료",
+    codex: "도감",
 };
 
 /* ─────────────────────────── 헬퍼 ─────────────────────────── */
@@ -345,6 +348,8 @@ export function InventoryPanel() {
     const unequipItem = useGame((s) => s.unequipItem);
     const getAvailableSkills = useGame((s) => s.getAvailableSkills);
     const toggleInventory = useGame((s) => s.toggleInventory);
+    const killCounts = useGame((s) => s.killCounts);
+    const flags = useGame((s) => s.flags);
 
     const [charIdx, setCharIdx] = useState(0);
     const [tab, setTab] = useState<BagTab>("equipment");
@@ -365,10 +370,12 @@ export function InventoryPanel() {
             equipment: 0,
             consumable: 0,
             material: 0,
+            // 도감 탭 카운트는 아이템 개수가 아니라 업적 달성 수
+            codex: ACHIEVEMENTS.filter((a) => a.check({ killCounts, flags })).length,
         };
         for (const it of bag) counts[categoryOf(it.id)] += 1;
         return counts;
-    }, [bag]);
+    }, [bag, killCounts, flags]);
 
     const tabItems = useMemo(
         () => bag.filter((it) => categoryOf(it.id) === tab),
@@ -832,6 +839,7 @@ export function InventoryPanel() {
                                     "equipment",
                                     "consumable",
                                     "material",
+                                    "codex",
                                 ] as const
                             ).map((t) => {
                                 const active = tab === t;
@@ -864,7 +872,9 @@ export function InventoryPanel() {
 
                         {/* 아이템 목록 */}
                         <div className="mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1">
-                            {tabItems.length === 0 ? (
+                            {tab === "codex" ? (
+                                <CodexPane />
+                            ) : tabItems.length === 0 ? (
                                 <div
                                     className="flex flex-1 items-center justify-center text-xs tracking-[0.3em]"
                                     style={{ color: MUTED }}

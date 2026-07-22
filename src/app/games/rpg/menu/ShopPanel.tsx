@@ -89,6 +89,10 @@ export function ShopPanel() {
             return { bag };
         });
         s.addPendingBuffs(r.buffs);
+        // 도감 기록 — 요리별 제작 성공 횟수 (killCounts 네임스페이스)
+        useGame.setState((st: any) => ({
+            killCounts: { ...st.killCounts, [`made_${r.id}`]: (st.killCounts[`made_${r.id}`] ?? 0) + 1 },
+        }));
         s.spawnPopup({ side: "ally", text: `${r.icon} ${r.name} — 다음 전투에 적용!`, color: "#fbbf24" });
     };
 
@@ -109,6 +113,10 @@ export function ShopPanel() {
             return { bag, player: { ...st.player, gold: st.player.gold - r.gold } };
         });
         s.addItem(r.id, 1);
+        // 도감 기록 — 조합별 제작 성공 횟수 (killCounts 네임스페이스)
+        useGame.setState((st: any) => ({
+            killCounts: { ...st.killCounts, [`made_${r.id}`]: (st.killCounts[`made_${r.id}`] ?? 0) + 1 },
+        }));
         s.spawnPopup({ side: "ally", text: `${r.icon} ${r.name} 제작!`, color: "#a78bfa" });
     };
 

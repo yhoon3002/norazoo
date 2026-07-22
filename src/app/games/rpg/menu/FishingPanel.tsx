@@ -94,6 +94,13 @@ export function FishingPanel() {
                 });
             } else if (perfect >= 2) {
                 addItem(table.rare, 1);
+                // 도감 기록 — 어종별 어획 성공 횟수 (killCounts 네임스페이스)
+                useGame.setState((st: any) => ({
+                    killCounts: {
+                        ...st.killCounts,
+                        [`caught_${table.rare}`]: (st.killCounts[`caught_${table.rare}`] ?? 0) + 1,
+                    },
+                }));
                 s.spawnPopup({
                     side: "ally",
                     text: `🌕 ${FISH_NAMES[table.rare] ?? table.rare}을(를) 낚았다!`,
@@ -101,6 +108,13 @@ export function FishingPanel() {
                 });
             } else {
                 addItem(table.common, catches);
+                // 도감 기록 — 어종별 어획 성공 횟수 (killCounts 네임스페이스)
+                useGame.setState((st: any) => ({
+                    killCounts: {
+                        ...st.killCounts,
+                        [`caught_${table.common}`]: (st.killCounts[`caught_${table.common}`] ?? 0) + 1,
+                    },
+                }));
                 s.spawnPopup({
                     side: "ally",
                     text: `🐟 ${FISH_NAMES[table.common] ?? table.common} ×${catches}`,
