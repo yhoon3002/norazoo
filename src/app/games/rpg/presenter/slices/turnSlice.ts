@@ -10,6 +10,8 @@ import {
     findNextAliveIndex,
     effectiveStat,
     buildTurnQueue,
+    rollDamage,
+    startingEther,
 } from "../gameStoreHelpers";
 
 // 다음 턴 인덱스가 현재 인덱스보다 앞서지 않으면(모듈로 wrap) 한 라운드가 끝난 것 —
@@ -328,12 +330,18 @@ export const turnSlice = (set: any, get: any) => ({
                     const applyToEnemy = (enemyId: string) => {
                         const enemy = getEnemyById(get(), enemyId);
                         if (!enemy) return;
-                        const damage = Math.max(
+                        const raw = Math.max(
                             1,
                             Math.round(
                                 base * (1.05 + bonus) -
                                     effectiveStat(enemy, "def") * 0.3
                             )
+                        );
+                        const { damage, crit } = rollDamage(
+                            get(),
+                            actor,
+                            enemy,
+                            raw
                         );
 
                         const enemies = enemiesInCombat(get());
@@ -376,6 +384,14 @@ export const turnSlice = (set: any, get: any) => ({
                             text: `-${damage}`,
                             color: "#ef4444",
                         });
+                        if (crit) {
+                            get().spawnPopup({
+                                side: "enemy",
+                                charId: enemyId,
+                                text: "💥 치명타!",
+                                color: "#f97316",
+                            });
+                        }
                     };
 
                     if (sk.targetType === "all") {
@@ -448,6 +464,32 @@ export const turnSlice = (set: any, get: any) => ({
         }
     },
 
+    // ===== Flee Battle (도주 성공 전용 정리) =====
+    // victory/defeat 어느 쪽도 아닌 도주 전용 경로 — 보상 지급·defeated_ 플래그 기록 없이
+    // 파티 ether/statusEffects만 승리 규약과 동일하게 정리하고 필드로 즉시 복귀한다.
+    // (flags를 건드리지 않으므로 StoryTriggers의 battleUnwon 판정이 그대로 유지돼
+    //  스토리 전투 도주 후 재발동이 가능하다.)
+    fleeBattle: () =>
+        set((s: any) => {
+            const restoredParty = s.player.party.map((c: any) => ({
+                ...c,
+                ether: startingEther(c),
+                statusEffects: [],
+            }));
+
+            return {
+                player: { ...s.player, party: restoredParty },
+                combat: { phase: "idle" },
+                turnQueue: [],
+                currentTurn: 0,
+                encounterFieldIds: undefined,
+                popups: [],
+                battleStartPartyState: undefined,
+                battleStartPosition: undefined,
+                lastEncounterGroup: undefined,
+            };
+        }),
+
     // ===== Exit Battle =====
     exitBattle: () =>
         set((s: any) => {
@@ -478,7 +520,7 @@ export const turnSlice = (set: any, get: any) => ({
                 // get().player.party로 최신 상태를 읽어야 exp/레벨업이 유지된다.
                 const restoredParty = get().player.party.map((c: any) => ({
                     ...c,
-                    ether: 3,
+                    ether: startingEther(c),
                     // 전투 한정 버프/상태는 승리 종료 시 소멸 — 비약(99턴)이 다음 전투로 이월되는 것 방지
                     statusEffects: [],
                 }));

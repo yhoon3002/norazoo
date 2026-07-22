@@ -7,7 +7,7 @@ import {
     ENEMY_ATTACK_PROFILES,
     DEFAULT_ATTACK_PROFILE,
 } from "../../data/gameData";
-import { enemiesInCombat, getEnemyById, effectiveStat } from "../gameStoreHelpers";
+import { enemiesInCombat, getEnemyById, effectiveStat, rollDamage } from "../gameStoreHelpers";
 
 const PARRY_WINDOW = 90; // ±ms
 const DODGE_WINDOW = 180; // ±ms
@@ -458,7 +458,8 @@ export const enemyActionsSlice = (set: any, get: any) => ({
         const atk = effectiveStat(enemy, "atk");
         const base = sk ? sk.damage + atk * 0.5 : atk;
         const total = Math.max(1, Math.round(base - effectiveStat(target, "def") * 0.5));
-        const dmg = Math.max(1, Math.round(total / hits.length));
+        const rawHit = Math.max(1, Math.round(total / hits.length));
+        const { damage: dmg, crit } = rollDamage(s, enemy, target, rawHit);
 
         const party = s.player.party.filter((c: any) => c.stats.hp > 0);
         const targetIndex = party.findIndex((c: any) => c.id === target.id);
@@ -476,6 +477,14 @@ export const enemyActionsSlice = (set: any, get: any) => ({
             text: `-${dmg}`,
             color: "#f87171",
         });
+        if (crit) {
+            get().spawnPopup({
+                side: "ally",
+                charId: target.id,
+                text: "💥 치명타!",
+                color: "#f97316",
+            });
+        }
 
         // 상태이상은 마지막 타에만 (다단 히트 중복 방지)
         if (sk?.statusEffect && i === hits.length - 1) {

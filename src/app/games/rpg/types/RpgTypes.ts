@@ -22,7 +22,7 @@ export type Skill = {
     description: string;
     element?: "fire" | "ice" | "lightning" | "earth";
     statusEffect?: {
-        type: "poison" | "burn" | "freeze" | "stun" | "buff_atk" | "buff_def" | "regen" | "speed";
+        type: "poison" | "burn" | "freeze" | "stun" | "buff_atk" | "buff_def" | "debuff_def" | "regen" | "speed";
         duration: number;
         value: number;
     };

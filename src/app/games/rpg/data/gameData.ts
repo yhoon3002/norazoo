@@ -425,8 +425,8 @@ export const SKILLS: Record<string, Skill> = {
         etherCost: 1,
         type: "physical",
         targetType: "single",
-        description: "적의 방어를 무너뜨리는 일격.",
-        statusEffect: { type: "buff_atk", duration: 3, value: 20 },
+        description: "적의 방어를 무너뜨리는 일격. 3턴간 방어력 -10.",
+        statusEffect: { type: "debuff_def", duration: 3, value: 10 },
     },
     group_heal: {
         id: "group_heal",

@@ -3,7 +3,7 @@
 
 import type { CombatState, Enemy } from "../../types/RpgTypes";
 import { ENEMY_TEMPLATES } from "../../data/gameData";
-import { enemiesInCombat, findNextAliveIndex, effSpeed } from "../gameStoreHelpers";
+import { enemiesInCombat, findNextAliveIndex, effSpeed, startingEther } from "../gameStoreHelpers";
 
 export const combatSlice = (set: any, get: any) => ({
     // ===== State =====
@@ -11,7 +11,7 @@ export const combatSlice = (set: any, get: any) => ({
     turnQueue: [] as string[],
     currentTurn: 0,
 
-    battleMenu: ["Attack", "Skills", "Items"],
+    battleMenu: ["Attack", "Skills", "Items", "Escape"],
     battleSubMenu: [] as string[],
     battleIndex: 0,
     subMenuIndex: 0,
@@ -92,6 +92,8 @@ export const combatSlice = (set: any, get: any) => ({
             const statusBuffs = buffs.filter((b: any) => b.type !== "ether");
             const party = s.player.party.map((c: any) => ({
                 ...c,
+                // 전투 시작 에테르 = clamp(3 + floor(유효 maxMp / 30), 0, maxEther) — MP→에테르 연계
+                ether: startingEther(c),
                 statusEffects: [
                     ...c.statusEffects,
                     ...statusBuffs.map((b: any) => ({

@@ -9,6 +9,7 @@ import {
     getEnemyById,
     enemiesInCombat,
     calcBasicAttackDamage,
+    escapeChance,
 } from "../gameStoreHelpers";
 
 const popupSeq = 1;
@@ -71,6 +72,36 @@ export const battleActionsSlice = (set: any, get: any) => ({
                         (sk: any) => `${sk.name}  [${sk.etherCost}]`
                     ),
                     subMenuIndex: 0,
+                };
+            }
+
+            // ===== Escape =====
+            if (choice === "Escape") {
+                const success = Math.random() < escapeChance(s);
+                if (success) {
+                    get().spawnPopup({
+                        side: "ally",
+                        text: "💨 도주 성공!",
+                        color: "#7dd3fc",
+                    });
+                    setTimeout(() => {
+                        if (!["victory", "defeat"].includes(get().combat.phase))
+                            get().fleeBattle();
+                    }, 700);
+                } else {
+                    get().spawnPopup({
+                        side: "ally",
+                        text: "도주 실패…",
+                        color: "#f87171",
+                    });
+                    setTimeout(() => {
+                        if (!["victory", "defeat"].includes(get().combat.phase))
+                            get().endPlayerTurn();
+                    }, 450);
+                }
+                return {
+                    combat: { phase: "turnEnd", enemies: enemiesInCombat(s) },
+                    battleSubMenu: [],
                 };
             }
 

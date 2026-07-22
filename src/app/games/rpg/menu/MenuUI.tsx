@@ -2,8 +2,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useGame } from "../presenter/useGameStore";
 import { EQUIPMENT, SKILLS } from "../data/gameData";
-import type { Character, Equipment, Stats } from "../types/RpgTypes";
+import type { Character, Equipment, Player, Stats } from "../types/RpgTypes";
 import { ACHIEVEMENTS } from "../data/achievementData";
+import { etherBonus } from "../presenter/gameStoreHelpers";
 import { CodexPane } from "./CodexPane";
 
 /* ─────────────────────────── 공용 상수 ─────────────────────────── */
@@ -46,7 +47,8 @@ const STAT_ABBR: Record<string, string> = {
     hp: "HP",
     maxHp: "HP",
     mp: "MP",
-    maxMp: "MP",
+    // maxMp는 원값을 노출하지 않고 "시작 에테르" 보너스로만 의미를 갖는다 (MP→에테르 연계)
+    maxMp: "시작에테르",
     atk: "ATK",
     def: "DEF",
     speed: "SPD",
@@ -54,6 +56,12 @@ const STAT_ABBR: Record<string, string> = {
 };
 
 const STAT_ORDER = ["maxHp", "maxMp", "atk", "def", "speed", "luck", "hp", "mp"];
+
+const FORMATION_OPTIONS: Array<{ key: Player["formation"]; label: string }> = [
+    { key: "front", label: "돌격" },
+    { key: "balanced", label: "균형" },
+    { key: "back", label: "수비" },
+];
 
 const SKILL_TYPE_LABEL: Record<string, string> = {
     physical: "물리",
@@ -355,6 +363,8 @@ function InventoryPanelInner() {
     const unequipItem = useGame((s) => s.unequipItem);
     const getAvailableSkills = useGame((s) => s.getAvailableSkills);
     const toggleInventory = useGame((s) => s.toggleInventory);
+    const formation = useGame((s) => s.player.formation);
+    const setFormation = useGame((s) => s.setFormation);
     const killCounts = useGame((s) => s.killCounts);
     const flags = useGame((s) => s.flags);
 
@@ -423,8 +433,13 @@ function InventoryPanelInner() {
 
     const hp = selectedChar?.stats?.hp ?? 0;
     const maxHp = selectedChar?.stats?.maxHp ?? 0;
-    const mp = selectedChar?.stats?.mp ?? 0;
     const maxMp = selectedChar?.stats?.maxMp ?? 0;
+    // MP→에테르 연계: mp/maxMp 원값은 노출하지 않고 전투 시작 에테르 보너스(+n)로만 표시한다
+    const startEtherBonus = etherBonus(maxMp);
+    const startEtherDelta =
+        deltaMap["maxMp"] !== undefined
+            ? etherBonus(maxMp + deltaMap["maxMp"]) - startEtherBonus
+            : undefined;
 
     const consumableDisabled =
         !selectedChar ||
@@ -495,6 +510,24 @@ function InventoryPanelInner() {
                     {/* 좌: 파티 */}
                     <aside className="flex min-h-0 flex-col">
                         <SectionLabel className="mb-3">원정대</SectionLabel>
+                        <div className="mb-3 grid grid-cols-3 gap-1.5">
+                            {FORMATION_OPTIONS.map(({ key, label }) => {
+                                const active = formation === key;
+                                return (
+                                    <button
+                                        key={key}
+                                        onClick={() => setFormation(key)}
+                                        className={`border px-2 py-1.5 text-center text-[10px] tracking-[0.15em] transition-colors ${
+                                            active
+                                                ? "border-[#c9a86a]/60 bg-[#c9a86a]/[0.1] text-[#efe6d0]"
+                                                : "border-white/[0.08] text-white/40 hover:border-[#c9a86a]/30"
+                                        }`}
+                                    >
+                                        {label}
+                                    </button>
+                                );
+                            })}
+                        </div>
                         <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pr-1">
                             {party.map((char, i) => {
                                 const active = i === safeIdx;
@@ -634,9 +667,9 @@ function InventoryPanelInner() {
                                         delta={deltaMap["maxHp"]}
                                     />
                                     <StatTile
-                                        label="MP"
-                                        value={`${mp}/${maxMp}`}
-                                        delta={deltaMap["maxMp"]}
+                                        label="시작 에테르"
+                                        value={`+${startEtherBonus}`}
+                                        delta={startEtherDelta}
                                     />
                                     <StatTile
                                         label="에테르"

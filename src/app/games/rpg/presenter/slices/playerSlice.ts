@@ -75,6 +75,11 @@ export const playerSlice = (set: any, get: any) => ({
             player: { ...s.player, gold: s.player.gold + n },
         })),
 
+    // ===== Formation =====
+    // 파티 전체 단일 진형 — rollDamage 헬퍼가 가하는/받는 피해 배율로 소비한다.
+    setFormation: (f: Player["formation"]) =>
+        set((s: any) => ({ player: { ...s.player, formation: f } })),
+
     // ===== Experience =====
     // 성장은 반드시 baseStats에 적용한다 — 파생 stats에 직접 더하면
     // calculateStats(장비 착탈 등)가 재계산될 때 성장분이 소실된다.

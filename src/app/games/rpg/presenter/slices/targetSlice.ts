@@ -7,6 +7,7 @@ import {
     getEnemyById,
     enemiesInCombat,
     calcBasicAttackDamage,
+    rollDamage,
 } from "../gameStoreHelpers";
 
 export const targetSlice = (set: any, get: any) => ({
@@ -60,7 +61,7 @@ export const targetSlice = (set: any, get: any) => ({
             get().startAttackMotion(actor.id, targetId, "player");
             get().triggerAnimatedAction(actor.id, "attack", 800);
 
-            const dmg = calcBasicAttackDamage(actor, enemy);
+            const raw = calcBasicAttackDamage(actor, enemy);
 
             setTimeout(() => {
                 const enemies = enemiesInCombat(get());
@@ -75,6 +76,7 @@ export const targetSlice = (set: any, get: any) => ({
                     get().spawnHitEffect([x, 1.5, 4.5], "#ffaa00");
                 }
 
+                const { damage: dmg, crit } = rollDamage(get(), actor, enemy, raw);
                 get().applyDamage(targetId, dmg);
                 get().gainEther(actor.id, 1);
                 get().triggerFX("player", 1.6);
@@ -84,6 +86,14 @@ export const targetSlice = (set: any, get: any) => ({
                     text: `-${dmg}`,
                     color: "#ef4444",
                 });
+                if (crit) {
+                    get().spawnPopup({
+                        side: "enemy",
+                        charId: targetId,
+                        text: "💥 치명타!",
+                        color: "#f97316",
+                    });
+                }
 
                 setTimeout(() => {
                     get().checkCombatEnd();

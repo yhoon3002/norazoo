@@ -113,7 +113,9 @@ export const statusSlice = (set: any, get: any) => ({
                     break;
 
                 case "buff_atk":
-                    // Buff effect handled elsewhere
+                case "buff_def":
+                case "debuff_def":
+                    // Buff/debuff effect handled in effectiveStat — no-op here
                     break;
 
                 case "regen":

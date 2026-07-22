@@ -117,23 +117,79 @@ export function buildTurnQueue(s: any): string[] {
 }
 
 /** ===== 데미지 계산 ===== */
-/** statusEffects의 buff_atk/buff_def를 합산한 유효 스탯 */
+/** statusEffects의 buff_atk/buff_def를 합산한 유효 스탯 (def는 debuff_def 합만큼 추가 감산, 최저 0) */
 export function effectiveStat(
     unit: { stats?: { atk: number; def: number }; statusEffects: Array<{ type: string; value: number }> },
     key: "atk" | "def"
 ): number {
     const base = unit.stats?.[key] ?? 0;
     const buffType = key === "atk" ? "buff_atk" : "buff_def";
-    return (
+    const buffed =
         base +
         unit.statusEffects
             .filter((e) => e.type === buffType)
-            .reduce((s, e) => s + e.value, 0)
-    );
+            .reduce((s, e) => s + e.value, 0);
+    if (key !== "def") return buffed;
+    const debuff = unit.statusEffects
+        .filter((e) => e.type === "debuff_def")
+        .reduce((s, e) => s + e.value, 0);
+    return Math.max(0, buffed - debuff);
 }
 
 export function calcBasicAttackDamage(actor: Character, enemy: Enemy): number {
     const base = effectiveStat(actor, "atk");
     const dmg = Math.max(1, Math.round(1.2 * base - effectiveStat(enemy, "def") * 0.4));
     return dmg;
+}
+
+/** ===== 치명타(luck) · 진형(formation) 배율 =====
+ * 확률 (5 + luck*0.5)% → 치명타 시 최종 피해 ×1.5.
+ * 진형: front ×1.1/×1.1(가하는/받는), back ×0.9/×0.9, balanced ×1.0 — 공격자·피격자가
+ * 각각 파티 소속이면(=player.party에 id가 존재) 해당 배율을 곱한다(적끼리는 무영향).
+ * 산식 자체(rawDamage로 넘어오는 기본 수치)는 불변 — 이 헬퍼는 치명/진형 배율만 덧붙인다.
+ */
+export function rollDamage(
+    s: any,
+    attacker: { id: string; stats?: { luck?: number } },
+    defender: { id: string },
+    rawDamage: number
+): { damage: number; crit: boolean } {
+    const luck = attacker.stats?.luck ?? 0;
+    const critChance = (5 + luck * 0.5) / 100;
+    const crit = Math.random() < critChance;
+    let dmg = crit ? rawDamage * 1.5 : rawDamage;
+
+    const formation = s.player.formation as "front" | "back" | "balanced";
+    const mul = formation === "front" ? 1.1 : formation === "back" ? 0.9 : 1.0;
+    const isParty = (id: string) => s.player.party.some((c: any) => c.id === id);
+    if (isParty(attacker.id)) dmg *= mul;
+    if (isParty(defender.id)) dmg *= mul;
+
+    return { damage: Math.max(1, Math.round(dmg)), crit };
+}
+
+/** ===== 도주(escape) 성공률 =====
+ * clamp(0.5 + (파티 평균 speed - 적 평균 speed) * 0.02, 0.3, 0.9)
+ */
+export function escapeChance(s: any): number {
+    const partyAlive = s.player.party.filter((c: any) => (c.stats?.hp ?? 0) > 0);
+    const enemyAlive = aliveEnemies(s);
+    const avg = (arr: any[]) =>
+        arr.length ? arr.reduce((sum, u) => sum + effSpeed(u), 0) / arr.length : 0;
+    return clamp(0.5 + (avg(partyAlive) - avg(enemyAlive)) * 0.02, 0.3, 0.9);
+}
+
+/** ===== MP → 에테르 연계 =====
+ * 전투 시작 에테르 = clamp(3 + floor(유효 maxMp / 30), 0, maxEther).
+ * etherBonus는 UI(MenuUI)에서도 동일 수치를 표시하는 데 공유한다.
+ */
+export function etherBonus(maxMp: number): number {
+    return Math.floor((maxMp ?? 0) / 30);
+}
+
+export function startingEther(c: {
+    stats?: { maxMp?: number };
+    maxEther?: number;
+}): number {
+    return clamp(3 + etherBonus(c.stats?.maxMp ?? 0), 0, c.maxEther ?? 9);
 }
