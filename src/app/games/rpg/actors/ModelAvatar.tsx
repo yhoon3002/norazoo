@@ -65,6 +65,54 @@ const PREFERRED_ATTACK_CLIPS: Partial<Record<string, string[]>> = {
     shoot: ["shoot_onehanded", "shoot"],
 };
 
+/** FBX 공유 지오메트리 1회 정비 — SkeletonUtils.clone이 지오메트리를 공유하므로
+ * 모델(url)당 한 번만 실행된다.
+ * 1) 머티리얼 그룹 병합: FBX 로더가 만든 수백 개 그룹(실측 기당 147그룹 →
+ *    드로우콜 147개, 필드 96기 × 그림자 패스 2배 ≈ 프레임당 23,000콜)을
+ *    머티리얼 인덱스별로 삼각형 인덱스를 재정렬해 고유 머티리얼 수(8개)로 줄인다.
+ * 2) 컬링 바운드: 바인드포즈 바운딩 스피어를 부풀려 애니메이션 변형에도
+ *    안전한 프러스텀 컬링 기준을 만든다 (frustumCulled=false 전면 해제의 대체). */
+function prepareAvatarGeometry(geo: THREE.BufferGeometry) {
+    if (geo.userData.__avatarPrepared) return;
+    geo.userData.__avatarPrepared = true;
+
+    const groups = geo.groups;
+    if (groups && groups.length > 1) {
+        let index = geo.getIndex();
+        if (!index) {
+            const n = geo.attributes.position.count;
+            const seq = new Uint32Array(n);
+            for (let i = 0; i < n; i++) seq[i] = i;
+            geo.setIndex(new THREE.BufferAttribute(seq, 1));
+            index = geo.getIndex()!;
+        }
+        const src = index.array as ArrayLike<number>;
+        const buckets = new Map<number, number[]>();
+        for (const g of groups) {
+            const mi = g.materialIndex ?? 0;
+            let b = buckets.get(mi);
+            if (!b) buckets.set(mi, (b = []));
+            const end = Math.min(g.start + g.count, src.length);
+            for (let i = g.start; i < end; i++) b.push(src[i]);
+        }
+        let total = 0;
+        for (const b of buckets.values()) total += b.length;
+        const merged = new Uint32Array(total);
+        geo.clearGroups();
+        let offset = 0;
+        for (const mi of [...buckets.keys()].sort((a, b) => a - b)) {
+            const b = buckets.get(mi)!;
+            merged.set(b, offset);
+            geo.addGroup(offset, b.length, mi);
+            offset += b.length;
+        }
+        geo.setIndex(new THREE.BufferAttribute(merged, 1));
+    }
+
+    geo.computeBoundingSphere();
+    if (geo.boundingSphere) geo.boundingSphere.radius *= 2.5;
+}
+
 type Props = {
     url: string;
     state?: AnimState;
@@ -99,7 +147,7 @@ export const ModelAvatar = forwardRef<THREE.Group, Props>(function ModelAvatar(
             if (o.isMesh || o.isSkinnedMesh) {
                 o.castShadow = true;
                 o.receiveShadow = true;
-                o.frustumCulled = false;
+                if (o.geometry) prepareAvatarGeometry(o.geometry);
                 const setMat = (m: any) => {
                     m.transparent = false;
                     m.opacity = 1;

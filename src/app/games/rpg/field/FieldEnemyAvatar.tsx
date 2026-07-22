@@ -34,6 +34,14 @@ const RETURN_ARRIVE = 1.0;
 // ===== 충돌 설정 =====
 const SEPARATION_DIST = 1.1;       // 적끼리 최소 거리
 const SEPARATION_SPEED = 2.5;
+
+// ===== 활성화 게이팅 =====
+// 원거리 적은 모델(드로우콜·애니메이션 믹서)과 AI를 통째로 쉬게 한다 —
+// 존 확장 배치로 필드 전역 91마리가 거리 무관 전부 렌더·연산되던 것이
+// 필드 렉의 주범이었다. 히스테리시스로 경계에서 마운트가 튀는 것을 막는다.
+// (카메라 far=70 안쪽이라 비활성 전환이 화면에서 보이지 않는다)
+const ACTIVATE_DIST = 45;
+const DEACTIVATE_DIST = 55;
 const MAX_STEP = 1.5;              // navmesh 상 허용 최대 높이차 (계단)
 const LAYER_GATE = 2.0;            // 이 높이차 이상이면 다른 층으로 간주 (시야/분리 제외)
 const OFF_MESH_RECOVER_TIME = 1.5; // off-mesh 지속 시 가장 가까운 표면에 재스냅하는 시간
@@ -92,6 +100,10 @@ export default function FieldEnemyAvatar({ id, template, pos }: FieldEnemyAvatar
     const animRef = useRef<AnimState>("idle");
     const [animState, setAnimState] = useState<AnimState>("idle");
 
+    // 거리 게이트 — 비활성이면 모델 언마운트 + AI 정지
+    const activeRef = useRef(false);
+    const [modelActive, setModelActive] = useState(false);
+
     const setAnim = (next: AnimState) => {
         if (animRef.current !== next) {
             animRef.current = next;
@@ -116,6 +128,23 @@ export default function FieldEnemyAvatar({ id, template, pos }: FieldEnemyAvatar
         ((state.scene.userData.__enemyPositions ??= {}) as Record<string, { x: number; z: number; y: number }>)[id] = {
             x: ex, z: ez, y: groupRef.current.position.y,
         };
+
+        // ===== 거리 게이트: 원거리 적은 스폰 스냅·AI·이동 전부 정지 =====
+        // 플레이어 스냅 전(__playerWorldPos 없음)에는 비활성 유지 — 기존
+        // 첫 스냅 대기 동작과 같다. 게이트 판정은 XZ 거리만 사용한다.
+        const gatePlayerPos = state.scene.userData.__playerWorldPos as THREE.Vector3 | undefined;
+        if (gatePlayerPos) {
+            const gateDist = Math.hypot(gatePlayerPos.x - ex, gatePlayerPos.z - ez);
+            const nextActive = activeRef.current
+                ? gateDist <= DEACTIVATE_DIST
+                : gateDist < ACTIVATE_DIST;
+            if (nextActive !== activeRef.current) {
+                activeRef.current = nextActive;
+                setModelActive(nextActive);
+                if (!nextActive) setAnim("idle"); // 재활성 시 이전 run/walk 잔상 방지
+            }
+        }
+        if (!activeRef.current) return;
 
         // ===== Navmesh groundAt (Walkable.glb 기반) =====
         // refY 밴드로 현재 높이 근처의 표면만 선택 — 다층 구간(벤치/계단/2층)에서
@@ -546,14 +575,16 @@ export default function FieldEnemyAvatar({ id, template, pos }: FieldEnemyAvatar
 
     return (
         <group ref={groupRef} position={[pos.x, pos.y, pos.z]}>
-            <Suspense fallback={<EnemyMarker template={template} />}>
-                <ModelAvatar
-                    url={modelUrl}
-                    scale={0.01 * templateScale}
-                    state={animState}
-                    rotation={[0, Math.PI, 0]}
-                />
-            </Suspense>
+            {modelActive && (
+                <Suspense fallback={<EnemyMarker template={template} />}>
+                    <ModelAvatar
+                        url={modelUrl}
+                        scale={0.01 * templateScale}
+                        state={animState}
+                        rotation={[0, Math.PI, 0]}
+                    />
+                </Suspense>
+            )}
         </group>
     );
 }
