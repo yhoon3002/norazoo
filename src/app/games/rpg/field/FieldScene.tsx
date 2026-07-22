@@ -13,6 +13,7 @@ import { FieldMerchant } from "./FieldMerchant";
 import { FieldQuestNpc } from "./FieldQuestNpc";
 import { FieldSmith } from "./FieldSmith";
 import { FieldTailor } from "./FieldTailor";
+import { ArenaMaster } from "./ArenaMaster";
 import { FieldFishTrade } from "./FieldFishTrade";
 import { DonationBox } from "./DonationBox";
 import { Boatman } from "./Boatman";
@@ -158,6 +159,9 @@ export function FieldScene({
 
             {/* 사공 NPC — 항구 ↔ 협곡 상륙지 왕복 (ch5_gorge부터 표시) */}
             <Boatman />
+
+            {/* 투기장 관장 NPC — ch2_cleanup부터 표시, E로 반복 웨이브 전투 도전 */}
+            <ArenaMaster />
 
             {/* 사냥 의뢰판 — 반복 토벌 의뢰 */}
             <BountyBoard />

@@ -35,6 +35,7 @@ export const NPC_SPEAKERS: Record<string, { icon: string }> = {
     강태공: { icon: "🎣" },
     "퇴역 뱃사람": { icon: "⚓" },
     태엽기술자: { icon: "⚙️" },
+    "투기장 관장": { icon: "🏟️" },
 };
 
 export type StoryTrigger = {
