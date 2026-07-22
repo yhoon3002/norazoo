@@ -110,6 +110,13 @@ export function ArenaMaster() {
 
             const n = s.killCounts.arena_wave ?? 0;
             const wave = arenaWaveOf(n);
+            // 승리 직후 감지 틱(~1초) 전에 재도전하는 엣지: 이전 승리의 defeated_arena 플래그가
+            // 남아 있으면 패배해도 보상이 지급된다 — 시작 시점에 해당 웨이브 잔존 플래그를 정리
+            useGame.setState((st: any) => {
+                const flags = { ...st.flags };
+                wave.forEach((_, i) => delete flags[`defeated_arena${n}_${i}`]);
+                return { flags };
+            });
             s.spawnPopup({
                 side: "ally",
                 text: `🏟️ 웨이브 ${n + 1} 시작!`,

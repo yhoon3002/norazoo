@@ -69,7 +69,7 @@ export const arenaWaveOf = (n: number) => ARENA_WAVES[Math.min(n, ARENA_WAVES.le
 export const arenaReward = (n: number) => ({ gold: 100 + 50 * n, item: n % 3 === 2 ? ["monster_core", "silver_ore", "dark_crystal"][(Math.floor(n / 3)) % 3] : null });
 ```
 
-- 흐름: E → 대화("웨이브 {n+1} 도전!") → `startCombat({group: arenaWaveOf(n).map((t,i)=>({template:t, fieldId:`arena${n}_${i}`}))})` (n = killCounts.arena_wave ?? 0). 승리 → 필드 복귀 → ArenaMaster의 useFrame(60프레임 스로틀, combat idle 시)이 `defeated_arena${n}_0..k` 전부 true 감지 → 보상 지급(arenaReward: gainGold + item이면 addItem) + `killCounts.arena_wave = n+1` + **해당 defeated_ 플래그 삭제**(bounty claim의 키 삭제 선례 — 다음 도전 재사용) + spawnPopup(`🏟️ 웨이브 ${n+1} 클리어!`). 패배 시 플래그 미기록 → 재도전(같은 n).
+- 흐름: E → 팝업(`🏟️ 웨이브 {n+1} 시작!` — 전투 진입이 대화를 덮으므로 대화 대신 팝업 채택) + 시작 시 해당 웨이브 잔존 defeated_ 플래그 정리 → `startCombat({group: arenaWaveOf(n).map((t,i)=>({template:t, fieldId:`arena${n}_${i}`}))})` (n = killCounts.arena_wave ?? 0). 승리 → 필드 복귀 → ArenaMaster의 useFrame(60프레임 스로틀, combat idle 시)이 `defeated_arena${n}_0..k` 전부 true 감지 → 보상 지급(arenaReward: gainGold + item이면 addItem) + `killCounts.arena_wave = n+1` + **해당 defeated_ 플래그 삭제**(bounty claim의 키 삭제 선례 — 다음 도전 재사용) + spawnPopup(`🏟️ 웨이브 ${n+1} 클리어!`). 패배 시 플래그 미기록 → 재도전(같은 n).
 - 10웨이브 이후는 최종 구성 반복(보상 골드는 계속 점증) — 무한 반복 전투 콘텐츠.
 
 ## ③ 유대 에피소드 3건
