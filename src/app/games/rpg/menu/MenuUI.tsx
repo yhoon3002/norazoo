@@ -184,11 +184,12 @@ function equipDeltas(
     current?: Equipment
 ): Array<{ key: string; delta: number }> {
     return STAT_ORDER.map((key) => {
-        let delta = statVal(next.stats, key) - statVal(current?.stats, key);
-        // maxMp 델타는 시작 에테르 환산치로 (원값 노출 금지)
-        if (key === "maxMp") delta = etherBonus(Math.abs(delta)) * Math.sign(delta);
-        return { key, delta };
-    }).filter((d) => d.delta !== 0);
+        const rawDelta = statVal(next.stats, key) - statVal(current?.stats, key);
+        let delta = rawDelta;
+        // maxMp 델타는 시작 에테르 환산치로 (원값 노출 금지) — 원값은 rawDelta로 별도 보존
+        if (key === "maxMp") delta = etherBonus(Math.abs(rawDelta)) * Math.sign(rawDelta);
+        return { key, delta, rawDelta };
+    }).filter((d) => d.delta !== 0 || d.rawDelta !== 0);
 }
 
 /** 열림 애니메이션 (opacity + 살짝 translate) */
@@ -441,6 +442,13 @@ function InventoryPanelInner() {
         return m;
     }, [deltas]);
 
+    // maxMp 원값 델타(시작 에테르 재계산용 — 표시용 deltaMap은 환산치)
+    const rawDeltaMap = useMemo(() => {
+        const m: Record<string, number> = {};
+        for (const d of deltas) m[d.key] = (d as { rawDelta?: number }).rawDelta ?? d.delta;
+        return m;
+    }, [deltas]);
+
     const skills = selectedChar ? getAvailableSkills(selectedChar) : [];
     const innateSkills = new Set(selectedChar?.skills ?? []);
 
@@ -451,9 +459,10 @@ function InventoryPanelInner() {
     const maxMp = selectedChar?.stats?.maxMp ?? 0;
     // MP→에테르 연계: mp/maxMp 원값은 노출하지 않고 전투 시작 에테르 보너스(+n)로만 표시한다
     const startEtherBonus = etherBonus(maxMp);
+    // 이중 환산 방지 — 델타는 원값(rawDelta) 기준으로 기저 대비 차이를 계산
     const startEtherDelta =
-        deltaMap["maxMp"] !== undefined
-            ? etherBonus(maxMp + deltaMap["maxMp"]) - startEtherBonus
+        rawDeltaMap["maxMp"] !== undefined
+            ? etherBonus(maxMp + rawDeltaMap["maxMp"]) - startEtherBonus
             : undefined;
 
     const consumableDisabled =

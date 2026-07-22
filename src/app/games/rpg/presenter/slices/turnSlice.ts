@@ -489,6 +489,8 @@ export const turnSlice = (set: any, get: any) => ({
                 battleStartPartyState: undefined,
                 battleStartPosition: undefined,
                 lastEncounterGroup: undefined,
+                // 도주 직후 스폰 인접 재조우 루프 방지 — 패배 복귀와 동일한 무적 유예
+                encounterCooldownUntil: performance.now() + 2500,
             };
         }),
 
@@ -587,7 +589,15 @@ export const turnSlice = (set: any, get: any) => ({
             bag: d.bag,
             treasures: d.treasures || [],
             unlockedSkills: d.unlockedSkills ?? [],
-            unlockedEquipment: d.unlockedEquipment ?? [],
+            // 구세이브(활성화 이전, 빈 배열 저장)가 시작 장비 시드를 지우지 않도록 합집합 복원:
+            // 저장분 ∪ 시작 7종 ∪ 현재 착용 장비(base id)
+            unlockedEquipment: Array.from(new Set([
+                ...(d.unlockedEquipment ?? []),
+                "steel_sword", "chain_mail", "mage_staff", "mage_robes", "iron_sword", "leather_armor", "health_amulet",
+                ...d.player.party.flatMap((c: any) =>
+                    Object.values(c.equipment ?? {}).filter(Boolean).map((id: any) => String(id).replace(/_p[1-5]$/, ""))
+                ),
+            ])),
             story: (d as any).story ?? s.story, // 구버전 세이브 호환
             killCounts: (d as any).counters ?? {},
             dialogue: [],

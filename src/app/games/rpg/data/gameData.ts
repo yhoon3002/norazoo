@@ -903,6 +903,7 @@ export const DEFAULT_PARTY: Character[] = [
             speed: 14,
             luck: 4,
         },
+        preferredAttack: "punch", // 프라이팬 콘셉 — 클립 부재 시 ModelAvatar 폴백으로 안전
         skills: ["slash", "ice_shard"],
         equipment: {
             weapon: "iron_sword",
