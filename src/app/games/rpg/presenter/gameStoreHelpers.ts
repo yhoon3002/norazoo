@@ -155,7 +155,8 @@ export function rollDamage(
     rawDamage: number
 ): { damage: number; crit: boolean } {
     const luck = attacker.stats?.luck ?? 0;
-    const critChance = (5 + luck * 0.5) / 100;
+    // luck 인플레 대비 상한 95%
+    const critChance = Math.min(0.95, (5 + luck * 0.5) / 100);
     const crit = Math.random() < critChance;
     let dmg = crit ? rawDamage * 1.5 : rawDamage;
 

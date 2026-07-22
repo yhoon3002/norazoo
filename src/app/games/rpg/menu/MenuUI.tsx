@@ -164,8 +164,14 @@ function statSummary(eq: Equipment): string {
     return STAT_ORDER.filter((k) => statVal(eq.stats, k) !== 0)
         .map((k) => {
             const v = statVal(eq.stats, k);
+            // maxMp는 원값이 아니라 시작 에테르 환산치로 표기 (30당 +1)
+            if (k === "maxMp") {
+                const b = etherBonus(Math.abs(v)) * Math.sign(v);
+                return b === 0 ? "" : `${STAT_ABBR[k]} ${b > 0 ? `+${b}` : b}`;
+            }
             return `${STAT_ABBR[k] ?? k.toUpperCase()} ${v > 0 ? `+${v}` : v}`;
         })
+        .filter(Boolean)
         .join(" · ");
 }
 
@@ -174,10 +180,12 @@ function equipDeltas(
     next: Equipment,
     current?: Equipment
 ): Array<{ key: string; delta: number }> {
-    return STAT_ORDER.map((key) => ({
-        key,
-        delta: statVal(next.stats, key) - statVal(current?.stats, key),
-    })).filter((d) => d.delta !== 0);
+    return STAT_ORDER.map((key) => {
+        let delta = statVal(next.stats, key) - statVal(current?.stats, key);
+        // maxMp 델타는 시작 에테르 환산치로 (원값 노출 금지)
+        if (key === "maxMp") delta = etherBonus(Math.abs(delta)) * Math.sign(delta);
+        return { key, delta };
+    }).filter((d) => d.delta !== 0);
 }
 
 /** 열림 애니메이션 (opacity + 살짝 translate) */
