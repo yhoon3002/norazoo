@@ -1,7 +1,7 @@
 // rpg/presenter/slices/bagSlice.ts
 "use client";
 
-import { EQUIPMENT, ITEM_PRICES, SELL_RATIO } from "../../data/gameData";
+import { EQUIPMENT, ITEM_PRICES, SELL_RATIO, STARTING_EQUIPMENT_IDS } from "../../data/gameData";
 
 export const bagSlice = (set: any, get: any) => ({
     // ===== State =====
@@ -12,7 +12,7 @@ export const bagSlice = (set: any, get: any) => ({
     treasures: [],
     // 도감 진행 — 장비/기술 획득·사용 이력 (base id로 정규화 저장)
     // 시작 파티가 이미 착용 중인 장비는 도감에 처음부터 공개(addItem 미경유 보완)
-    unlockedEquipment: ["steel_sword", "chain_mail", "mage_staff", "mage_robes", "iron_sword", "leather_armor", "health_amulet"] as string[],
+    unlockedEquipment: [...STARTING_EQUIPMENT_IDS] as string[],
     unlockedSkills: [] as string[],
 
     // ===== Add Item =====

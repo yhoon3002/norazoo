@@ -1068,7 +1068,7 @@ function InventoryPanelInner() {
                                             </div>
                                         )}
                                         <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
-                                            {deltas.length === 0 ? (
+                                            {deltas.filter((d) => d.delta !== 0).length === 0 ? (
                                                 <span
                                                     className="text-[11px]"
                                                     style={{ color: MUTED }}
@@ -1076,7 +1076,7 @@ function InventoryPanelInner() {
                                                     능력치 변화 없음
                                                 </span>
                                             ) : (
-                                                deltas.map((d) => (
+                                                deltas.filter((d) => d.delta !== 0).map((d) => (
                                                     <span
                                                         key={d.key}
                                                         className="text-[11px]"

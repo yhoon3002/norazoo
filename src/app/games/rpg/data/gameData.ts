@@ -918,6 +918,9 @@ export const DEFAULT_PARTY: Character[] = [
     },
 ];
 
+/** 시작 파티 착용 장비(도감 초기 공개·구세이브 복원 공용) */
+export const STARTING_EQUIPMENT_IDS = ["steel_sword", "chain_mail", "mage_staff", "mage_robes", "iron_sword", "leather_armor", "health_amulet"] as const;
+
 export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
     slime: {
         name: "Slime",

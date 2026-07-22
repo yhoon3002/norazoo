@@ -2,7 +2,7 @@
 "use client";
 
 import type { CombatState, Enemy, SaveData } from "../../types/RpgTypes";
-import { SKILLS, SKILL_ANIMATIONS } from "../../data/gameData";
+import { SKILLS, SKILL_ANIMATIONS, STARTING_EQUIPMENT_IDS } from "../../data/gameData";
 import {
     aliveEnemies,
     enemiesInCombat,
@@ -593,7 +593,7 @@ export const turnSlice = (set: any, get: any) => ({
             // 저장분 ∪ 시작 7종 ∪ 현재 착용 장비(base id)
             unlockedEquipment: Array.from(new Set([
                 ...(d.unlockedEquipment ?? []),
-                "steel_sword", "chain_mail", "mage_staff", "mage_robes", "iron_sword", "leather_armor", "health_amulet",
+                ...STARTING_EQUIPMENT_IDS,
                 ...d.player.party.flatMap((c: any) =>
                     Object.values(c.equipment ?? {}).filter(Boolean).map((id: any) => String(id).replace(/_p[1-5]$/, ""))
                 ),
