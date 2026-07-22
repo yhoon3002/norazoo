@@ -111,6 +111,8 @@ export const ITEM_PRICES: Record<string, number> = {
     frost_coat: 300,
     sailor_gloves: 280,
     festival_dress: 520,
+    // 비매품 — SHOP_STOCK 미등재 (판매가 계산용으로만 사용)
+    champion_medal: 800,
 };
 
 export const SELL_RATIO = 0.5;
@@ -370,6 +372,7 @@ export const SKILL_ANIMATIONS: Record<string, string> = {
     lotti_pan: "skill1",
     lotti_spice: "skill2",
     lotti_fullcourse: "skill2",
+    lotti_snack: "skill2",
 };
 
 export const SKILLS: Record<string, Skill> = {
@@ -454,6 +457,7 @@ export const SKILLS: Record<string, Skill> = {
         type: "physical",
         targetType: "all",
         description: "몸을 회전시켜 주변 적 전체를 베어낸다.",
+        element: "earth",
     },
     arin_bastion: {
         id: "arin_bastion",
@@ -572,6 +576,18 @@ export const SKILLS: Record<string, Skill> = {
         type: "heal",
         targetType: "all",
         description: "정성스런 풀코스 요리로 파티 전원을 회복시키고 재생 효과를 건다.",
+        statusEffect: { type: "regen", duration: 2, value: 8 },
+    },
+    lotti_snack: {
+        id: "lotti_snack",
+        name: "간식 타임",
+        character: "lotti",
+        unlockLevel: 12,
+        damage: -60,
+        etherCost: 1,
+        type: "heal",
+        targetType: "self",
+        description: "짬을 내어 챙겨온 간식을 먹고 스스로 원기를 회복한다.",
         statusEffect: { type: "regen", duration: 2, value: 8 },
     },
 };
@@ -752,6 +768,14 @@ export const EQUIPMENT: Record<string, Equipment> = {
         type: "armor",
         stats: { def: 10, speed: 6, luck: 10 },
         rarity: "epic",
+    },
+    // ===== 투기장 웨이브 10 최초 클리어 보상 (비매품) =====
+    champion_medal: {
+        id: "champion_medal",
+        name: "관장의 증표",
+        type: "accessory",
+        stats: { atk: 15, def: 15, luck: 15 },
+        rarity: "legendary",
     },
 };
 

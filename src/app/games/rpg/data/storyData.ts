@@ -6,7 +6,7 @@
 // 태엽 조각 3개를 찾아 항구 → 바람 언덕 → 어둠의 협곡으로 향한다.
 
 import type { PartyId } from "../types/RpgTypes";
-import { GEN_FLAGS, ZONE_DEFS } from "./placementData";
+import { GEN_FLAGS, GORGE_BOSS_ARENA, ZONE_DEFS } from "./placementData";
 
 export type DialogueLine = {
     text: string;
@@ -242,12 +242,12 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
             { speakerId: "lotti", text: "발밑 조심해. 뭔가… 움직이고 있어." },
         ],
         objective: "협곡 깊은 곳의 기척을 쫓자",
-        target: { x: 268.5, z: 42.5 },
+        target: { x: GORGE_BOSS_ARENA.x, z: GORGE_BOSS_ARENA.z },
     },
     {
         id: "gorge_boss_intro",
         stage: "ch5_gorge",
-        near: { x: 268.5, z: 42.5, radius: 10 },
+        near: { x: GORGE_BOSS_ARENA.x, z: GORGE_BOSS_ARENA.z, radius: 10 },
         flagsAll: ["story_gorge_landing"],
         dialogue: [
             { speakerId: "theo", text: "저기! 태엽 조각을… 몸에 박아 넣은 마수예요. 시간을 삼키며 자란 겁니다." },

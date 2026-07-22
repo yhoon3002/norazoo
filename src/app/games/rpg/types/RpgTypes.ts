@@ -184,32 +184,12 @@ export type Treasure = {
     discovered: boolean;
 };
 
-export type Quest = {
-    id: string;
-    title: string;
-    description: string;
-    objectives: Array<{
-        id: string;
-        description: string;
-        completed: boolean;
-        progress: number;
-        target: number;
-    }>;
-    rewards: {
-        exp: number;
-        gold: number;
-        items?: Array<{ id: string; qty: number }>;
-    };
-    status: "available" | "active" | "completed";
-};
-
 export type SaveV1 = {
     version: 1;
     player: Player;
     world: { mapId: string; time: number };
     flags: Record<string, boolean>;
     bag: { id: string; qty: number }[];
-    quests: Quest[];
     treasures: Treasure[];
     unlockedSkills: string[];
     unlockedEquipment: string[];

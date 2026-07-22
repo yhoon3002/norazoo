@@ -1,7 +1,7 @@
 // rpg/presenter/slices/bagSlice.ts
 "use client";
 
-import { ITEM_PRICES, SELL_RATIO } from "../../data/gameData";
+import { EQUIPMENT, ITEM_PRICES, SELL_RATIO } from "../../data/gameData";
 
 export const bagSlice = (set: any, get: any) => ({
     // ===== State =====
@@ -9,8 +9,10 @@ export const bagSlice = (set: any, get: any) => ({
         { id: "health_potion", qty: 3 },
         { id: "mana_potion", qty: 3 },
     ],
-    quests: [],
     treasures: [],
+    // 도감 진행 — 장비/기술 획득·사용 이력 (base id로 정규화 저장)
+    unlockedEquipment: [] as string[],
+    unlockedSkills: [] as string[],
 
     // ===== Add Item =====
     addItem: (id: string, qty: number = 1) =>
@@ -19,7 +21,15 @@ export const bagSlice = (set: any, get: any) => ({
             const i = bag.findIndex((b: any) => b.id === id);
             if (i === -1) bag.push({ id, qty });
             else bag[i] = { id, qty: bag[i].qty + qty };
-            return { bag };
+
+            const patch: any = { bag };
+            if (EQUIPMENT[id]) {
+                const baseId = id.replace(/_p[1-5]$/, "");
+                if (!s.unlockedEquipment.includes(baseId)) {
+                    patch.unlockedEquipment = [...s.unlockedEquipment, baseId];
+                }
+            }
+            return patch;
         }),
 
     // ===== Shop =====

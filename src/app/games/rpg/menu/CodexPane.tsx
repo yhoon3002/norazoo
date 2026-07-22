@@ -1,11 +1,15 @@
 // rpg/menu/CodexPane.tsx — 도감 탭(MenuUI 인벤토리 내부): 칭호·몬스터·어종·제작·업적 수집 현황
 "use client";
 import { useGame } from "../presenter/useGameStore";
-import { EQUIPMENT, ENEMY_TEMPLATES, FISH_NAMES } from "../data/gameData";
+import { EQUIPMENT, ENEMY_TEMPLATES, FISH_NAMES, SKILLS } from "../data/gameData";
 import { RECIPES } from "../data/recipeData";
 import { ALCHEMY_RECIPES } from "../data/alchemyData";
 import { TAILOR_RECIPES } from "../data/tailorData";
 import { ACHIEVEMENTS, MONSTER_IDS, FISH_IDS, currentTitle } from "../data/achievementData";
+
+// 자동 강화 파생(_p1~_p5)을 제외한 기본 장비 id — 장비 도감은 기본형 기준으로만 집계
+const EQUIPMENT_BASE_IDS = Object.keys(EQUIPMENT).filter((id) => !/_p[1-5]$/.test(id));
+const SKILL_IDS = Object.keys(SKILLS);
 
 const GOLD = "#c9a86a";
 const IVORY = "#efe6d0";
@@ -69,6 +73,8 @@ const TOTAL_MAKE = MAKE_GROUPS.reduce((n, g) => n + g.list.length, 0);
 export function CodexPane() {
     const killCounts = useGame((s) => s.killCounts);
     const flags = useGame((s) => s.flags);
+    const unlockedEquipment = useGame((s) => s.unlockedEquipment);
+    const unlockedSkills = useGame((s) => s.unlockedSkills);
     const state = { killCounts, flags };
 
     const title = currentTitle(state);
@@ -111,6 +117,40 @@ export function CodexPane() {
                             known={n > 0}
                             name={ENEMY_TEMPLATES[id].name}
                             countLabel={`처치 ${n}`}
+                        />
+                    );
+                })}
+            </div>
+
+            {/* 장비 도감 — 기본 장비 전체 (강화 파생 제외) */}
+            <GroupLabel>
+                장비 도감 · {unlockedEquipment.length}/{EQUIPMENT_BASE_IDS.length}
+            </GroupLabel>
+            <div className="grid grid-cols-2 gap-1">
+                {EQUIPMENT_BASE_IDS.map((id) => {
+                    const known = unlockedEquipment.includes(id);
+                    return (
+                        <CodexCard
+                            key={id}
+                            known={known}
+                            name={EQUIPMENT[id].name}
+                        />
+                    );
+                })}
+            </div>
+
+            {/* 기술 도감 — 전 스킬(캐릭터 전용 포함) */}
+            <GroupLabel>
+                기술 도감 · {unlockedSkills.length}/{SKILL_IDS.length}
+            </GroupLabel>
+            <div className="grid grid-cols-2 gap-1">
+                {SKILL_IDS.map((id) => {
+                    const known = unlockedSkills.includes(id);
+                    return (
+                        <CodexCard
+                            key={id}
+                            known={known}
+                            name={SKILLS[id].name}
                         />
                     );
                 })}

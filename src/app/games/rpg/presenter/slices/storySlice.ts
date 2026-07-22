@@ -20,7 +20,7 @@ export const storySlice = (set: any, get: any) => ({
     story: {
         stage: INITIAL_STAGE,
         objective: INITIAL_OBJECTIVE,
-        target: { x: 4, z: -4 }, // 요리사의 불빛
+        target: { x: 12.8, z: -14 }, // 요리사의 불빛(프롤로그 목표와 일치)
         respawn: null,
     } as StoryState,
     dialogue: [] as DialogueLine[],

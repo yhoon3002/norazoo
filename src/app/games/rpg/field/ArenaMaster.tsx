@@ -79,11 +79,15 @@ export function ArenaMaster() {
             const reward = arenaReward(n);
             s.gainGold(reward.gold);
             if (reward.item) s.addItem(reward.item, 1);
+            // 웨이브 10(n===9) 최초 클리어 — 전설 액세서리 "관장의 증표" 1회 지급
+            const firstChampion = n === 9 && !s.flags.arena_champion;
+            if (firstChampion) s.addItem("champion_medal", 1);
             // 지급/랭크업/플래그삭제를 단일 setState로 묶어 다음 60프레임 재검증 시
             // n이 이미 n+1로 넘어가 있도록(이중 지급 방지)
             useGame.setState((st: any) => {
                 const flags = { ...st.flags };
                 wave.forEach((_, i) => delete flags[`defeated_arena${n}_${i}`]);
+                if (firstChampion) flags.arena_champion = true;
                 return {
                     flags,
                     killCounts: { ...st.killCounts, arena_wave: n + 1 },
@@ -94,6 +98,13 @@ export function ArenaMaster() {
                 text: `🏟️ 웨이브 ${n + 1} 클리어! +${reward.gold}G`,
                 color: "#fde68a",
             });
+            if (firstChampion) {
+                s.spawnPopup({
+                    side: "ally",
+                    text: "🏅 관장의 증표 획득!",
+                    color: "#f5c96b",
+                });
+            }
         }
     });
 
@@ -107,6 +118,20 @@ export function ArenaMaster() {
             if (s.dialogue.length > 0) return;
             const ui = s.ui as any;
             if (ui.mapOpen || ui.shopOpen || ui.fishingOpen || ui.smithOpen || ui.bountyOpen || ui.tailorOpen) return;
+
+            // 첫 만남 — 인사 대화 1회 (재봉사 quest_tailor_met 선례). 전투는 다음 E부터.
+            if (!s.flags.arena_met) {
+                useGame.setState((st: any) => ({
+                    flags: { ...st.flags, arena_met: true },
+                }));
+                s.startDialogue([
+                    {
+                        speaker: "투기장 관장",
+                        text: "어서 오게, 도전자! 여긴 투기장이다 — 규칙은 간단하지. 웨이브를 넘길 때마다 상대가 강해진다. 준비되면 다시 말을 걸게.",
+                    },
+                ]);
+                return;
+            }
 
             const n = s.killCounts.arena_wave ?? 0;
             const wave = arenaWaveOf(n);

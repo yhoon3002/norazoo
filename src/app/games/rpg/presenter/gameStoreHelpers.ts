@@ -28,6 +28,7 @@ export const QTE_PLANS: Record<string, number[]> = {
     lotti_pan: [1, 2],
     lotti_spice: [1],
     lotti_fullcourse: [1, 2],
+    lotti_snack: [1],
 };
 
 export const PARRY_ANIMATION_STATE = "parry";

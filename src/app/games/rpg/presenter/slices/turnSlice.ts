@@ -241,6 +241,13 @@ export const turnSlice = (set: any, get: any) => ({
                     };
                 }
 
+                // 스킬 실효(QTE 성공) 지점 — 기술 도감 기록
+                if (!s.unlockedSkills.includes(sk.id)) {
+                    set((st: any) => ({
+                        unlockedSkills: [...st.unlockedSkills, sk.id],
+                    }));
+                }
+
                 const skillAnim = SKILL_ANIMATIONS[sk.id] || "attack";
 
                 // ===== Heal/Buff Skills =====
@@ -361,6 +368,8 @@ export const turnSlice = (set: any, get: any) => ({
                                     ? "#44ddff"
                                     : sk.element === "lightning"
                                     ? "#ffff00"
+                                    : sk.element === "earth"
+                                    ? "#b45309"
                                     : "#aa44ff";
                             get().spawnHitEffect([x, 1.5, 4.5], color);
                         }
@@ -583,8 +592,9 @@ export const turnSlice = (set: any, get: any) => ({
             world: d.world,
             flags: d.flags,
             bag: d.bag,
-            quests: d.quests || [],
             treasures: d.treasures || [],
+            unlockedSkills: d.unlockedSkills ?? [],
+            unlockedEquipment: d.unlockedEquipment ?? [],
             story: (d as any).story ?? s.story, // 구버전 세이브 호환
             killCounts: (d as any).counters ?? {},
             dialogue: [],
@@ -605,12 +615,11 @@ export const turnSlice = (set: any, get: any) => ({
             world: s.world,
             flags: s.flags,
             bag: s.bag,
-            quests: s.quests,
             treasures: s.treasures,
             story: s.story,
             counters: s.killCounts,
-            unlockedSkills: [],
-            unlockedEquipment: [],
+            unlockedSkills: s.unlockedSkills ?? [],
+            unlockedEquipment: s.unlockedEquipment ?? [],
         };
     },
 });

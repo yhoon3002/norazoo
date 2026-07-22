@@ -11,7 +11,6 @@ import type {
     Character,
     Skill,
     CombatAction,
-    Quest,
     Treasure,
     Telegraph,
     PendingAction,

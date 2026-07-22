@@ -4,8 +4,10 @@ import { useGame } from "../presenter/useGameStore";
 import { EQUIPMENT, SKILLS } from "../data/gameData";
 import type { Character, Equipment, Player, Stats } from "../types/RpgTypes";
 import { ACHIEVEMENTS } from "../data/achievementData";
+import { SIDE_QUESTS } from "../data/questData";
 import { etherBonus } from "../presenter/gameStoreHelpers";
 import { CodexPane } from "./CodexPane";
+import { JournalPane } from "./JournalPane";
 
 /* ─────────────────────────── 공용 상수 ─────────────────────────── */
 
@@ -129,13 +131,14 @@ const MATERIALS: Record<string, { name: string }> = {
     dark_crystal: { name: "어둠 수정" },
 };
 
-type BagTab = "equipment" | "consumable" | "material" | "codex";
+type BagTab = "equipment" | "consumable" | "material" | "codex" | "journal";
 
 const TAB_LABEL: Record<BagTab, string> = {
     equipment: "장비",
     consumable: "소모품",
     material: "재료",
     codex: "도감",
+    journal: "일지",
 };
 
 /* ─────────────────────────── 헬퍼 ─────────────────────────── */
@@ -397,6 +400,10 @@ function InventoryPanelInner() {
             material: 0,
             // 도감 탭 카운트는 아이템 개수가 아니라 업적 달성 수
             codex: ACHIEVEMENTS.filter((a) => a.check({ killCounts, flags })).length,
+            // 일지 탭 카운트 = 진행 중 + 완료 사이드 퀘스트 수
+            journal: SIDE_QUESTS.filter(
+                (q) => flags[`quest_${q.id}`] || flags[`quest_${q.id}_done`]
+            ).length,
         };
         for (const it of bag) counts[categoryOf(it.id)] += 1;
         return counts;
@@ -888,6 +895,7 @@ function InventoryPanelInner() {
                                     "consumable",
                                     "material",
                                     "codex",
+                                    "journal",
                                 ] as const
                             ).map((t) => {
                                 const active = tab === t;
@@ -922,6 +930,8 @@ function InventoryPanelInner() {
                         <div className="mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1">
                             {tab === "codex" ? (
                                 <CodexPane />
+                            ) : tab === "journal" ? (
+                                <JournalPane />
                             ) : tabItems.length === 0 ? (
                                 <div
                                     className="flex flex-1 items-center justify-center text-xs tracking-[0.3em]"
