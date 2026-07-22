@@ -32,19 +32,6 @@ export const ZONE_DEFS: Array<{
     { id: "gorge", label: "어둠의 협곡", cx: 200, cz: 110 },
 ];
 
-export function zoneOf(x: number, z: number): ZoneId {
-    let best: ZoneId = ZONE_DEFS[0].id;
-    let bd = Infinity;
-    for (const zd of ZONE_DEFS) {
-        const d = (x - zd.cx) ** 2 + (z - zd.cz) ** 2;
-        if (d < bd) {
-            bd = d;
-            best = zd.id;
-        }
-    }
-    return best;
-}
-
 /** 신규 존 체크포인트 깃발 (도로/광장 개방도 최상위 지점) */
 export const GEN_FLAGS: Array<{ zone: ZoneId } & Spot> = [
     { zone: "west_forest", x: -217.5, y: -17.25, z: 110.5 },

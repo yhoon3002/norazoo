@@ -3,15 +3,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import * as THREE from "three";
 import { useGame } from "../presenter/useGameStore";
-import {
-    exportToFile,
-    importFromFile,
-    listSaves,
-    load,
-    save,
-} from "../utils/persist";
+import { save } from "../utils/persist";
 import { FieldScene } from "../field/FieldScene";
 import { FIELD_TREASURES } from "../data/gameData";
 import { ChapterTitle } from "../ui/ChapterTitle";
@@ -76,12 +69,10 @@ function BattleScene() {
 
 export default function RpgGame() {
     const snapshot = useGame((s) => s.snapshot);
-    const applySave = useGame((s) => s.applySave);
     const gold = useGame((s) => s.player.gold);
     const addItem = useGame((s) => s.addItem);
     const combat = useGame((s) => s.combat);
     const startCombat = useGame((s) => s.startCombat);
-    const exitBattle = useGame((s) => s.exitBattle);
     const togglePause = useGame((s) => s.togglePause);
     const toggleInventory = useGame((s) => s.toggleInventory);
     const closeAll = useGame((s) => s.closeAll);
@@ -89,7 +80,6 @@ export default function RpgGame() {
     const dialogueLen = useGame((s) => s.dialogue.length);
     const ui = useGame((s) => s.ui);
 
-    const [saves, setSaves] = useState(listSaves());
     const [fade, setFade] = useState<"none" | "to-battle" | "to-field">("none");
     const [showSavePanel, setShowSavePanel] = useState(false);
     const transitioning = useRef(false);
@@ -145,7 +135,6 @@ export default function RpgGame() {
     useEffect(() => {
         const id = setInterval(() => {
             save(0, snapshot());
-            setSaves(listSaves());
         }, 30_000);
         return () => clearInterval(id);
     }, [snapshot]);

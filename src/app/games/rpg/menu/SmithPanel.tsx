@@ -107,7 +107,7 @@ export function SmithPanel() {
                         </div>
                     ) : (
                         equipItems.map((item: { id: string; qty: number }) => {
-                            const { baseId, level } = upgradeInfo(item.id);
+                            const { level } = upgradeInfo(item.id);
                             const maxed = level >= MAX_UPGRADE;
                             const locked = !maxed && level >= 3 && !stageAtLeast(stage, "epilogue");
                             const cost = maxed || locked ? null : UPGRADE_COSTS[level];

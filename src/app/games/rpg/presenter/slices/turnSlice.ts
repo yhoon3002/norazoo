@@ -26,13 +26,6 @@ function advanceTurnOrRewrap(s: any, next: number) {
 
 export const turnSlice = (set: any, get: any) => ({
     // ===== Turn Management =====
-    nextTurn: () =>
-        set((s: any) => {
-            if (s.turnQueue.length === 0) return s;
-            const next = findNextAliveIndex(s, s.currentTurn);
-            return { currentTurn: next };
-        }),
-
     // 다음 턴 시작 공통 처리 — 플레이어 턴이면 상태이상 틱(DoT)·스턴 턴스킵까지 수행
     beginNextTurn: () => {
         const s = get();

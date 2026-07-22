@@ -3,7 +3,7 @@
 
 import type { CombatState, Enemy } from "../../types/RpgTypes";
 import { ENEMY_TEMPLATES } from "../../data/gameData";
-import { enemiesInCombat, findNextAliveIndex, effSpeed, startingEther } from "../gameStoreHelpers";
+import { effSpeed, startingEther } from "../gameStoreHelpers";
 
 export const combatSlice = (set: any, get: any) => ({
     // ===== State =====
@@ -16,7 +16,6 @@ export const combatSlice = (set: any, get: any) => ({
     battleIndex: 0,
     subMenuIndex: 0,
 
-    defenseTimeoutId: null as NodeJS.Timeout | null,
     // 다단 히트 방어 상태 (유닛별 공격 프로필)
     defenseHitIndex: 0,
     defenseResults: [] as Array<"parry" | "dodge" | "fail">,
@@ -26,9 +25,6 @@ export const combatSlice = (set: any, get: any) => ({
     encounterCooldownUntil: 0,
 
     // ===== Menu Navigation =====
-    setBattleIndex: (i: number) => set({ battleIndex: i }),
-    setSubMenuIndex: (i: number) => set({ subMenuIndex: i }),
-
     moveBattleIndex: (d: number) =>
         set((s: any) => ({
             battleIndex:
@@ -41,27 +37,6 @@ export const combatSlice = (set: any, get: any) => ({
                 (s.subMenuIndex + d + s.battleSubMenu.length) %
                 s.battleSubMenu.length,
         })),
-
-    // ===== Target Selection =====
-    moveTargetIndex: (d: number) =>
-        set((s: any) => {
-            if (s.combat.phase !== "targetSelect") return s;
-            const n = s.combat.allowedTargets.length;
-            const idx = (s.combat.index + d + n) % n;
-            return { combat: { ...s.combat, index: idx } as CombatState };
-        }),
-
-    cancelTargeting: () =>
-        set((s: any) => {
-            if (s.combat.phase !== "targetSelect") return s;
-            return {
-                combat: {
-                    phase: "playerMenu",
-                    enemies: enemiesInCombat(s),
-                },
-                battleSubMenu: [],
-            };
-        }),
 
     // ===== Start Combat =====
     startCombat: (payload: any) => {
@@ -144,73 +119,5 @@ export const combatSlice = (set: any, get: any) => ({
         // ether 버프는 즉시 섭취 효과 — set 완료 직후(액션 말미) 적용
         for (const b of cookedBuffs.filter((x: any) => x.type === "ether"))
             for (const c of get().player.party) get().gainEther(c.id, b.value);
-    },
-
-    // ===== Turn Management =====
-    nextTurn: () =>
-        set((s: any) => {
-            if (s.turnQueue.length === 0) return s;
-            const next = findNextAliveIndex(s, s.currentTurn);
-            return { currentTurn: next };
-        }),
-
-    endPlayerTurn: () => {
-        set((s: any) => {
-            if (s.turnQueue.length === 0) return s;
-            const next = findNextAliveIndex(s, s.currentTurn);
-            return { currentTurn: next };
-        });
-
-        setTimeout(() => {
-            const s = get();
-            if (["victory", "defeat", "idle"].includes(s.combat.phase))
-                return;
-
-            const nextId = s.turnQueue[s.currentTurn];
-            const isPlayerTurn = s.player.party.some(
-                (c: any) => c.id === nextId && c.stats.hp > 0
-            );
-
-            if (isPlayerTurn) {
-                set({
-                    combat: {
-                        phase: "playerMenu",
-                        enemies: enemiesInCombat(get()),
-                    },
-                });
-            } else {
-                get().startEnemyTelegraph();
-            }
-        }, 350);
-    },
-
-    endEnemyTurn: () => {
-        set((s: any) => {
-            if (s.turnQueue.length === 0) return s;
-            const next = findNextAliveIndex(s, s.currentTurn);
-            return { currentTurn: next };
-        });
-
-        setTimeout(() => {
-            const s = get();
-            if (["victory", "defeat", "idle"].includes(s.combat.phase))
-                return;
-
-            const nextId = s.turnQueue[s.currentTurn];
-            const isPlayerTurn = s.player.party.some(
-                (c: any) => c.id === nextId && c.stats.hp > 0
-            );
-
-            if (isPlayerTurn) {
-                set({
-                    combat: {
-                        phase: "playerMenu",
-                        enemies: enemiesInCombat(get()),
-                    },
-                });
-            } else {
-                get().startEnemyTelegraph();
-            }
-        }, 350);
     },
 });

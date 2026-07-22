@@ -359,7 +359,6 @@ export const SKILL_ANIMATIONS: Record<string, string> = {
     guard_break: "skill1", // SwordSlash
     heal: "skill2", // Shoot_OneHanded (마법 시전)
     group_heal: "skill2", // Shoot_OneHanded (마법 시전)
-    parry: "parry",
     // 캐릭터 전용 신규 11종
     arin_whirl: "skill1",
     arin_bastion: "skill2",

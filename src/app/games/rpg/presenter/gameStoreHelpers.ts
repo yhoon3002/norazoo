@@ -1,14 +1,11 @@
 // rpg/presenter/gameStoreHelpers.ts
 "use client";
 
-import type { CombatAction, Character, Enemy } from "../types/RpgTypes";
-import { SKILL_ANIMATIONS } from "../data/gameData";
+import type { Character, Enemy } from "../types/RpgTypes";
 
 /** ===== QTE 패턴 ===== */
 export const QTE_PLANS: Record<string, number[]> = {
     attack: [1],
-    skill1: [1, 2],
-    skill2: [2, 3],
     slash: [1, 2],
     fireball: [2, 3],
     lightning: [1, 2],
@@ -31,22 +28,9 @@ export const QTE_PLANS: Record<string, number[]> = {
     lotti_snack: [1],
 };
 
-export const PARRY_ANIMATION_STATE = "parry";
-
 /** ===== 기본 유틸 함수 ===== */
-export const clamp = (v: number, a: number, b: number) => 
+export const clamp = (v: number, a: number, b: number) =>
     Math.max(a, Math.min(b, v));
-
-export function getSkillAnimationState(skillId: string): string {
-    return SKILL_ANIMATIONS[skillId] || "attack";
-}
-
-export function getAnimationForAction(action: CombatAction): string {
-    if (action.type === "skill" && action.skillId) {
-        return getSkillAnimationState(action.skillId);
-    }
-    return "attack";
-}
 
 /** ===== 적 관련 헬퍼 함수 ===== */
 export function enemiesInCombat(s: any): Enemy[] {
@@ -61,10 +45,6 @@ export function getEnemyById(s: any, id?: string | null): Enemy | undefined {
 
 export function aliveEnemies(s: any): Enemy[] {
     return enemiesInCombat(s).filter((e) => e.stats.hp > 0);
-}
-
-export function firstAliveEnemyId(s: any): string | undefined {
-    return aliveEnemies(s)[0]?.id;
 }
 
 export function isIdAlive(s: any, id: string): boolean {

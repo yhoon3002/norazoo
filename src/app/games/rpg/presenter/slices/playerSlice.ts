@@ -241,5 +241,3 @@ export const playerSlice = (set: any, get: any) => ({
     // ===== Skills =====
     getAvailableSkills: (character: Character) => getAvailableSkills(character),
 });
-
-export { getAvailableSkills };

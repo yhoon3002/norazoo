@@ -98,7 +98,6 @@ export type Enemy = {
     preferredAttack?: PreferredAttack;
 };
 
-export type QTEType = "timing";
 export type CombatAction = {
     type: "attack" | "skill" | "item" | "escape";
     actorId: string;
@@ -106,7 +105,6 @@ export type CombatAction = {
     targetIds?: string[]; // 다수 대상(AoE)
     skillId?: string;
     itemId?: string;
-    qteType?: QTEType;
 };
 
 export type Telegraph = {

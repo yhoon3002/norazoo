@@ -8,11 +8,8 @@ import {
     aliveEnemies,
     getEnemyById,
     enemiesInCombat,
-    calcBasicAttackDamage,
     escapeChance,
 } from "../gameStoreHelpers";
-
-const popupSeq = 1;
 
 export const battleActionsSlice = (set: any, get: any) => ({
     // ===== Confirm Selection =====
@@ -210,7 +207,6 @@ export const battleActionsSlice = (set: any, get: any) => ({
                 type: "skill",
                 actorId: actor.id,
                 skillId: sk.id,
-                qteType: "timing",
             };
 
             if (sk.targetType === "self") {

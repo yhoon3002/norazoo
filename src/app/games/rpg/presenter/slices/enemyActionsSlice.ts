@@ -149,7 +149,6 @@ export const enemyActionsSlice = (set: any, get: any) => ({
                     telegraph: tele,
                     showDefenseUi: true,
                 },
-                defenseTimeoutId: null,
                 defenseSeq: seq,
                 defenseTimeoutIds: timeoutIds,
                 defenseHitIndex: 0,

@@ -3,7 +3,6 @@
 
 import { SKILLS } from "../../data/gameData";
 import {
-    aliveEnemies,
     getEnemyById,
     enemiesInCombat,
     calcBasicAttackDamage,
@@ -142,7 +141,6 @@ export const targetSlice = (set: any, get: any) => ({
             actorId: pending.actorId,
             skillId: sk.id,
             targetId,
-            qteType: "timing",
         };
         get().startPlayerQTE(action);
     },
