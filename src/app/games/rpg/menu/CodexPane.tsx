@@ -1,7 +1,7 @@
 // rpg/menu/CodexPane.tsx — 도감 탭(MenuUI 인벤토리 내부): 칭호·몬스터·어종·제작·업적 수집 현황
 "use client";
 import { useGame } from "../presenter/useGameStore";
-import { EQUIPMENT, ENEMY_TEMPLATES } from "../data/gameData";
+import { EQUIPMENT, ENEMY_TEMPLATES, FISH_NAMES } from "../data/gameData";
 import { RECIPES } from "../data/recipeData";
 import { ALCHEMY_RECIPES } from "../data/alchemyData";
 import { TAILOR_RECIPES } from "../data/tailorData";
@@ -11,17 +11,6 @@ const GOLD = "#c9a86a";
 const IVORY = "#efe6d0";
 const MUTED = "#8b8474";
 
-/** 어종 표시명 — FishingPanel의 FISH_NAMES와 동일 표기 */
-const FISH_NAMES: Record<string, string> = {
-    fish_common: "생선",
-    fish_rare: "월광어",
-    silver_trout: "은빛송어",
-    coral_fish: "산호어",
-    wind_trout: "바람송어",
-    ice_fish: "빙어",
-    deep_fish: "심연어",
-    gold_carp: "황금잉어",
-};
 
 function GroupLabel({ children }: { children: React.ReactNode }) {
     return (

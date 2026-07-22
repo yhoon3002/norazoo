@@ -3,21 +3,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useGame } from "../presenter/useGameStore";
-import { FISHING_SPOTS } from "../data/gameData";
+import { FISHING_SPOTS, FISH_NAMES } from "../data/gameData";
 
 const ROUNDS = 3;
 
-/** 낚시 어종 표시명 — MenuUI MATERIALS와 동일 표기 */
-const FISH_NAMES: Record<string, string> = {
-    fish_common: "생선",
-    fish_rare: "월광어",
-    silver_trout: "은빛송어",
-    coral_fish: "산호어",
-    wind_trout: "바람송어",
-    ice_fish: "빙어",
-    deep_fish: "심연어",
-    gold_carp: "황금잉어",
-};
 
 export function FishingPanel() {
     const open = useGame((s) => (s.ui as any).fishingOpen);

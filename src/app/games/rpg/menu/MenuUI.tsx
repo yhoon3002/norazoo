@@ -338,7 +338,14 @@ const OVERLAY_BG: React.CSSProperties = {
 
 /* ═══════════════════════════ 인벤토리 ═══════════════════════════ */
 
+// 닫힘 시 무거운 구독(killCounts/flags/bag)이 아예 마운트되지 않도록 래퍼로 게이트
 export function InventoryPanel() {
+    const isOpen = useGame((s) => s.ui.inventoryOpen);
+    if (!isOpen) return null;
+    return <InventoryPanelInner />;
+}
+
+function InventoryPanelInner() {
     const isOpen = useGame((s) => s.ui.inventoryOpen);
     const bag = useGame((s) => s.bag);
     const party = useGame((s) => s.player.party);

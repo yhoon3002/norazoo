@@ -237,6 +237,18 @@ const ZONE_FISH_TABLE: Record<string, { common: string; rare: string }> = {
     town: { common: "fish_common", rare: "gold_carp" },
 };
 
+/** 어종 표시명 — 낚시/도감/지도 공용 (MenuUI MATERIALS와 동일 표기) */
+export const FISH_NAMES: Record<string, string> = {
+    fish_common: "생선",
+    fish_rare: "월광어",
+    silver_trout: "은빛송어",
+    coral_fish: "산호어",
+    wind_trout: "바람송어",
+    ice_fish: "빙어",
+    deep_fish: "심연어",
+    gold_carp: "황금잉어",
+};
+
 export const FISHING_SPOTS: Array<{
     id: string;
     x: number;
