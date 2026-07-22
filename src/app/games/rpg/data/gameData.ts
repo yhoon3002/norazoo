@@ -315,27 +315,33 @@ export const MERCHANT_KEEPOUT = 5;
 // 33원정대처럼 "적을 보고 반응"하는 방어의 핵심 — 유닛마다 리듬이 다르다.
 // chargeMs: 차지 시간(수축 링이 조여드는 시간), hits: 첫 타격 기준 오프셋(ms) 배열(다단 히트),
 // parryable: false면 회피(W) 전용 공격, ringColor: 수축 링/차징 글로우 색
-export const ENEMY_ATTACK_PROFILES: Record<
-    string,
-    { chargeMs: number; hits: number[]; parryable: boolean; ringColor: string }
-> = {
+export type EnemyAttackProfile = {
+    chargeMs: number;
+    hits: number[];
+    parryable: boolean;
+    ringColor: string;
+    /** 피격(방어 실패) 시 chance 확률로 대상에게 상태이상 부여 — 완전 방어(피해 0)면 미부여 */
+    applyStatus?: { type: string; duration: number; value: number; chance: number };
+};
+
+export const ENEMY_ATTACK_PROFILES: Record<string, EnemyAttackProfile> = {
     slime: { chargeMs: 1200, hits: [0], parryable: true, ringColor: "#ffd54a" }, // 느긋한 단타 (입문)
     orc: { chargeMs: 700, hits: [0, 450], parryable: true, ringColor: "#c084fc" }, // 빠른 2연타
     mage: { chargeMs: 1600, hits: [0], parryable: false, ringColor: "#ff5252" }, // 긴 차지 후 회피 전용 마법
     zombie: { chargeMs: 1000, hits: [0, 600], parryable: true, ringColor: "#84cc16" }, // 굼뜬 2연타
-    witch: { chargeMs: 1800, hits: [0], parryable: false, ringColor: "#a78bfa" }, // 긴 차지 회피 전용
+    witch: { chargeMs: 1800, hits: [0], parryable: false, ringColor: "#a78bfa", applyStatus: { type: "poison", duration: 2, value: 8, chance: 0.35 } }, // 긴 차지 회피 전용
     ninja: { chargeMs: 600, hits: [0, 300, 600], parryable: true, ringColor: "#f472b6" }, // 빠른 3연타
     ghoul: { chargeMs: 800, hits: [0, 400], parryable: true, ringColor: "#a3e635" },
     mad_bull: { chargeMs: 1100, hits: [0, 500], parryable: false, ringColor: "#f97316" }, // 돌진 — 회피 전용
     wild_dog: { chargeMs: 500, hits: [0, 250, 500], parryable: true, ringColor: "#d4d4d8" },
     orc_chief: { chargeMs: 750, hits: [0, 400, 800], parryable: true, ringColor: "#c084fc" },
-    frost_witch: { chargeMs: 1500, hits: [0], parryable: false, ringColor: "#67e8f9" },
+    frost_witch: { chargeMs: 1500, hits: [0], parryable: false, ringColor: "#67e8f9", applyStatus: { type: "poison", duration: 2, value: 8, chance: 0.35 } },
     clockwork_soldier: { chargeMs: 700, hits: [0, 350, 700], parryable: true, ringColor: "#fbbf24" },
-    shade_beast: { chargeMs: 1000, hits: [0, 650], parryable: true, ringColor: "#6b21a8" },
+    shade_beast: { chargeMs: 1000, hits: [0, 650], parryable: true, ringColor: "#6b21a8", applyStatus: { type: "poison", duration: 3, value: 10, chance: 0.4 } },
     gear_devourer: { chargeMs: 900, hits: [0, 450, 900], parryable: true, ringColor: "#f59e0b" }, // 보스 — 3연타
 };
 
-export const DEFAULT_ATTACK_PROFILE = {
+export const DEFAULT_ATTACK_PROFILE: EnemyAttackProfile = {
     chargeMs: 900,
     hits: [0],
     parryable: true,
@@ -856,7 +862,7 @@ export const DEFAULT_PARTY: Character[] = [
         ether: 3,
         maxEther: 9,
         modelUrl: "/character/Wizard.fbx",
-        preferredAttack: "attack", // 기본공격은 Punch 애니메이션 사용
+        preferredAttack: "shoot", // 기본공격도 지팡이 발사(Shoot_OneHanded) 모션 사용
     },
     {
         id: "lotti",
@@ -960,6 +966,7 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
         skills: ["fireball", "lightning", "ice_shard"],
         statusEffects: [],
         aiPattern: "smart",
+        preferredAttack: "shoot",
         rewards: {
             exp: 120,
             gold: 85,
@@ -1013,6 +1020,7 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
         skills: ["fireball", "lightning"],
         statusEffects: [],
         aiPattern: "smart",
+        preferredAttack: "shoot",
         rewards: {
             exp: 110,
             gold: 75,
@@ -1167,6 +1175,7 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
         skills: ["ice_shard", "lightning"],
         statusEffects: [],
         aiPattern: "smart",
+        preferredAttack: "shoot",
         rewards: {
             exp: 160,
             gold: 110,
@@ -1246,6 +1255,7 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
         skills: ["fireball", "lightning", "guard_break"],
         statusEffects: [],
         aiPattern: "smart",
+        preferredAttack: "shoot",
         rewards: {
             exp: 1800,
             gold: 2000,

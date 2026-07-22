@@ -227,6 +227,9 @@ export function EnemyMesh({
 
     // 템플릿의 scale 배율(보스급 대형 몬스터용) — 기본 1
     const templateScale = ENEMY_TEMPLATES[enemy.template as string]?.scale ?? 1;
+    // 템플릿의 기본공격 모션 변형(예: 원거리 시전형은 shoot) — 미지정 시 attack(펀치)
+    const preferredAttack =
+        ENEMY_TEMPLATES[enemy.template as string]?.preferredAttack || "attack";
 
     const BAR_Z_OFFSET = -0.55,
         BAR_Y = 0.05,
@@ -244,6 +247,7 @@ export function EnemyMesh({
                 position={[0, 0, 0]}
                 rotation={[0, Math.PI, 0]}
                 state={anim}
+                preferredAttack={preferredAttack}
                 scale={0.01 * templateScale}
                 playNonce={playNonce}
             />

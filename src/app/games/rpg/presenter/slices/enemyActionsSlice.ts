@@ -60,8 +60,21 @@ export const enemyActionsSlice = (set: any, get: any) => ({
                 return s;
             }
 
-            // Select random target and skill
-            const target = alive[Math.floor(Math.random() * alive.length)];
+            // ===== aiPattern 타겟 정책 =====
+            // aggressive: 생존 파티 중 최저 HP(마무리 성향), smart: 생존 파티 중 유효 def 최저(약점 공략),
+            // balanced(및 미지정): 기존 랜덤 유지
+            let target: any;
+            if (enemy.aiPattern === "aggressive") {
+                target = alive.reduce((lo: any, c: any) =>
+                    c.stats.hp < lo.stats.hp ? c : lo
+                );
+            } else if (enemy.aiPattern === "smart") {
+                target = alive.reduce((lo: any, c: any) =>
+                    effectiveStat(c, "def") < effectiveStat(lo, "def") ? c : lo
+                );
+            } else {
+                target = alive[Math.floor(Math.random() * alive.length)];
+            }
             const usedSkill =
                 enemy.skills[Math.floor(Math.random() * enemy.skills.length)];
 
@@ -483,6 +496,22 @@ export const enemyActionsSlice = (set: any, get: any) => ({
                 charId: target.id,
                 text: "💥 치명타!",
                 color: "#f97316",
+            });
+        }
+
+        // ===== 적 프로필 독 부여 (purify_elixir 실효화) — 완전 방어(피해 0)면 미부여 =====
+        const applyStatus = profileFor(enemy).applyStatus;
+        if (dmg > 0 && applyStatus && Math.random() < applyStatus.chance) {
+            get().applyStatusEffect(target.id, {
+                type: applyStatus.type,
+                duration: applyStatus.duration,
+                value: applyStatus.value,
+            });
+            get().spawnPopup({
+                side: "ally",
+                charId: target.id,
+                text: "☠️ 중독!",
+                color: "#10b981",
             });
         }
 

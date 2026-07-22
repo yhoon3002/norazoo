@@ -94,6 +94,8 @@ export type Enemy = {
     };
     /** 모델 스케일 배율 (기본 1) — 보스급 대형 몬스터용 */
     scale?: number;
+    /** 기본공격 모션 변형(예: 원거리 시전형은 shoot) — 미지정 시 attack(펀치) */
+    preferredAttack?: PreferredAttack;
 };
 
 export type QTEType = "timing";

@@ -59,6 +59,12 @@ const CLIPS: Record<AnimState, string[]> = {
     roll: ["roll"],
 };
 
+/** 기본공격(state "attack") 모션 변형 — preferredAttack별 클립 후보.
+ * 항목이 없거나 모델에 해당 클립이 없으면 기존 CLIPS.attack(punch/box)로 폴백한다. */
+const PREFERRED_ATTACK_CLIPS: Partial<Record<string, string[]>> = {
+    shoot: ["shoot_onehanded", "shoot"],
+};
+
 type Props = {
     url: string;
     state?: AnimState;
@@ -130,8 +136,13 @@ export const ModelAvatar = forwardRef<THREE.Group, Props>(function ModelAvatar(
         if (!clips.length || !groupRef.current) return;
 
         let desired = state;
+        // preferredAttack 변형(예: "shoot") — 모델에 해당 클립이 있을 때만 punch/box 대신 사용
+        const attackOverride =
+            state === "attack" ? PREFERRED_ATTACK_CLIPS[preferredAttack] : undefined;
+        const overrideClip =
+            attackOverride && findClip(clips, attackOverride);
 
-        if (state === "attack" && !findClip(clips, CLIPS.attack)) {
+        if (state === "attack" && !overrideClip && !findClip(clips, CLIPS.attack)) {
             const order = ["attack", "skill1", "skill2"] as const;
             desired = (order.find((k) => !!findClip(clips, CLIPS[k])) ||
                 "idle") as AnimState;
@@ -142,7 +153,9 @@ export const ModelAvatar = forwardRef<THREE.Group, Props>(function ModelAvatar(
         }
 
         const clip =
-            findClip(clips, CLIPS[desired]) || findClip(clips, CLIPS.idle);
+            overrideClip ||
+            findClip(clips, CLIPS[desired]) ||
+            findClip(clips, CLIPS.idle);
         if (!clip) return;
 
         const action = mixer.clipAction(clip, groupRef.current);
