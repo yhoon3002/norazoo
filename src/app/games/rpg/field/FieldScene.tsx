@@ -28,6 +28,8 @@ import { MapBaker } from "./MapBaker";
 import { STORY_FLAGS, LORE_POINTS } from "../data/storyData";
 import { FieldTreasure } from "./FieldElements";
 import { FieldLorePoint } from "./FieldLorePoint";
+import { BondEpisode } from "./BondEpisode";
+import { BOND_EPISODES } from "../data/bondData";
 import { FieldGatherable } from "./FieldGatherable";
 import FieldEnemyAvatar from "./FieldEnemyAvatar";
 import { NavmeshController } from "./NavmeshController";
@@ -172,6 +174,9 @@ export function FieldScene({
             <TutorialTrail />
             {LORE_POINTS.map((lp) => (
                 <FieldLorePoint key={lp.id} point={lp} />
+            ))}
+            {BOND_EPISODES.map((ep) => (
+                <BondEpisode key={ep.id} ep={ep} />
             ))}
             {FIELD_GATHERABLES.map((g) => (
                 <FieldGatherable

@@ -7,6 +7,7 @@ import { STORY_FLAGS, LORE_POINTS, stageAtLeast } from "../data/storyData";
 import { POIS } from "../data/poiData";
 import { MERCHANT_POS, FISHING_SPOTS, FISH_NAMES } from "../data/gameData";
 import { SIDE_QUESTS } from "../data/questData";
+import { BOND_EPISODES } from "../data/bondData";
 import { BOARD_POS } from "../field/BountyBoard";
 import { ZONE_DEFS } from "../data/placementData";
 import { zoneProgress } from "../data/zoneRewards";
@@ -136,6 +137,21 @@ export function FullMapPanel() {
                             ❗
                         </div>
                     ))}
+                    {/* 유대 에피소드 — 미완료·스테이지 도달 시 표시 */}
+                    {BOND_EPISODES.filter(
+                        (ep) =>
+                            stageAtLeast(stage, ep.availableFrom) &&
+                            !flags[`bond_${ep.id}`]
+                    ).map((ep) => (
+                        <div
+                            key={ep.id}
+                            className="absolute -translate-x-1/2 -translate-y-1/2 text-[12px]"
+                            style={pct(ep.x, ep.z)}
+                            title={ep.label}
+                        >
+                            💫
+                        </div>
+                    ))}
                     {/* 깃발 — 활성화된 것만 클릭 가능 */}
                     {STORY_FLAGS.map((f) => {
                         const active = !!flags[`flag_${f.id}`];
@@ -193,7 +209,7 @@ export function FullMapPanel() {
                     <span>
                         ▲ 현재 위치 · ◆ 목표 · 🚩 깃발(클릭: 빠른이동) · 💰 상인
                         · 📜/🗿 조사 포인트 · 🏞️ 전망 · ❗ 의뢰 · 📋 사냥 의뢰판
-                        · 🎣 낚시터
+                        · 🎣 낚시터 · 💫 유대 에피소드
                     </span>
                     <span>M / ESC: 닫기</span>
                 </div>
