@@ -33,7 +33,7 @@
 - BattleUI 메뉴 라벨 "도주"(기존 메뉴가 영문이면 "Escape" — 기존 표기 관례 따름). 스토리 전투 도주 허용(재발동 시스템이 커버).
 
 ### 5. MP → 에테르 연계(자원 일원화)
-- 의미 부여: **전투 시작 에테르 = clamp(3 + floor(캐릭터 유효 maxMp / 30), 0, maxEther)** — mage_staff(+30)=+1, mage_robes(+40)와 합산 70=+2. 적용: combatSlice startCombat의 파티 초기화에서 ether 산정(기존 고정 3 대체). exitBattle 승리 복원도 동일 공식.
+- 의미 부여: **전투 시작 에테르 = clamp(3 + floor(캐릭터 유효 maxMp / 30), 0, maxEther)** — mage_staff(+30)=+1, mage_robes(+40)와 합산 70=+2 — 기본 maxMp도 합산되므로 테오(기본 60)는 장비 포함 총 +4(시작 7). 적용: combatSlice startCombat의 파티 초기화에서 ether 산정(기존 고정 3 대체). exitBattle 승리 복원도 동일 공식.
 - UI: MenuUI 스탯 패널의 "MP x/y" 표기를 `에테르 +n`(장비 maxMp 파생 시작 보너스)으로 교체 — mp/maxMp 원값 노출 제거. 장비 스탯 델타의 maxMp 표기는 "시작 에테르"로 라벨링(개별 UI 위치는 구현 시 기존 STAT_ORDER/라벨 맵 수정).
 - 데이터 무변경(mp/maxMp 필드 유지 — 이제 소비처 존재).
 
