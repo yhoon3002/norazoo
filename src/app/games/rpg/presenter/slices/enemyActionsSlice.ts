@@ -500,8 +500,9 @@ export const enemyActionsSlice = (set: any, get: any) => ({
         }
 
         // ===== 적 프로필 독 부여 (purify_elixir 실효화) — 완전 방어(피해 0)면 미부여 =====
+        // 다단 히트 복리 방지: 스킬 상태이상과 동일하게 마지막 타에만 1회 롤
         const applyStatus = profileFor(enemy).applyStatus;
-        if (dmg > 0 && applyStatus && Math.random() < applyStatus.chance) {
+        if (dmg > 0 && i === hits.length - 1 && applyStatus && Math.random() < applyStatus.chance) {
             get().applyStatusEffect(target.id, {
                 type: applyStatus.type,
                 duration: applyStatus.duration,
