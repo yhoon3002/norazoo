@@ -34,11 +34,13 @@ export const FIELD_ENEMIES: Array<
     { id: "e2", pos: new THREE.Vector3(10, -33.25, 2),   templates: ["orc", "slime", "mage"] },
     { id: "e3", pos: new THREE.Vector3(14, -33.25, 8),   template: "mage" },
     // ===== 배회 몬스터 — 길 밖 필드 라이프 (3분 리스폰) =====
-    { id: "r1", pos: new THREE.Vector3(46, -33.25, -30), templates: ["slime", "slime"], respawn: 180_000 },
-    { id: "r2", pos: new THREE.Vector3(68, -33.25, -33), template: "orc", respawn: 180_000 },
+    // 로머 캠프는 상호작용점(NPC·채집·보물)과 8m+ 이격 — 근접감지(2.5m)·시야(7m)가
+    // 상호작용 반경(E 2.6)과 겹치면 줍기/대화가 강제 전투로 끊긴다 (QA 전수 감사로 재배치)
+    { id: "r1", pos: new THREE.Vector3(53.3, -33.25, -33.6), templates: ["slime", "slime"], respawn: 180_000 },
+    { id: "r2", pos: new THREE.Vector3(76, -33.25, -33), template: "orc", respawn: 180_000 },
     { id: "r3", pos: new THREE.Vector3(80, -33.25, -10), templates: ["slime", "mage"], respawn: 180_000 },
-    { id: "r4", pos: new THREE.Vector3(126, -33.25, -20), template: "orc", respawn: 180_000 },
-    { id: "r5", pos: new THREE.Vector3(196, -37.25, 2), templates: ["slime", "slime", "slime"], respawn: 180_000 },
+    { id: "r4", pos: new THREE.Vector3(134, -34.25, -20), template: "orc", respawn: 180_000 },
+    { id: "r5", pos: new THREE.Vector3(196, -38.25, 10), templates: ["slime", "slime", "slime"], respawn: 180_000 },
     // 파수꾼 퀘스트 전용 무리 (리스폰 없음 — Task 4에서 사용)
     { id: "bounty1", pos: new THREE.Vector3(52, -33.25, -46), templates: ["orc", "orc"] },
     // 웨이브2 토벌 전용 캠프 (리스폰 없음 — bounty1과 동일 규약, 퀘스트 플래그 영구 보존)

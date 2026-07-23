@@ -28,17 +28,22 @@ export function BountyBoard() {
                 | ((
                       px: number,
                       pz: number,
-                      preferY?: number
+                      preferY?: number,
+                      band?: number
                   ) => { x: number; y: number; z: number } | null)
                 | undefined;
             const playerPos = state.scene.userData.__playerWorldPos as
                 | THREE.Vector3
                 | undefined;
             if (navFindWalkable && playerPos) {
+                // band 2: 기본 밴드(±4)는 이 컬럼의 노점 차양 지붕(-29.3, 지면+3.9m)에
+                // 스냅시켜 근접 판정(|Δy|≤2)이 영원히 실패했다 — 좁은 밴드로 지붕을
+                // 배제하고 나선 탐색이 옆 지면 컬럼에 착지하게 한다
                 const found = navFindWalkable(
                     BOARD_POS.x,
                     BOARD_POS.z,
-                    BOARD_POS.y ?? playerPos.y
+                    BOARD_POS.y ?? playerPos.y,
+                    2
                 );
                 if (found)
                     groupRef.current.position.set(found.x, found.y, found.z);
