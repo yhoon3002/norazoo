@@ -17,6 +17,14 @@ export function ensureBoundsTree(obj: THREE.Object3D) {
     if (!mesh.isMesh || !mesh.geometry) return;
     const geo = mesh.geometry as BVHGeometry;
     if (!geo.boundsTree && geo.getAttribute("position")) {
+        const t0 = performance.now();
         geo.boundsTree = new MeshBVH(geo);
+        const ms = performance.now() - t0;
+        // 단일 빌드가 프레임 예산을 크게 넘으면 분산 대상 후보 — 초반 렉 진단용
+        if (ms > 120) {
+            const idx = geo.getIndex();
+            const tris = Math.floor((idx ? idx.count : geo.getAttribute("position").count) / 3);
+            console.warn(`[bvhRaycast] 느린 BVH 빌드 ${Math.round(ms)}ms — ${tris}tris (${mesh.name || "unnamed"})`);
+        }
     }
 }

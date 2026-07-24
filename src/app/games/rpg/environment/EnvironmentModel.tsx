@@ -4,6 +4,7 @@ import { useGLTF } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { ensureBoundsTree } from "./bvhRaycast";
+import { useGame } from "../presenter/useGameStore";
 
 // 면적 가중 "윗면(|ny|>0.6) 비율" — 메시 형태 분류용 (십자 스프라이트 ≈ 0, 수면 ≈ 1)
 function upFraction(mesh: THREE.Mesh): number {
@@ -124,20 +125,11 @@ export const EnvironmentModel = forwardRef<
                     waterCount++;
                 }
 
-                // 플레이어 벽/지면, 카메라, 실내 판정 레이캐스트가 모두 이 메시들을
-                // 대상으로 하므로 BVH가 없으면 이동 중 프레임이 무너진다
-                ensureBoundsTree(obj);
-
                 envCount++;
                 envMeshes.push(obj);
             }
         });
         console.log(`[EnvironmentModel] 풀숲 스프라이트 ${decoCount}개 충돌 제외, 수면 ${waterCount}개 태그`);
-        console.log(
-            `[EnvironmentModel] ${envCount}개 메시 BVH 준비 완료 (${Math.round(
-                performance.now() - bvhStart
-            )}ms)`
-        );
 
         const mapBox = new THREE.Box3().setFromObject(root);
         r3fScene.userData.__envBounds = mapBox.clone();
@@ -159,6 +151,44 @@ export const EnvironmentModel = forwardRef<
         console.log(
             `[EnvironmentModel] world box X:[${wb.min.x.toFixed(1)}, ${wb.max.x.toFixed(1)}] Y:[${wb.min.y.toFixed(1)}, ${wb.max.y.toFixed(1)}] Z:[${wb.min.z.toFixed(1)}, ${wb.max.z.toFixed(1)}]`
         );
+
+        // ===== BVH 빌드: 스폰 근접(60m)만 동기, 나머지는 프레임 사이 분산 =====
+        // 348개 일괄 빌드가 메인스레드를 ~1.2초 정지시키던 것(초반 렉 실측)을 분산.
+        // 플레이어·카메라 레이는 전부 4m 미만 단거리라, 미빌드 원거리 메시는
+        // 바운딩박스 선별에서 걸러져 느린 폴백 경로를 타지 않는다.
+        const p = useGame.getState().player.pos;
+        const _c = new THREE.Vector3();
+        const entries = (envMeshes as THREE.Mesh[])
+            .map((mesh) => {
+                if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
+                mesh.geometry.boundingBox!.getCenter(_c).applyMatrix4(mesh.matrixWorld);
+                return { mesh, d: Math.hypot(_c.x - p.x, _c.z - p.z) };
+            })
+            .sort((a, b) => a.d - b.d);
+        let i = 0;
+        while (i < entries.length && entries[i].d < 60) ensureBoundsTree(entries[i++].mesh);
+        const nearMs = Math.round(performance.now() - bvhStart);
+        let cancelled = false;
+        const buildTick = () => {
+            if (cancelled) return;
+            const t0 = performance.now();
+            while (i < entries.length && performance.now() - t0 < 30) {
+                ensureBoundsTree(entries[i++].mesh);
+            }
+            if (i < entries.length) {
+                setTimeout(buildTick, 0);
+                return;
+            }
+            console.log(
+                `[EnvironmentModel] ${envCount}개 메시 BVH 준비 완료 (근접 동기 ${nearMs}ms, 전체 분산 ${Math.round(
+                    performance.now() - bvhStart
+                )}ms)`
+            );
+        };
+        setTimeout(buildTick, 0);
+        return () => {
+            cancelled = true;
+        };
     }, [root, center, r3fScene, scene]);
 
     return (

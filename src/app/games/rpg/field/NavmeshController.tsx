@@ -44,18 +44,101 @@ export function NavmeshController({ debug = false }: { debug?: boolean }) {
         wrapper.updateMatrixWorld(true);
 
         // BVH 구축 — 삼각형 배열 선형 스캔(호출당 O(전체 삼각형)) 대신 O(log n) 레이캐스트.
-        // clone은 geometry를 공유하므로 remount 시에도 1회만 빌드된다.
-        let triCount = 0;
+        // Walkable.glb는 단일 메시 457k 삼각형이라 한 번에 빌드하면 메인스레드가
+        // ~1.8초 정지한다(초반 렉 실측). 삼각형 중심 XZ 그리드 셀로 인덱스를 분할해
+        // 셀별 BVH를 setTimeout 틱 사이에 나눠 빌드하고, __navGroundAt 등록은 전체
+        // 완료 후에 한다(소비자들은 undefined 가드로 자연 대기). 셀 지오메트리는
+        // 소스 geometry에 캐시해 StrictMode 재마운트 시 즉시 재사용된다.
+        let totalTris = 0;
+        const srcMeshes: THREE.Mesh[] = [];
+        // traverse 중 자식(셀)을 추가하면 새 자식까지 방문되므로 먼저 수집만 한다
         wrapper.traverse((obj) => {
-            ensureBoundsTree(obj);
             const mesh = obj as THREE.Mesh;
-            if (mesh.isMesh && mesh.geometry) {
-                const idx = mesh.geometry.getIndex();
-                const posAttr = mesh.geometry.getAttribute("position");
-                triCount += Math.floor((idx ? idx.count : posAttr?.count ?? 0) / 3);
-            }
+            if (mesh.isMesh && mesh.geometry) srcMeshes.push(mesh);
         });
-        console.log(`[NavmeshController] walkable ${triCount}개 삼각형 BVH 준비 완료`);
+        const cellMeshes: THREE.Mesh[] = [];
+        for (const mesh of srcMeshes) {
+            const geo = mesh.geometry as THREE.BufferGeometry;
+            const idx = geo.getIndex();
+            const posAttr = geo.getAttribute("position");
+            const triCount = Math.floor((idx ? idx.count : posAttr?.count ?? 0) / 3);
+            totalTris += triCount;
+            if (triCount <= 60_000) {
+                cellMeshes.push(mesh);
+                continue;
+            }
+            let cellGeos = geo.userData.__navCellGeos as
+                | THREE.BufferGeometry[]
+                | undefined;
+            if (!cellGeos) {
+                geo.computeBoundingBox();
+                const bb = geo.boundingBox!;
+                const CELL = 48; // 로컬 단위 — 약 12×14 셀, 셀당 ~2-15k 삼각형
+                const nx = Math.max(1, Math.ceil((bb.max.x - bb.min.x) / CELL));
+                const nz = Math.max(1, Math.ceil((bb.max.z - bb.min.z) / CELL));
+                const pos = posAttr.array as Float32Array;
+                const iarr = idx ? (idx.array as Uint16Array | Uint32Array) : null;
+                const buckets: number[][] = new Array(nx * nz);
+                // 셀별 로컬 바운즈 — 셀 지오메트리가 전체 position 속성을 공유하므로
+                // computeBoundingBox(정점 전수 스캔 45.7만×셀 수)를 절대 타면 안 된다.
+                // 분할하면서 min/max를 직접 계산해 명시적으로 박아 넣는다.
+                const bounds: number[][] = new Array(nx * nz);
+                for (let t = 0; t < triCount; t++) {
+                    const a = iarr ? iarr[t * 3] : t * 3;
+                    const b = iarr ? iarr[t * 3 + 1] : t * 3 + 1;
+                    const c = iarr ? iarr[t * 3 + 2] : t * 3 + 2;
+                    const ax = pos[a * 3], ay = pos[a * 3 + 1], az = pos[a * 3 + 2];
+                    const bx = pos[b * 3], by = pos[b * 3 + 1], bz = pos[b * 3 + 2];
+                    const cx = pos[c * 3], cy = pos[c * 3 + 1], cz = pos[c * 3 + 2];
+                    const mx = (ax + bx + cx) / 3;
+                    const mz = (az + bz + cz) / 3;
+                    const gx = Math.min(nx - 1, Math.max(0, Math.floor((mx - bb.min.x) / CELL)));
+                    const gz = Math.min(nz - 1, Math.max(0, Math.floor((mz - bb.min.z) / CELL)));
+                    const key = gx * nz + gz;
+                    let bkt = buckets[key];
+                    if (!bkt) {
+                        buckets[key] = bkt = [];
+                        bounds[key] = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity];
+                    }
+                    bkt.push(a, b, c);
+                    const bd = bounds[key];
+                    bd[0] = Math.min(bd[0], ax, bx, cx);
+                    bd[1] = Math.min(bd[1], ay, by, cy);
+                    bd[2] = Math.min(bd[2], az, bz, cz);
+                    bd[3] = Math.max(bd[3], ax, bx, cx);
+                    bd[4] = Math.max(bd[4], ay, by, cy);
+                    bd[5] = Math.max(bd[5], az, bz, cz);
+                }
+                cellGeos = [];
+                for (let k = 0; k < buckets.length; k++) {
+                    const tri = buckets[k];
+                    if (!tri) continue;
+                    const g = new THREE.BufferGeometry();
+                    g.setAttribute("position", posAttr);
+                    g.setIndex(new THREE.BufferAttribute(new Uint32Array(tri), 1));
+                    const bd = bounds[k];
+                    g.boundingBox = new THREE.Box3(
+                        new THREE.Vector3(bd[0], bd[1], bd[2]),
+                        new THREE.Vector3(bd[3], bd[4], bd[5])
+                    );
+                    g.boundingSphere = new THREE.Sphere();
+                    g.boundingBox.getBoundingSphere(g.boundingSphere);
+                    cellGeos.push(g);
+                }
+                geo.userData.__navCellGeos = cellGeos;
+            }
+            // 원본 메시는 빈 컨테이너로 — 레이캐스트는 동일 변환을 상속한 셀 자식들이 담당
+            const empty = new THREE.BufferGeometry();
+            empty.boundingBox = new THREE.Box3(); // makeEmpty 상태 — setFromObject 전수 스캔 방지
+            empty.boundingSphere = new THREE.Sphere();
+            mesh.geometry = empty;
+            for (const g of cellGeos) {
+                const cm = new THREE.Mesh(g, mesh.material);
+                mesh.add(cm);
+                cellMeshes.push(cm);
+            }
+        }
+        wrapper.updateMatrixWorld(true);
 
         // ===== 환경 메시와 좌표 정렬 =====
         // Environment.glb는 이미 원점 센터링된 데이터인 반면 Walkable.glb는 비센터링
@@ -119,14 +202,13 @@ export function NavmeshController({ debug = false }: { debug?: boolean }) {
             }
             return best;
         };
-        r3fScene.userData.__navGroundAt = groundAt;
 
         // ===== 가장 가까운 walkable 지점 탐색 함수 공유 =====
         // 적 스폰 위치 자동 스냅용 (나선형으로 탐색)
         // preferY가 있으면 preferY ±band 안의 층만 선택한다. 이 맵은 지붕/상판/지하가
         // 모두 walkable로 잡히는 다층 구조라, 밴드 없이 최상단을 고르면
         // 적이 지붕(플레이어 지면 +23)이나 지하(−25)에 스폰되어 화면에서 안 보인다.
-        r3fScene.userData.__navFindWalkable = (
+        const findWalkable = (
             x: number,
             z: number,
             preferY?: number,
@@ -156,6 +238,33 @@ export function NavmeshController({ debug = false }: { debug?: boolean }) {
             return spiral(band) ?? (preferY !== undefined ? spiral(30) : null);
         };
 
+        // ===== 셀 BVH 분산 빌드 → 완료 시 일괄 등록 =====
+        // 틱당 ~35ms 예산으로 빌드해 프레임 사이에 끼워 넣는다. 등록 전까지
+        // __navGroundAt/__navFindWalkable은 undefined — 적 스냅·NPC 배치는
+        // 기존 가드 로직대로 등록 시점까지 자연 대기한다.
+        let cancelled = false;
+        let buildIdx = 0;
+        const buildStart = performance.now();
+        const buildTick = () => {
+            if (cancelled) return;
+            const t0 = performance.now();
+            while (buildIdx < cellMeshes.length && performance.now() - t0 < 35) {
+                ensureBoundsTree(cellMeshes[buildIdx++]);
+            }
+            if (buildIdx < cellMeshes.length) {
+                setTimeout(buildTick, 0);
+                return;
+            }
+            r3fScene.userData.__navGroundAt = groundAt;
+            r3fScene.userData.__navFindWalkable = findWalkable;
+            console.log(
+                `[NavmeshController] walkable ${totalTris}개 삼각형 BVH 준비 완료 (셀 ${cellMeshes.length}개 분산 ${Math.round(
+                    performance.now() - buildStart
+                )}ms)`
+            );
+        };
+        setTimeout(buildTick, 0);
+
         // ===== 디버그: navmesh 시각화 =====
         let debugMat: THREE.MeshBasicMaterial | null = null;
         if (debug) {
@@ -181,6 +290,7 @@ export function NavmeshController({ debug = false }: { debug?: boolean }) {
         }
 
         return () => {
+            cancelled = true;
             delete r3fScene.userData.__navGroundAt;
             delete r3fScene.userData.__navFindWalkable;
             if (debugGroupRef.current) {
