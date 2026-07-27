@@ -478,10 +478,11 @@ export function FieldPlayer({
         let mx = 0,
             mz = 0;
 
-        // 대화 중·전체지도/낚시 중에는 이동 잠금
+        // 대화 중·컷신 중·전체지도/낚시 중에는 이동 잠금 (컷신 중엔 CutsceneController가 카메라 소유)
         const gState = useGame.getState();
         const inDialogue =
             gState.dialogue.length > 0 ||
+            !!gState.cutscene ||
             (gState.ui as any).mapOpen === true ||
             (gState.ui as any).fishingOpen === true ||
             (gState.ui as any).smithOpen === true ||

@@ -34,6 +34,7 @@ import { FieldGatherable } from "./FieldGatherable";
 import FieldEnemyAvatar from "./FieldEnemyAvatar";
 import { NavmeshController } from "./NavmeshController";
 import { RespawnController } from "./RespawnController";
+import { CutsceneController } from "./CutsceneController";
 import { ZoneCompletionController } from "./ZoneCompletionController";
 import { FieldPoi } from "./FieldPoi";
 import { POIS } from "../data/poiData";
@@ -218,6 +219,7 @@ export function FieldScene({
             <FieldCompanions />
             <SpeakerHighlight />
             <MapBaker />
+            <CutsceneController />
             <ThirdPersonCamera dist={3.3} height={1.6} shoulder={0.55} />
         </Canvas>
     );

@@ -89,6 +89,8 @@ export function ThirdPersonCamera({
     }, [gl, scene, mouseSens, ray]);
 
     useFrame((_, dt) => {
+        // 컷신 중에는 CutsceneController가 카메라를 소유
+        if (useGame.getState().cutscene) return;
         frame.current++;
 
         const upos: THREE.Vector3 =

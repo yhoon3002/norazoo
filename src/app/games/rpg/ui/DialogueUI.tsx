@@ -10,6 +10,7 @@ export function DialogueUI() {
     const dialogue = useGame((s) => s.dialogue);
     const advanceDialogue = useGame((s) => s.advanceDialogue);
     const combat = useGame((s) => s.combat);
+    const cutscene = useGame((s) => s.cutscene);
 
     const active = combat.phase === "idle" && dialogue.length > 0;
 
@@ -68,6 +69,9 @@ export function DialogueUI() {
                     <div className="text-right text-xs text-gray-400 mt-2 animate-pulse">
                         Space ▸ ({dialogue.length}
                         {dialogue.length > 1 ? " 남음" : ""})
+                        {cutscene && (
+                            <span className="ml-2">| Enter 길게: 스킵</span>
+                        )}
                     </div>
                 </div>
             </div>
