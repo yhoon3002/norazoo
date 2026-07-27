@@ -20,6 +20,7 @@ export function CutsceneController() {
     const { camera, scene } = useThree();
     const stepRef = useRef<StepPhase | null>(null);
     const savedCam = useRef<{ pos: THREE.Vector3; look: THREE.Vector3 } | null>(null);
+    const lookRef = useRef<THREE.Vector3 | null>(null);
     const holdStart = useRef<number | null>(null);
     const _look = useRef(new THREE.Vector3());
 
@@ -35,6 +36,7 @@ export function CutsceneController() {
                 useGame.getState().skipCutscene();
                 stepRef.current = null;
                 savedCam.current = null;
+                lookRef.current = null;
                 scene.userData.__cutsceneCam = false;
             }
             holdStart.current = null;
@@ -53,6 +55,8 @@ export function CutsceneController() {
         if (!c) {
             if (scene.userData.__cutsceneCam) scene.userData.__cutsceneCam = false;
             stepRef.current = null;
+            savedCam.current = null;
+            lookRef.current = null;
             return;
         }
         scene.userData.__cutsceneCam = true;
@@ -75,6 +79,7 @@ export function CutsceneController() {
                         .clone()
                         .add(camera.getWorldDirection(_look.current).clone().multiplyScalar(3)),
                 };
+                lookRef.current = savedCam.current.look.clone();
             }
             switch (step.type) {
                 case "say":
@@ -101,7 +106,7 @@ export function CutsceneController() {
                 case "cam":
                 case "camReset":
                     stepRef.current.from = camera.position.clone();
-                    stepRef.current.fromLook = savedCam.current!.look.clone();
+                    stepRef.current.fromLook = lookRef.current!.clone();
                     break;
                 case "wait":
                     break;
@@ -136,6 +141,7 @@ export function CutsceneController() {
                     e
                 );
                 camera.lookAt(_look.current);
+                lookRef.current!.copy(_look.current);
                 if (t >= 1) {
                     st.fromLook = new THREE.Vector3(step.lookAt.x, step.lookAt.y, step.lookAt.z);
                     if (elapsed >= step.ms + (step.hold ?? 0)) g.advanceCutsceneStep();
@@ -148,8 +154,10 @@ export function CutsceneController() {
                 camera.position.lerpVectors(st.from!, savedCam.current!.pos, e);
                 _look.current.lerpVectors(st.fromLook!, savedCam.current!.look, e);
                 camera.lookAt(_look.current);
+                lookRef.current!.copy(_look.current);
                 if (t >= 1) {
                     savedCam.current = null;
+                    lookRef.current = null;
                     g.advanceCutsceneStep();
                 }
                 return;
