@@ -42,7 +42,8 @@ function DungeonRegionTracker() {
         }
     });
 
-    // 언마운트 시 원복 (FieldScene은 상시 마운트라 통상 도달하지 않음 — 방어적 정리)
+    // 언마운트 시 원복 — FieldScene은 전투마다 언마운트/리마운트되므로(RpgGame 분기)
+    // 전투 진입 시 여기서 정리되고, 복귀 후 첫 판정 틱에서 재수립된다(실측 검증됨)
     useEffect(() => {
         return () => {
             if (!activeId.current) return;
