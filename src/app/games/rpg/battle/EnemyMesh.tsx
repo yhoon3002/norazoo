@@ -225,8 +225,10 @@ export function EnemyMesh({
         ] ||
         "/character/Goblin_Male.fbx";
 
-    // 템플릿의 scale 배율(보스급 대형 몬스터용) — 기본 1
-    const templateScale = ENEMY_TEMPLATES[enemy.template as string]?.scale ?? 1;
+    // scale 배율(보스급 대형 몬스터용) — enemy 인스턴스 값(보스 페이즈 갱신) 우선,
+    // 없으면 템플릿 기본값, 그마저 없으면 1
+    const templateScale =
+        enemy.scale ?? ENEMY_TEMPLATES[enemy.template as string]?.scale ?? 1;
     // 템플릿의 기본공격 모션 변형(예: 원거리 시전형은 shoot) — 미지정 시 attack(펀치)
     const preferredAttack =
         ENEMY_TEMPLATES[enemy.template as string]?.preferredAttack || "attack";
@@ -250,6 +252,7 @@ export function EnemyMesh({
                 preferredAttack={preferredAttack}
                 scale={0.01 * templateScale}
                 playNonce={playNonce}
+                tint={enemy.tint}
             />
 
             <mesh

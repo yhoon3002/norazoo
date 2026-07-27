@@ -96,6 +96,29 @@ export type Enemy = {
     scale?: number;
     /** 기본공격 모션 변형(예: 원거리 시전형은 shoot) — 미지정 시 attack(펀치) */
     preferredAttack?: PreferredAttack;
+    /** 보스 정의 — 있으면 applyDamage에서 hp 임계 페이즈 전이를 체크 (세이브 호환 위해 optional) */
+    boss?: BossDef;
+    /** 현재 비주얼 틴트(페이즈 전이로 부여) — ModelAvatar가 머티리얼 색상에 곱함 */
+    tint?: string;
+    /** 도달한 최고 보스 페이즈 인덱스 (-1/미지정 = 기본 페이즈) */
+    phase?: number;
+    /** 보스 기믹(카운트다운 등) 누적 충전값 — 실행 로직은 Task 5 범위 */
+    gimmickCharge?: number;
+};
+
+export type BossPhase = {
+    /** 이 페이즈로 전이되는 HP 비율 상한 — hp/maxHp ≤ hpPct 이면 해당 페이즈 이상 */
+    hpPct: number;
+    announce?: string;
+    skills?: string[];
+    aiPattern?: Enemy["aiPattern"];
+    tint?: string;
+    scaleMul?: number;
+};
+
+export type BossDef = {
+    phases: BossPhase[]; // hpPct 내림차순 정렬 가정 (예: [0.7, 0.3])
+    gimmick?: { type: "countdown"; every: number; skillId: string; warning: string };
 };
 
 export type CombatAction = {

@@ -123,6 +123,8 @@ type Props = {
     rotation?: [number, number, number];
     position?: [number, number, number];
     normalizeHeightTo?: number;
+    /** 페이즈 틴트 색상 — 지정 시에만 머티리얼을 복제해 착색(공유 머티리얼 오염 방지) */
+    tint?: string;
 };
 
 export const ModelAvatar = forwardRef<THREE.Group, Props>(function ModelAvatar(
@@ -136,6 +138,7 @@ export const ModelAvatar = forwardRef<THREE.Group, Props>(function ModelAvatar(
         rotation = [0, 0, 0],
         position = [0, 0, 0],
         normalizeHeightTo,
+        tint,
     },
     ref
 ) {
@@ -176,6 +179,27 @@ export const ModelAvatar = forwardRef<THREE.Group, Props>(function ModelAvatar(
     }, [fbx, normalizeHeightTo]);
 
     const groupRef = useRef<THREE.Group>(null);
+
+    // 페이즈 틴트 — 공유 머티리얼 오염 방지: tint 지정 시에만 인스턴스 복제 후 착색
+    useEffect(() => {
+        if (!tint || !groupRef.current) return;
+        const c = new THREE.Color(tint);
+        groupRef.current.traverse((o: any) => {
+            if (!o.isMesh && !o.isSkinnedMesh) return;
+            const mats = Array.isArray(o.material) ? o.material : [o.material];
+            const cloned = mats.map((m: any) => {
+                const cm = m.clone();
+                cm.color?.multiply(c);
+                if (cm.emissive) {
+                    cm.emissive.set(tint);
+                    cm.emissiveIntensity = 0.25;
+                }
+                return cm;
+            });
+            o.material = Array.isArray(o.material) ? cloned : cloned[0];
+        });
+    }, [tint]);
+
     const { mixer, clips } = useAnimations(fbx.animations, groupRef);
 
     const last = useRef<THREE.AnimationAction | null>(null);

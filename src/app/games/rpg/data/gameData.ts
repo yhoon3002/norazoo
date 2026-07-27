@@ -20,6 +20,7 @@ export const ENEMY_MODEL_BY_TEMPLATE: Record<string, string> = {
     clockwork_soldier: "/character/Goblin_Male.fbx",
     shade_beast: "/character/Zombie_Male.fbx",
     gear_devourer: "/character/Witch.fbx",
+    sp0_test_boss: "/character/Zombie_Male.fbx",
 };
 
 // 필드 적 데이터 단일 소스 — FieldScene(렌더링)·FieldPlayer(충돌) 공용
@@ -1290,5 +1291,31 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
             // 드롭 없음 — 스토리 보상
         },
         scale: 2.4,
+    },
+    // SP0 Task 4 — 보스 프레임워크 헤드리스 검증 전용 시험 보스 (HP 임계 페이즈 전이 확인용)
+    sp0_test_boss: {
+        name: "시험의 수문장",
+        model: "/character/Zombie_Male.fbx",
+        level: 8,
+        stats: { hp: 900, maxHp: 900, mp: 0, maxMp: 0, atk: 18, def: 8, speed: 10, luck: 5 },
+        skills: ["slash"],
+        statusEffects: [],
+        aiPattern: "aggressive",
+        rewards: { exp: 200, gold: 150, items: [] },
+        scale: 1.8,
+        boss: {
+            phases: [
+                {
+                    hpPct: 0.7,
+                    announce: "…수문장이 격노한다!",
+                    tint: "#ff6b6b",
+                    aiPattern: "smart",
+                    // "clockwork_burst"는 gameData에 없어 실제 "태엽 폭발" 스킬 id(theo_gearburst)로 대체
+                    skills: ["slash", "theo_gearburst"],
+                },
+                { hpPct: 0.3, announce: "…시간이 일그러진다!", tint: "#c084fc", scaleMul: 1.2 },
+            ],
+            gimmick: { type: "countdown", every: 3, skillId: "theo_gearburst", warning: "⏳ 태엽이 감긴다" },
+        },
     },
 };

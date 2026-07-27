@@ -2,7 +2,8 @@
 "use client";
 
 import type { CombatState, Enemy, SaveData } from "../../types/RpgTypes";
-import { SKILLS, SKILL_ANIMATIONS, STARTING_EQUIPMENT_IDS } from "../../data/gameData";
+import { SKILLS, SKILL_ANIMATIONS, STARTING_EQUIPMENT_IDS, ENEMY_TEMPLATES } from "../../data/gameData";
+import { bossPhaseIndex } from "../bossHelpers";
 import {
     aliveEnemies,
     enemiesInCombat,
@@ -98,6 +99,11 @@ export const turnSlice = (set: any, get: any) => ({
 
     // ===== Apply Damage =====
     applyDamage: (id: string, dmg: number) => {
+        // 보스 페이즈 전이 선언 연출(팝업/FX)은 set 콜백의 순수성을 지키기 위해
+        // set 완료 후 액션 말미에 처리 — combatSlice.startCombat의 cookedBuffs 패턴과 동일
+        let phaseAnnounce: string | undefined;
+        let phaseTransitioned = false;
+
         set((s: any) => {
             const newState = { ...s };
 
@@ -110,13 +116,37 @@ export const turnSlice = (set: any, get: any) => ({
 
                     if (enemyIndex >= 0) {
                         const enemy = enemies[enemyIndex];
-                        const newEnemy = {
+                        const newHp = Math.max(0, enemy.stats.hp - dmg);
+                        let newEnemy: Enemy = {
                             ...enemy,
                             stats: {
                                 ...enemy.stats,
-                                hp: Math.max(0, enemy.stats.hp - dmg),
+                                hp: newHp,
                             },
                         };
+
+                        // 보스 페이즈 전이 — hp 임계 통과 시 스킬셋/패턴/비주얼 교체 + 선언 연출
+                        if (enemy.boss) {
+                            const ratio = newHp / enemy.stats.maxHp;
+                            const next = bossPhaseIndex(ratio, enemy.boss.phases);
+                            const cur = enemy.phase ?? -1;
+                            if (next > cur) {
+                                const ph = enemy.boss.phases[next];
+                                newEnemy = {
+                                    ...newEnemy,
+                                    phase: next,
+                                    skills: ph.skills ?? newEnemy.skills,
+                                    aiPattern: ph.aiPattern ?? newEnemy.aiPattern,
+                                    tint: ph.tint ?? newEnemy.tint,
+                                    scale: ph.scaleMul
+                                        ? (ENEMY_TEMPLATES[enemy.template!]?.scale ?? 1) *
+                                          ph.scaleMul
+                                        : newEnemy.scale,
+                                };
+                                phaseTransitioned = true;
+                                phaseAnnounce = ph.announce;
+                            }
+                        }
 
                         const newEnemies = [...enemies];
                         newEnemies[enemyIndex] = newEnemy;
@@ -197,6 +227,13 @@ export const turnSlice = (set: any, get: any) => ({
 
             return s;
         });
+
+        // 보스 페이즈 전이 선언 연출 — set 완료 후(액션 말미) 부수효과 적용
+        if (phaseTransitioned) {
+            if (phaseAnnounce)
+                get().spawnPopup({ side: "enemy", text: phaseAnnounce, color: "#f87171" });
+            get().triggerFX("enemy", 1);
+        }
     },
 
     // ===== Resolve Player Action (After QTE) =====
