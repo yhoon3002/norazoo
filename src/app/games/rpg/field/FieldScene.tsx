@@ -37,6 +37,7 @@ import { RespawnController } from "./RespawnController";
 import { CutsceneController } from "./CutsceneController";
 import { DungeonController } from "./DungeonController";
 import { DungeonDoor } from "./DungeonDoor";
+import { ZonePhenomenon } from "./ZonePhenomenon";
 import { ZoneCompletionController } from "./ZoneCompletionController";
 import { FieldPoi } from "./FieldPoi";
 import { POIS } from "../data/poiData";
@@ -178,6 +179,8 @@ export function FieldScene({
             {DUNGEON_DOORS.map((d) => (
                 <DungeonDoor key={d.id} def={d} />
             ))}
+            {/* SP0 존 현상 툴킷 — 선언적 존 환경 오버라이드(fog·라이트·파티클), 항구 「멈춘 파도」 */}
+            <ZonePhenomenon />
 
             {/* 스토리: 트리거 감시 + 목표 빛기둥 + 체크포인트 깃발 */}
             <StoryTriggers />

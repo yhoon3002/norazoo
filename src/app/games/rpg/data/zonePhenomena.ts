@@ -1,0 +1,55 @@
+// rpg/data/zonePhenomena.ts — SP0 Task 8: 존 현상 툴킷 (선언적 환경 오버라이드)
+// 존별로 "현상"(fog·디렉셔널 라이트·앰비언트 틴트·정적 파티클) 세트를 데이터로
+// 선언해두면, ZonePhenomenon 컴포넌트가 플레이어 위치 → 존 판정(보로노이,
+// ZONE_DEFS 최근접 중심) → 해당 존의 활성(flag=true) 현상을 적용/원복한다.
+// SP2에서 스토리 이벤트가 flags[phenomenon.flag]를 true/false로 토글하는 것만으로
+// 새 현상을 연출할 수 있도록 하는 것이 목적 — 항구 "멈춘 파도"가 첫 프로토타입.
+
+import { ZONE_DEFS, type ZoneId } from "./placementData";
+
+export type PhenomenonDef = {
+    zone: ZoneId; // ZONE_DEFS id
+    flag: string; // 이 플래그가 true인 동안 활성 (SP2에서 스토리로 제어)
+    fog?: { color: string; near: number; far: number };
+    dirIntensity?: number; // 디렉셔널 라이트 강도 오버라이드
+    ambientColor?: string; // 앰비언트 틴트
+    particles?: { count: number; color: string; size: number; yBand: [number, number] };
+};
+
+export const ZONE_PHENOMENA: PhenomenonDef[] = [
+    {
+        zone: "port",
+        flag: "phen_port",
+        fog: { color: "#5b7a8c", near: 12, far: 70 },
+        dirIntensity: 2.6, // 기본 5.2의 절반 — 멈춘 새벽빛
+        ambientColor: "#a8c4d4",
+        particles: { count: 400, color: "#cfe8f5", size: 0.06, yBand: [-38, -30] },
+    },
+];
+
+/**
+ * 순수 함수 — (x, z)에서 최근접 ZONE_DEFS 중심(보로노이)의 존을 판정한 뒤,
+ * 그 존에 속한 현상 중 flags[flag]가 true인 항목을 반환한다. 없으면 null.
+ * 던전 내부 판정(__dungeonActive)은 scene 접근이 필요하므로 호출자(ZonePhenomenon
+ * 컴포넌트) 책임 — 이 함수는 좌표·플래그만으로 결정되는 순수 판정만 담당한다.
+ */
+export function phenomenonAt(
+    x: number,
+    z: number,
+    flags: Record<string, boolean>
+): PhenomenonDef | null {
+    let nearestZone: ZoneId | null = null;
+    let bestDistSq = Infinity;
+    for (const zone of ZONE_DEFS) {
+        const dx = x - zone.cx;
+        const dz = z - zone.cz;
+        const distSq = dx * dx + dz * dz;
+        if (distSq < bestDistSq) {
+            bestDistSq = distSq;
+            nearestZone = zone.id;
+        }
+    }
+    if (!nearestZone) return null;
+
+    return ZONE_PHENOMENA.find((p) => p.zone === nearestZone && !!flags[p.flag]) ?? null;
+}
