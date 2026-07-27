@@ -7,6 +7,14 @@ import { useFrame } from "@react-three/fiber";
 import { SkeletonUtils } from "three-stdlib";
 import { useGame } from "../presenter/useGameStore";
 
+/** 틴트 대상 머티리얼 — color/emissive는 일부 Material 서브타입에만 존재하므로
+ * THREE.Material에 optional로 얹어 좁혀서 쓴다(no-explicit-any 회피). */
+type TintableMaterial = THREE.Material & {
+    color?: THREE.Color;
+    emissive?: THREE.Color;
+    emissiveIntensity?: number;
+};
+
 function findClip(clips: THREE.AnimationClip[], wants: string[]) {
     const keys = wants.map((s) => s.toLowerCase());
 
@@ -180,15 +188,35 @@ export const ModelAvatar = forwardRef<THREE.Group, Props>(function ModelAvatar(
 
     const groupRef = useRef<THREE.Group>(null);
 
-    // 페이즈 틴트 — 공유 머티리얼 오염 방지: tint 지정 시에만 인스턴스 복제 후 착색
+    // 페이즈 틴트 — 공유 머티리얼 오염 방지: tint 지정 시에만 인스턴스 복제 후 착색.
+    // 매번 "원본" 머티리얼에서 다시 clone→multiply해야 페이즈 2회 이상 전이 시
+    // base×tint0×tint1로 색이 누적 오염되는 것을 막을 수 있다. 첫 적용 시 원본을
+    // userData.__origMaterials에 보존하고, 이후 재클론 전 이전 tint 클론은 dispose한다
+    // (원본은 절대 dispose하지 않음).
     useEffect(() => {
         if (!tint || !groupRef.current) return;
         const c = new THREE.Color(tint);
-        groupRef.current.traverse((o: any) => {
-            if (!o.isMesh && !o.isSkinnedMesh) return;
-            const mats = Array.isArray(o.material) ? o.material : [o.material];
-            const cloned = mats.map((m: any) => {
-                const cm = m.clone();
+        groupRef.current.traverse((o: THREE.Object3D) => {
+            if (!(o instanceof THREE.Mesh)) return;
+
+            const isFirstTint = !o.userData.__origMaterials;
+            if (isFirstTint) {
+                o.userData.__origMaterials = o.material;
+            } else {
+                // 이전 tint 적용으로 만들어진 클론(원본이 아님) — 재클론 전 폐기
+                const prevMats = Array.isArray(o.material)
+                    ? o.material
+                    : [o.material];
+                prevMats.forEach((m: THREE.Material) => m.dispose());
+            }
+
+            const origMats = o.userData.__origMaterials as
+                | TintableMaterial
+                | TintableMaterial[];
+            const origList = Array.isArray(origMats) ? origMats : [origMats];
+
+            const clonedList = origList.map((m) => {
+                const cm = m.clone() as TintableMaterial;
                 cm.color?.multiply(c);
                 if (cm.emissive) {
                     cm.emissive.set(tint);
@@ -196,7 +224,8 @@ export const ModelAvatar = forwardRef<THREE.Group, Props>(function ModelAvatar(
                 }
                 return cm;
             });
-            o.material = Array.isArray(o.material) ? cloned : cloned[0];
+
+            o.material = Array.isArray(origMats) ? clonedList : clonedList[0];
         });
     }, [tint]);
 

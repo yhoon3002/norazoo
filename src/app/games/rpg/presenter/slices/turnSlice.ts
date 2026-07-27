@@ -1,7 +1,7 @@
 // rpg/presenter/slices/turnSlice.ts
 "use client";
 
-import type { CombatState, Enemy, SaveData } from "../../types/RpgTypes";
+import type { BossPhase, CombatState, Enemy, SaveData } from "../../types/RpgTypes";
 import { SKILLS, SKILL_ANIMATIONS, STARTING_EQUIPMENT_IDS, ENEMY_TEMPLATES } from "../../data/gameData";
 import { bossPhaseIndex } from "../bossHelpers";
 import {
@@ -23,6 +23,47 @@ function advanceTurnOrRewrap(s: any, next: number) {
     const queue = buildTurnQueue(s);
     if (queue.length === 0) return { currentTurn: next };
     return { turnQueue: queue, currentTurn: 0 };
+}
+
+export type BossPhaseMergeBase = {
+    skills: string[];
+    aiPattern: Enemy["aiPattern"];
+    tint?: string;
+    scale?: number;
+};
+
+export type BossPhaseMergeResult = BossPhaseMergeBase & {
+    announce?: string;
+};
+
+// 단일 히트로 여러 페이즈 임계(cur+1..next)를 동시에 통과할 때 중간 페이즈의
+// skills/aiPattern/tint/scaleMul이 유실되지 않도록 순서대로 순회 병합한다.
+// - skills/aiPattern/tint/scaleMul: 각 페이즈에서 값이 정의된 경우에만 덮어쓰고
+//   (미정의면 이전 값 유지), scaleMul은 매번 baseScale(템플릿 기준 스케일) 기준으로
+//   절대값을 재계산한다(페이즈 간 누적 곱이 아님 — 기존 단일 페이즈 로직과 동일 의미).
+// - announce: 중간 페이즈 announce까지 모두 띄우면 스팸이므로, 최종 도달 페이즈
+//   (next)의 announce 1개만 채택한다(의도된 선택 — 중간 페이즈 announce는 버려짐).
+export function mergeBossPhases(
+    base: BossPhaseMergeBase,
+    phases: BossPhase[],
+    cur: number,
+    next: number,
+    baseScale: number
+): BossPhaseMergeResult {
+    let skills = base.skills;
+    let aiPattern = base.aiPattern;
+    let tint = base.tint;
+    let scale = base.scale;
+
+    for (let i = cur + 1; i <= next; i++) {
+        const ph = phases[i];
+        if (ph.skills) skills = ph.skills;
+        if (ph.aiPattern) aiPattern = ph.aiPattern;
+        if (ph.tint) tint = ph.tint;
+        if (ph.scaleMul) scale = baseScale * ph.scaleMul;
+    }
+
+    return { skills, aiPattern, tint, scale, announce: phases[next].announce };
 }
 
 export const turnSlice = (set: any, get: any) => ({
@@ -125,26 +166,36 @@ export const turnSlice = (set: any, get: any) => ({
                             },
                         };
 
-                        // 보스 페이즈 전이 — hp 임계 통과 시 스킬셋/패턴/비주얼 교체 + 선언 연출
+                        // 보스 페이즈 전이 — hp 임계 통과 시 스킬셋/패턴/비주얼 교체 + 선언 연출.
+                        // 단일 히트로 여러 임계를 동시에 통과할 수 있으므로 cur+1..next를
+                        // mergeBossPhases로 순서대로 순회 병합한다(중간 페이즈 유실 방지).
                         if (enemy.boss) {
                             const ratio = newHp / enemy.stats.maxHp;
                             const next = bossPhaseIndex(ratio, enemy.boss.phases);
                             const cur = enemy.phase ?? -1;
                             if (next > cur) {
-                                const ph = enemy.boss.phases[next];
+                                const merged = mergeBossPhases(
+                                    {
+                                        skills: newEnemy.skills,
+                                        aiPattern: newEnemy.aiPattern,
+                                        tint: newEnemy.tint,
+                                        scale: newEnemy.scale,
+                                    },
+                                    enemy.boss.phases,
+                                    cur,
+                                    next,
+                                    ENEMY_TEMPLATES[enemy.template!]?.scale ?? 1
+                                );
                                 newEnemy = {
                                     ...newEnemy,
                                     phase: next,
-                                    skills: ph.skills ?? newEnemy.skills,
-                                    aiPattern: ph.aiPattern ?? newEnemy.aiPattern,
-                                    tint: ph.tint ?? newEnemy.tint,
-                                    scale: ph.scaleMul
-                                        ? (ENEMY_TEMPLATES[enemy.template!]?.scale ?? 1) *
-                                          ph.scaleMul
-                                        : newEnemy.scale,
+                                    skills: merged.skills,
+                                    aiPattern: merged.aiPattern,
+                                    tint: merged.tint,
+                                    scale: merged.scale,
                                 };
                                 phaseTransitioned = true;
-                                phaseAnnounce = ph.announce;
+                                phaseAnnounce = merged.announce;
                             }
                         }
 
