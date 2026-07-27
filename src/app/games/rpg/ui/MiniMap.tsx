@@ -10,12 +10,13 @@ import { POIS, HIDDEN_TREASURE_IDS } from "../data/poiData";
 import { MERCHANT_POS, FIELD_TREASURES, FISHING_SPOTS } from "../data/gameData";
 import { SIDE_QUESTS } from "../data/questData";
 import { BOND_EPISODES } from "../data/bondData";
+import { DUNGEONS } from "../data/dungeonData";
 
 const SIZE = 160; // px
 const METERS_ACROSS = 64; // 미니맵 지름이 커버하는 월드 거리(m)
 const S = SIZE / METERS_ACROSS; // px per meter
 
-type View = { px: number; pz: number; headingDeg: number };
+type View = { px: number; pz: number; headingDeg: number; dungeonActive: string | null };
 
 export function MiniMap() {
     const mapUrl = useMapStore((s) => s.mapUrl);
@@ -39,13 +40,40 @@ export function MiniMap() {
             const headingDeg = fwd
                 ? (Math.atan2(fwd.x, -fwd.z) * 180) / Math.PI
                 : 0;
-            setView({ px: p.x, pz: p.z, headingDeg });
+            const dungeonActive = (sc?.userData.__dungeonActive as string | undefined) ?? null;
+            setView({ px: p.x, pz: p.z, headingDeg, dungeonActive });
         }, 120);
         return () => clearInterval(id);
     }, []);
 
     if (!mapUrl || !bounds || !view) return null;
-    const { px, pz, headingDeg } = view;
+    const { px, pz, headingDeg, dungeonActive } = view;
+
+    // SP0 Task 6 — 지하 던전 진입 중엔 베이크 이미지 대신 어두운 패널 + 라벨 + 플레이어 화살표만
+    if (dungeonActive) {
+        const dungeon = DUNGEONS.find((d) => d.id === dungeonActive);
+        return (
+            <div
+                className="pointer-events-none absolute top-4 right-4 rounded-full overflow-hidden border-2 border-amber-400/60 bg-slate-950/90 shadow-lg"
+                style={{ width: SIZE, height: SIZE }}
+            >
+                <div className="absolute top-1 inset-x-0 text-center text-[9px] text-amber-300/80 px-2 leading-tight">
+                    🕳️ {dungeon?.label ?? "지하"}
+                </div>
+                <div
+                    className="absolute text-sky-300 leading-none"
+                    style={{
+                        left: SIZE / 2 - 7,
+                        top: SIZE / 2 - 8,
+                        fontSize: 14,
+                        transform: `rotate(${headingDeg}deg)`,
+                    }}
+                >
+                    ▲
+                </div>
+            </div>
+        );
+    }
     const imgW = (bounds.maxX - bounds.minX) * S;
     const imgH = (bounds.maxZ - bounds.minZ) * S;
     const left = SIZE / 2 - (px - bounds.minX) * S;
