@@ -36,10 +36,12 @@ import { NavmeshController } from "./NavmeshController";
 import { RespawnController } from "./RespawnController";
 import { CutsceneController } from "./CutsceneController";
 import { DungeonController } from "./DungeonController";
+import { DungeonDoor } from "./DungeonDoor";
 import { ZoneCompletionController } from "./ZoneCompletionController";
 import { FieldPoi } from "./FieldPoi";
 import { POIS } from "../data/poiData";
 import { FIELD_ENEMIES, FIELD_TREASURES, FIELD_GATHERABLES, GOLDEN_HERB_SPOTS, FISHING_SPOTS } from "../data/gameData";
+import { DUNGEON_DOORS } from "../data/dungeonData";
 import { SIDE_QUESTS } from "../data/questData";
 import { useGame } from "../presenter/useGameStore";
 
@@ -172,6 +174,10 @@ export function FieldScene({
 
             {/* SP0 던전 프레임워크 — 게이트 왕복(지하 수로) + 리전 조명/포그 판정 */}
             <DungeonController />
+            {/* SP0 스위치-문 프리미티브 — 플래그 구동 통행 차단/개방 */}
+            {DUNGEON_DOORS.map((d) => (
+                <DungeonDoor key={d.id} def={d} />
+            ))}
 
             {/* 스토리: 트리거 감시 + 목표 빛기둥 + 체크포인트 깃발 */}
             <StoryTriggers />
