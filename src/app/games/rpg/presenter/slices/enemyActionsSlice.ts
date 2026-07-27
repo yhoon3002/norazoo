@@ -75,7 +75,31 @@ export const enemyActionsSlice = (set: any, get: any) => ({
             } else {
                 target = alive[Math.floor(Math.random() * alive.length)];
             }
+            // ===== 보스 카운트다운 기믹 — every턴마다 지정 스킬 강제, 그 외 턴엔 경고 =====
+            // gimmickCharge는 불변 업데이트로 enemies 배열에 반영(T4 페이즈 전이와 동일 패턴).
+            // 강제 스킬 사용 턴엔 경고 팝업 대신 forcedSkillId로 스킬 선택 결과를 대체한다.
+            let forcedSkillId: string | null = null;
+            let combatEnemies = enemiesInCombat(s);
+            if (enemy.boss?.gimmick) {
+                const gk = enemy.boss.gimmick;
+                const charge = (enemy.gimmickCharge ?? 0) + 1;
+                combatEnemies = combatEnemies.map((e: any) =>
+                    e.id === enemy.id ? { ...e, gimmickCharge: charge } : e
+                );
+                if (charge % gk.every === 0) {
+                    forcedSkillId = gk.skillId;
+                } else {
+                    const left = gk.every - (charge % gk.every);
+                    get().spawnPopup({
+                        side: "enemy",
+                        text: `${gk.warning} — ${left}턴`,
+                        color: "#fbbf24",
+                    });
+                }
+            }
+
             const usedSkill =
+                forcedSkillId ??
                 enemy.skills[Math.floor(Math.random() * enemy.skills.length)];
 
             // 유닛별 공격 프로필로 타이밍 구성 (차지 + 다단 히트)
@@ -138,7 +162,7 @@ export const enemyActionsSlice = (set: any, get: any) => ({
             return {
                 combat: {
                     phase: "defenseWindow",
-                    enemies: enemiesInCombat(s),
+                    enemies: combatEnemies,
                     enemyId: enemy.id,
                     action: {
                         type: "skill",

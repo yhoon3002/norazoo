@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useGame } from "../presenter/useGameStore";
+import type { BossPhase } from "../types/RpgTypes";
 
 type FeedItem = { id: number; text: string; color: string; at: number };
 
@@ -86,19 +87,37 @@ export function EnemyHealthBarTop() {
         <div className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-2 flex-wrap justify-center">
             {combat.enemies.map((e) => {
                 const hpPercent = (e.stats.hp / e.stats.maxHp) * 100;
+                const gimmick = e.boss?.gimmick;
+                const turnsLeft = gimmick
+                    ? gimmick.every - ((e.gimmickCharge ?? 0) % gimmick.every)
+                    : null;
                 return (
                     <div
                         key={e.id}
                         className="p-3 rounded border border-red-500 bg-red-900/30 min-w-[220px]"
                     >
-                        <div className="text-center text-red-200 font-semibold mb-1">
-                            {e.name}
+                        <div className="flex items-center justify-center gap-2 mb-1">
+                            <div className="text-center text-red-200 font-semibold">
+                                {e.name}
+                            </div>
+                            {e.boss && turnsLeft !== null && (
+                                <div className="text-xs text-amber-300 font-semibold">
+                                    ⏳ {turnsLeft}
+                                </div>
+                            )}
                         </div>
-                        <div className="w-full h-2 bg-gray-800 rounded overflow-hidden">
+                        <div className="relative w-full h-2 bg-gray-800 rounded overflow-hidden">
                             <div
                                 className="h-full bg-red-500 transition-all duration-300"
                                 style={{ width: `${hpPercent}%` }}
                             />
+                            {e.boss?.phases.map((p: BossPhase, i: number) => (
+                                <div
+                                    key={i}
+                                    className="absolute top-0 h-full w-px bg-white/70"
+                                    style={{ left: `${p.hpPct * 100}%` }}
+                                />
+                            ))}
                         </div>
                         <div className="text-center text-xs text-red-300 mt-1">
                             {e.stats.hp} / {e.stats.maxHp}
