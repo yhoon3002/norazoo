@@ -18,6 +18,7 @@ import { statusSlice } from "./slices/statusSlice";
 import { targetSlice } from "./slices/targetSlice";
 import { storySlice } from "./slices/storySlice";
 import { fieldSlice } from "./slices/fieldSlice";
+import { cutsceneSlice } from "./slices/cutsceneSlice";
 
 // ===== Type Definition =====
 export type GameState = ReturnType<typeof playerSlice> &
@@ -32,7 +33,8 @@ export type GameState = ReturnType<typeof playerSlice> &
     ReturnType<typeof statusSlice> &
     ReturnType<typeof targetSlice> &
     ReturnType<typeof storySlice> &
-    ReturnType<typeof fieldSlice> & {
+    ReturnType<typeof fieldSlice> &
+    ReturnType<typeof cutsceneSlice> & {
         // World state
         world: { mapId: string; time: number };
         flags: Record<string, boolean>;
@@ -50,6 +52,7 @@ export const useGame = create<GameState>((set, get) => ({
     // ===== World & Flags =====
     world: { mapId: "nora", time: 0 },
     flags: {},
+    cutscene: null,
 
     // ===== Integrate All Slices =====
     ...playerSlice(set, get),
@@ -65,6 +68,7 @@ export const useGame = create<GameState>((set, get) => ({
     ...targetSlice(set, get),
     ...storySlice(set, get),
     ...fieldSlice(set, get),
+    ...cutsceneSlice(set, get),
 }));
 
 // 디버깅용 전역 핸들 — 브라우저 콘솔에서 __game.getState()로 상태 확인 가능
