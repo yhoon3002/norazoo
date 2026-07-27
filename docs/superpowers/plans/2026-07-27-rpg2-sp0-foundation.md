@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- tsc 에러 ≤ 26 유지(감소 허용·증가 금지). eslint 신규 에러 0.
+- tsc 에러 ≤ 26 유지(감소 허용·증가 금지). eslint 신규 에러 0 — 단, zustand 슬라이스 시그니처 관례 `(set: any, get: any)`와 그 내부 `(s: any)` 캐스트는 리포 전역 관례(기존 13개 슬라이스 동일)로 예외. (T1 리뷰에서 발견된 플랜 자기모순 정정 — verbatim 코드가 우선)
 - 필드 드로우콜 ≤ 500 (현재 ~160). 신규 상시 useFrame은 스로틀(`frame % N`) 필수.
 - 신규 세이브 필드는 전부 optional — 구세이브 무손상. 컷신 상태는 세이브 미포함(transient).
 - 신규 배치 좌표는 헤드리스 착지 검증(`__navFindWalkable` 스냅 드리프트 ≤1.2m) 필수.
