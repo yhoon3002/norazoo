@@ -4,6 +4,8 @@
 import { CUTSCENES } from "../../data/cutsceneData";
 
 export const cutsceneSlice = (set: any, get: any) => ({
+    cutscene: null as null | { id: string; index: number },
+
     startCutscene: (id: string) => {
         const steps = CUTSCENES[id];
         if (!steps || get().cutscene) return;

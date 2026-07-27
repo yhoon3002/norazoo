@@ -52,7 +52,6 @@ export const useGame = create<GameState>((set, get) => ({
     // ===== World & Flags =====
     world: { mapId: "nora", time: 0 },
     flags: {},
-    cutscene: null,
 
     // ===== Integrate All Slices =====
     ...playerSlice(set, get),
