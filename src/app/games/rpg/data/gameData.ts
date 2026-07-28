@@ -592,6 +592,38 @@ export const SKILLS: Record<string, Skill> = {
         description: "짬을 내어 챙겨온 간식을 먹고 스스로 원기를 회복한다.",
         statusEffect: { type: "regen", duration: 2, value: 8 },
     },
+    // ===== SP1 Task 4 — gear_devourer(태엽을 삼킨 마수) 전용 보스 스킬 3종 =====
+    // 적 전용(character/unlockLevel 없음 — 파티 습득 경로 없음). SP0 이월 저작 규약(보스 스킬은
+    // 적 전용 신설, 파티 스킬 재사용 금지) 준수.
+    maw_snap: {
+        id: "maw_snap",
+        name: "태엽 물어뜯기",
+        damage: 26,
+        etherCost: 0,
+        type: "physical",
+        targetType: "single",
+        description: "삼킨 태엽의 힘으로 물어뜯는다.",
+    },
+    maw_gear_spray: {
+        id: "maw_gear_spray",
+        name: "기어 파편 살포",
+        damage: 18,
+        etherCost: 0,
+        type: "physical",
+        targetType: "single",
+        description: "부서진 태엽 조각을 흩뿌려 방어를 깎는다.",
+        statusEffect: { type: "debuff_def", duration: 3, value: 8 },
+    },
+    maw_time_bite: {
+        id: "maw_time_bite",
+        name: "시간 삼키기",
+        damage: 40,
+        etherCost: 0,
+        type: "magic",
+        targetType: "single",
+        description: "대상의 시간을 통째로 삼킨다.",
+        statusEffect: { type: "stun", duration: 1, value: 0 },
+    },
 };
 
 export const EQUIPMENT: Record<string, Equipment> = {
@@ -1281,7 +1313,7 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
             speed: 18,
             luck: 12,
         },
-        skills: ["fireball", "lightning", "guard_break"],
+        skills: ["maw_snap"],
         statusEffects: [],
         aiPattern: "smart",
         preferredAttack: "shoot",
@@ -1291,6 +1323,20 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
             // 드롭 없음 — 스토리 보상
         },
         scale: 2.4,
+        // SP1 Task 4 — 제자리 보스화(레벨·스탯·트리거·defeated 플래그·리워드 무변경, skills·boss만 교체)
+        boss: {
+            phases: [
+                {
+                    hpPct: 0.7,
+                    announce: "…마수가 격노한다!",
+                    tint: "#c25b4a",
+                    aiPattern: "smart",
+                    skills: ["maw_snap", "maw_gear_spray"],
+                },
+                { hpPct: 0.3, announce: "…시간이 마수 주위로 일그러진다!", tint: "#8b5cf6", scaleMul: 1.15 },
+            ],
+            gimmick: { type: "countdown", every: 3, skillId: "maw_time_bite", warning: "⏳ 태엽이 울린다" },
+        },
     },
     // SP0 Task 4 — 보스 프레임워크 헤드리스 검증 전용 시험 보스 (HP 임계 페이즈 전이 확인용)
     sp0_test_boss: {
