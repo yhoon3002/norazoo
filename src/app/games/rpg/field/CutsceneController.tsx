@@ -64,6 +64,12 @@ export function CutsceneController() {
             lookRef.current = null;
             return;
         }
+        // 전투 중에는 스텝을 진행하지 않는다 — battle 스텝이 startCombat한 같은/다음
+        // 프레임에 다음 say 스텝까지 진입해 버리면, 언마운트 전 대사가 밀려
+        // 복귀 후 해당 라인이 소리 없이 건너뛰어진다(T5 실측 레이스).
+        // FieldScene 언마운트 전의 짧은 창을 이 게이트가 막고, 복귀 후 fresh
+        // stepRef로 해당 스텝이 처음부터 재생된다.
+        if (g.combat.phase !== "idle") return;
         scene.userData.__cutsceneCam = true;
         const steps = CUTSCENES[c.id] ?? [];
         const step = steps[c.index];
