@@ -694,6 +694,11 @@ export const turnSlice = (set: any, get: any) => ({
             pendingStoryBattle: null,
             // 컷신도 로드와 함께 정리 — 구 타임라인의 battle 스텝이 새 상태에서 발동하는 것 방지
             cutscene: null,
+            // 위치 복원은 텔레포트 경로를 경유해야 한다 — FieldPlayer 프레임 루프가
+            // 스토어 pos보다 __playerWorldPos(이전 프레임 결과)를 우선하므로, player.pos만
+            // 바꾸면 몸이 로드 전 자리에 남는다(실측 결함). pendingTeleport는 다음 프레임에
+            // __playerWorldPos를 덮고 10m+ 이동이면 지면 전체 재스냅까지 태운다.
+            pendingTeleport: { ...d.player.pos },
             combat: { phase: "idle" },
             turnQueue: [],
             currentTurn: 0,
