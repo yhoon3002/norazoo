@@ -133,6 +133,8 @@ type Props = {
     normalizeHeightTo?: number;
     /** 페이즈 틴트 색상 — 지정 시에만 머티리얼을 복제해 착색(공유 머티리얼 오염 방지) */
     tint?: string;
+    /** true면 mixer.update를 스킵해 포즈를 고정한다(바인드/첫 프레임 포즈) — 굳은 주민 등 */
+    paused?: boolean;
 };
 
 export const ModelAvatar = forwardRef<THREE.Group, Props>(function ModelAvatar(
@@ -147,6 +149,7 @@ export const ModelAvatar = forwardRef<THREE.Group, Props>(function ModelAvatar(
         position = [0, 0, 0],
         normalizeHeightTo,
         tint,
+        paused,
     },
     ref
 ) {
@@ -319,6 +322,7 @@ export const ModelAvatar = forwardRef<THREE.Group, Props>(function ModelAvatar(
 
     useFrame((_, delta) => {
         if (!mixer) return;
+        if (paused) return;
 
         const slowMotion = useGame.getState().slowMotion;
         const effectiveDelta = slowMotion.active

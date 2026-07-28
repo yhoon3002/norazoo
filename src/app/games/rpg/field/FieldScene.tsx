@@ -28,6 +28,8 @@ import { MapBaker } from "./MapBaker";
 import { STORY_FLAGS, LORE_POINTS } from "../data/storyData";
 import { FieldTreasure } from "./FieldElements";
 import { FieldLorePoint } from "./FieldLorePoint";
+import { FrozenVillager } from "./FrozenVillager";
+import { FROZEN_VILLAGERS } from "../data/frozenData";
 import { BondEpisode } from "./BondEpisode";
 import { BOND_EPISODES } from "../data/bondData";
 import { FieldGatherable } from "./FieldGatherable";
@@ -188,6 +190,10 @@ export function FieldScene({
             <TutorialTrail />
             {LORE_POINTS.map((lp) => (
                 <FieldLorePoint key={lp.id} point={lp} />
+            ))}
+            {/* 굳은 주민 조사 이벤트 — 에필로그 전 정지 인형(paused+틴트), 이후 각성 */}
+            {FROZEN_VILLAGERS.map((fv) => (
+                <FrozenVillager key={fv.id} def={fv} />
             ))}
             {BOND_EPISODES.map((ep) => (
                 <BondEpisode key={ep.id} ep={ep} />

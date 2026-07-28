@@ -80,9 +80,14 @@ export function StoryTriggers() {
                     flags: { ...s.flags, [`story_${t.id}`]: true },
                 }));
             }
-            if (t.dialogue) g.startDialogue(t.dialogue);
-            // 대사 종료 후 전투 진입 — advanceDialogue가 큐 소진 시 소비
-            if (t.battle) g.setPendingStoryBattle(t.battle);
+            if (t.cutscene) {
+                // 컷신 트리거 — 대사·전투는 컷신 스텝이 담당 (set 선적용 규약)
+                g.startCutscene(t.cutscene);
+            } else {
+                if (t.dialogue) g.startDialogue(t.dialogue);
+                // 대사 종료 후 전투 진입 — advanceDialogue가 큐 소진 시 소비
+                if (t.battle) g.setPendingStoryBattle(t.battle);
+            }
 
             if (!alreadyFired) {
                 const patch: {

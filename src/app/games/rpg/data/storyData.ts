@@ -48,6 +48,8 @@ export type StoryTrigger = {
     /** 플래그 조건: 전부 true일 때 (처치/보물 등) */
     flagsAll?: string[];
     dialogue?: DialogueLine[];
+    /** 컷신 트리거 — 지정 시 dialogue/battle 대신 startCutscene(cutscene) 발동 (SP1) */
+    cutscene?: string;
     nextStage?: string;
     objective?: string;
     /** 다음 목표 지점 — 빛기둥 비콘과 HUD 거리 표시 */
