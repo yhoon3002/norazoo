@@ -78,9 +78,9 @@ export const FROZEN_VILLAGERS: FrozenVillagerDef[] = [
         model: "/character/VikingHelmet.fbx",
         rotationY: Math.PI,
         frozen: [
-            { speaker: "…", text: "편자를 주문하려던 마부가 대장간 앞에 굳어 있다. 이미 내려놓은 짐에는 말 발굽의 타박음이 남아 있다." },
+            { speaker: "…", text: "편자를 주문하러 온 마부가 대장간 앞에 굳어 있다. 내려놓은 짐꾸러미 사이로 낡은 편자가 삐죽 나와 있다." },
             { speakerId: "lotti", text: "말도 기다리다 지쳤나 봐. 주인 찾으러 어디 갔을까." },
-            { speakerId: "theo", text: "마부의 눈이 공포로 가득 차 있어요. 편자를 받기 전에 무언가 목격했다는 뜻이겠죠." },
+            { speakerId: "theo", text: "주문서를 쥔 손가락까지 그대로예요. 멈춘 순간이 그저 평범한 아침이었다는 뜻이죠." },
         ],
         awake: [
             { speaker: "마부", text: "어라, 내 말이…! 고맙습니다, 덕분에 살 것 같아요. 이 밤에 정말로 이상했어요, 다들 그 자리에서 굳어서…" },
