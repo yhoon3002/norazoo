@@ -87,20 +87,7 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         id: "prologue",
         stage: "prologue",
         near: { x: 0, z: 0, radius: 9999 }, // 시작 즉시
-        dialogue: [
-            {
-                speakerId: "arin",
-                text: "여기가 노라다. 시계탑이 멈춘 밤, 마을 전체와 연락이 끊겼다 — 왕도의 의뢰는 원인 조사와 생존자 구조. 이상.",
-            },
-            {
-                speakerId: "theo",
-                text: "공기 중 에테르가 정체되어 있어요. 시간이… 고여 있달까요. 거리의 주민들이 전부 그 자리에 굳어 있습니다. 흥미롭네요 — 아니, 큰일이네요.",
-            },
-            {
-                speakerId: "lotti",
-                text: "저기 광장에 불빛이 있어! 누가 깨어 있나 봐. 굳은 사람들도 조사해 보자(E). 뭔가 단서가 나올지도!",
-            },
-        ],
+        cutscene: "cs_opening",
         nextStage: "tutorial_merchant",
         objective: "광장의 불빛을 찾아가 말을 걸자",
         target: { x: 12.8, z: -14 },
@@ -109,24 +96,7 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         id: "meet_cook",
         stage: "tutorial_merchant",
         near: { x: 12.8, z: -14, radius: 3.4 }, // 요리사(상인) 위치
-        dialogue: [
-            {
-                speaker: "요리사",
-                text: "손님이라니! 시계탑이 멈춘 뒤로 처음이군. 난 이 마을의 요리사요.",
-            },
-            {
-                speakerId: "lotti",
-                text: "사부님! 저예요, 로티! 왕도에서 검 배우러 떠났던… 설마 절 잊으신 건 아니죠?!",
-            },
-            {
-                speaker: "요리사",
-                text: "오오, 로티! 많이 컸구나. …그날 밤, 시계탑의 태엽 조각 셋이 흩어지면서 다들 잠들듯 사라졌단다.",
-            },
-            {
-                speaker: "요리사",
-                text: "조각을 모아 시계탑을 다시 돌려주게. 우선 저기 빛나는 상자의 물자부터 챙기고.",
-            },
-        ],
+        cutscene: "cs_cook_meet",
         nextStage: "tutorial_treasure",
         objective: "빛나는 보물상자를 조사하자",
         target: { x: 11.2, z: -16 },
@@ -157,16 +127,7 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         id: "first_blood",
         stage: "tutorial_battle",
         flagsAll: ["defeated_e1_0", "defeated_e1_1"],
-        dialogue: [
-            {
-                speaker: "요리사",
-                text: "제법이군! 북쪽 광장엔 오크 무리가 진을 치고 있소.",
-            },
-            {
-                speaker: "요리사",
-                text: "놈들을 정리하면 항구로 가는 길이 열릴 거요. 광장에 깃발을 세워뒀으니 쉬어가시게.",
-            },
-        ],
+        cutscene: "cs_first_battle",
         nextStage: "ch2_cleanup",
         objective: "북쪽의 오크 무리를 소탕하자",
         target: { x: 10, z: 2 },
@@ -193,20 +154,7 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         id: "reach_port",
         stage: "ch3_port",
         near: { x: 218.6, z: -14.7, radius: 8 },
-        dialogue: [
-            {
-                speakerId: "lotti",
-                text: "여기가 항구구나… 배들이 시간에 갇힌 채 멈춰 있어. 생선 비린내조차 안 나.",
-            },
-            {
-                speakerId: "arin",
-                text: "등대 앞에 뭔가 반짝인다. 태엽 조각이다. …그리고 이건, 등대지기의 일지인가.",
-            },
-            {
-                speakerId: "theo",
-                text: "『협곡의 불빛이 밤마다 커진다. 무언가가 태엽을 삼키고 있다…』 — 흥미롭네요. 그리고 몹시 불길합니다.",
-            },
-        ],
+        cutscene: "cs_port_arrival",
         nextStage: "ch4_hill",
         objective: "북쪽 바람 언덕의 제단으로 가자 🚩",
         target: { x: 0, z: -210 },
