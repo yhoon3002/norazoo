@@ -37,22 +37,22 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
     // 컷신 say로 이관 + 확장(storyData.ts 구 90~210행 참조).
     cs_opening: [
         // 거리 팬 2샷 — 스폰 인근 골목(광장 방향으로 회전)
-        { type: "cam", pos: { x: 26, y: -30, z: -26 }, lookAt: { x: 18, y: -33, z: -20 }, ms: 1600, hold: 900 },
-        { type: "cam", pos: { x: 20, y: -30, z: -19 }, lookAt: { x: 12.8, y: -33, z: -14 }, ms: 1600, hold: 900 },
+        { type: "cam", pos: { x: 18, y: -31, z: -33 }, lookAt: { x: 12.8, y: -31.3, z: -28.8 }, ms: 1600, hold: 900 },
+        { type: "cam", pos: { x: 16, y: -31, z: -17 }, lookAt: { x: 12.8, y: -31.8, z: -14 }, ms: 1600, hold: 900 },
         { type: "say", line: { speakerId: "arin", text: "여기가 노라다. 시계탑이 멈춘 밤, 마을 전체와 연락이 끊겼다 — 왕도의 의뢰는 원인 조사와 생존자 구조. 이상." } },
         { type: "say", line: { speakerId: "theo", text: "공기 중 에테르가 정체되어 있어요. 시간이… 고여 있달까요. 거리의 주민들이 전부 그 자리에 굳어 있습니다. 흥미롭네요 — 아니, 큰일이네요." } },
         { type: "say", line: { speakerId: "lotti", text: "저기 광장에 불빛이 있어! 누가 깨어 있나 봐. 굳은 사람들도 조사해 보자(E). 뭔가 단서가 나올지도!" } },
         { type: "say", line: { speakerId: "arin", text: "대열은 내가 선두, 로티는 후위, 테오는 중앙에서 기록을 맡는다. …섣불리 움직이지 마라. 이 마을이 아직 무엇에 붙잡혀 있는지 모른다." } },
         { type: "say", line: { speakerId: "theo", text: "재밌는 점은, 멈춘 게 사람만이 아니라는 거예요. 널린 빨래도, 깃발도 — 흥미롭네요. …아니, 다시 정정할게요. 소름 끼치네요." } },
         { type: "say", line: { speakerId: "lotti", text: "그런데 냄새가 하나도 안 나. 사람 사는 마을이면 밥 짓는 냄새라도 나야 하는데… 꼭 뜸 들이다 만 밥 같아. 뭔가 멈춰 있어, 이 마을 전체가." } },
-        { type: "cam", pos: { x: 22, y: 28, z: -12 }, lookAt: { x: 16, y: -18, z: 3 }, ms: 2600, hold: 2000 },
+        { type: "cam", pos: { x: 30, y: -20, z: -30 }, lookAt: { x: 18, y: -8, z: 0 }, ms: 2600, hold: 2000 },
         { type: "say", line: { speakerId: "arin", text: "탑이 멈췄다. 그리고 마을도. …원인부터 찾는다." } },
         { type: "camReset", ms: 1200 },
     ],
     cs_cook_meet: [
         // 화덕 원경 → 줌 — 광장 화덕/요리사(MERCHANT_POS)
-        { type: "cam", pos: { x: 18, y: -27, z: -24 }, lookAt: { x: 12.8, y: -33.25, z: -14 }, ms: 1600, hold: 900 },
-        { type: "cam", pos: { x: 8, y: -29, z: -22 }, lookAt: { x: 12.8, y: -33, z: -14 }, ms: 1800, hold: 1400 },
+        { type: "cam", pos: { x: 18, y: -30.5, z: -19 }, lookAt: { x: 12.8, y: -31.8, z: -14 }, ms: 1600, hold: 900 },
+        { type: "cam", pos: { x: 16, y: -31, z: -17 }, lookAt: { x: 12.8, y: -31.8, z: -14 }, ms: 1800, hold: 1400 },
         { type: "say", line: { speaker: "요리사", text: "손님이라니! 시계탑이 멈춘 뒤로 처음이군. 난 이 마을의 요리사요." } },
         { type: "say", line: { speakerId: "lotti", text: "사부님! 저예요, 로티! 왕도에서 검 배우러 떠났던… 설마 절 잊으신 건 아니죠?!" } },
         { type: "say", line: { speaker: "요리사", text: "오오, 로티! 많이 컸구나. …그날 밤, 시계탑의 태엽 조각 셋이 흩어지면서 다들 잠들듯 사라졌단다." } },
@@ -64,8 +64,8 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
     ],
     cs_first_battle: [
         // 슬라임 잔해 원경 → 부스러기 줌 — 튜토리얼 전투 지점
-        { type: "cam", pos: { x: 18, y: -31, z: -33 }, lookAt: { x: 12.8, y: -33.25, z: -28.8 }, ms: 1400, hold: 700 },
-        { type: "cam", pos: { x: 10, y: -32, z: -31 }, lookAt: { x: 12.8, y: -33.25, z: -28.8 }, ms: 1400, hold: 1000 },
+        { type: "cam", pos: { x: 16, y: -31.2, z: -32 }, lookAt: { x: 12.8, y: -32.5, z: -28.8 }, ms: 1400, hold: 700 },
+        { type: "cam", pos: { x: 15, y: -31.5, z: -31 }, lookAt: { x: 12.8, y: -32.8, z: -28.8 }, ms: 1400, hold: 1000 },
         { type: "fx", popup: { text: "⚙️ 태엽 부스러기 발견", color: "#facc15" } },
         { type: "say", line: { speakerId: "lotti", text: "어라, 슬라임이 녹으면서 이상한 게 나왔어. 이거… 톱니바퀴 조각 같은데?" } },
         { type: "say", line: { speakerId: "theo", text: "슬라임 안에 이런 정교한 부품이라니 — 자연 발생이 아니에요. 누군가, 혹은 무언가가 만들어 넣은 겁니다. 흥미롭네요." } },
@@ -78,8 +78,8 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
         // phen_port 활성 — 멈춘 파도 첫 가동
         { type: "set", flags: { phen_port: true } },
         // 부두 팬 2샷 — 항구 원경 → 물가 조망
-        { type: "cam", pos: { x: 230, y: -25, z: 0 }, lookAt: { x: 214, y: -36, z: -16 }, ms: 1800, hold: 900 },
-        { type: "cam", pos: { x: 218, y: -14, z: -14 }, lookAt: { x: 218.6, y: -37, z: -14.7 }, ms: 1800, hold: 1400 },
+        { type: "cam", pos: { x: 222, y: -33, z: -13 }, lookAt: { x: 235, y: -36, z: -9 }, ms: 1800, hold: 900 },
+        { type: "cam", pos: { x: 214, y: -36, z: -14 }, lookAt: { x: 226, y: -37, z: -14 }, ms: 1800, hold: 1400 },
         { type: "fx", popup: { text: "🌊 멈춘 파도가 움직이기 시작한다", color: "#7dd3fc" } },
         { type: "say", line: { speakerId: "lotti", text: "여기가 항구구나… 배들이 시간에 갇힌 채 멈춰 있어. 생선 비린내조차 안 나." } },
         { type: "say", line: { speakerId: "arin", text: "등대 앞에 뭔가 반짝인다. 태엽 조각이다. …그리고 이건, 등대지기의 일지인가." } },
