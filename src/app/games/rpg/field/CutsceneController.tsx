@@ -23,6 +23,9 @@ export function CutsceneController() {
     const lookRef = useRef<THREE.Vector3 | null>(null);
     const holdStart = useRef<number | null>(null);
     const _look = useRef(new THREE.Vector3());
+    // 마운트 후 첫 유효 프레임에만 1회 검사(패배/도주 복귀 시 잔여 연출 중단용) — 컴포넌트가
+    // 전투마다 리마운트되므로 매 마운트 fresh false로 시작해 정확히 "복귀 직후 1회"가 된다.
+    const checkedResume = useRef(false);
 
     // Enter 홀드 스킵
     useEffect(() => {
@@ -70,6 +73,29 @@ export function CutsceneController() {
         // FieldScene 언마운트 전의 짧은 창을 이 게이트가 막고, 복귀 후 fresh
         // stepRef로 해당 스텝이 처음부터 재생된다.
         if (g.combat.phase !== "idle") return;
+
+        // battle 스텝의 잔여 연출은 승리 복귀에만 재생(기본값). 직전 스텝(index-1)이 battle이고
+        // 승리 플래그(defeated_${battle.id}_0)가 없으면 패배/도주 복귀 — 잔여 컷신을 중단한다.
+        // 재도전 시 트리거 재발동(StoryTriggers의 battleUnwon 게이트)이 컷신을 처음부터 다시
+        // 재생하므로 정합이 유지된다.
+        if (!checkedResume.current) {
+            checkedResume.current = true;
+            const priorSteps = CUTSCENES[c.id] ?? [];
+            const prevStep = priorSteps[c.index - 1];
+            if (
+                prevStep &&
+                prevStep.type === "battle" &&
+                !g.flags[`defeated_${prevStep.id}_0`]
+            ) {
+                g.skipCutscene();
+                stepRef.current = null;
+                savedCam.current = null;
+                lookRef.current = null;
+                scene.userData.__cutsceneCam = false;
+                return;
+            }
+        }
+
         scene.userData.__cutsceneCam = true;
         const steps = CUTSCENES[c.id] ?? [];
         const step = steps[c.index];
@@ -94,8 +120,11 @@ export function CutsceneController() {
             }
             switch (step.type) {
                 case "say":
+                    // 완료 체크(아래 case "say")는 다음 프레임부터 — 이 프레임의 g는 startDialogue
+                    // 호출 전 스냅샷이라 즉시 체크하면 stale dialogue.length===0을 보고 곧장
+                    // 전진해 버려, 연속 say 체인에서 방금 넣은 대사가 무음으로 건너뛰어진다(T5 실측).
                     g.startDialogue([step.line]);
-                    break;
+                    return;
                 case "fx":
                     g.spawnPopup({ side: "ally", ...step.popup });
                     g.advanceCutsceneStep();

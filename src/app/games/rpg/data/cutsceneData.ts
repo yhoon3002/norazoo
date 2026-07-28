@@ -142,7 +142,7 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
     cs_maw_finale: [
         // 아레나 원경 리빌 2샷 — GORGE_BOSS_ARENA(침수 폐허, 수면 상공에서 조망)
         { type: "cam", pos: { x: 300, y: -18, z: 75 }, lookAt: { x: 268.5, y: -35, z: 42.5 }, ms: 2000, hold: 1000 },
-        { type: "say", line: { speaker: "태엽을 삼킨 마수", text: "…그분의 시간은, 되돌아온다." } },
+        { type: "say", line: { speaker: "태엽을 삼킨 마수", text: "…그분의 시간은, 되돌아온다" } },
         { type: "cam", pos: { x: 290, y: -12, z: 65 }, lookAt: { x: 268.5, y: -33, z: 42.5 }, ms: 1800, hold: 1200 },
         { type: "say", line: { speakerId: "lotti", text: "해냈어…! 마지막 조각이야!" } },
         { type: "say", line: { speakerId: "theo", text: "세 조각이 공명하고 있어요. 시계탑이 부르는 겁니다." } },

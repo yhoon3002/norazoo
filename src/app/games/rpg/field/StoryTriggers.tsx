@@ -82,6 +82,7 @@ export function StoryTriggers() {
             }
             if (t.cutscene) {
                 // 컷신 트리거 — 대사·전투는 컷신 스텝이 담당 (set 선적용 규약)
+                // t.battle이 있어도 여기선 소비하지 않음 — 위 battleUnwon 재도전 게이트 판정 전용(SP1 T5)
                 g.startCutscene(t.cutscene);
             } else {
                 if (t.dialogue) g.startDialogue(t.dialogue);

@@ -173,6 +173,9 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         near: { x: 0, z: -210, radius: 8 },
         // battle 스텝으로 컷신 내부에 이관(id·templates 그대로 → defeated_guardians_0 호환, SP1 T5)
         cutscene: "cs_altar_guardian",
+        // 재도전 게이트(StoryTriggers의 battleUnwon) 판정 전용 — cutscene 우선 발동이라
+        // 실제 전투는 열지 않는다. 없으면 패배 후 재도전 트리거가 영구 스킵된다(T5 리뷰 회귀).
+        battle: { id: "guardians", templates: ["orc_chief", "orc", "orc"] },
     },
     {
         id: "hill_altar_done",
