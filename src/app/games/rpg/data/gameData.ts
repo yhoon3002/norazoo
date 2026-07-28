@@ -595,10 +595,14 @@ export const SKILLS: Record<string, Skill> = {
     // ===== SP1 Task 4 — gear_devourer(태엽을 삼킨 마수) 전용 보스 스킬 3종 =====
     // 적 전용(character/unlockLevel 없음 — 파티 습득 경로 없음). SP0 이월 저작 규약(보스 스킬은
     // 적 전용 신설, 파티 스킬 재사용 금지) 준수.
+    // 재튜닝(코디네이터 지시, SP1 Task4 수정 웨이브): 브리프 verbatim damage(26/18/40)는
+    // 보스→파티 출력 기준 구(fireball/lightning/guard_break) 대비 -75.8%로 스펙 원칙("현 밸런스
+    // 커브 유지") 위반 판정 — 상대 조정 허용 조항에 따라 상향. 비율(snap:spray:bite=1.4:1:2.2,
+    // 즉 21 단위 5:7:11) 유지, 라이더(debuff_def/stun)는 불변. 산식·근거는 task-4-report.md 참조.
     maw_snap: {
         id: "maw_snap",
         name: "태엽 물어뜯기",
-        damage: 26,
+        damage: 147,
         etherCost: 0,
         type: "physical",
         targetType: "single",
@@ -607,7 +611,7 @@ export const SKILLS: Record<string, Skill> = {
     maw_gear_spray: {
         id: "maw_gear_spray",
         name: "기어 파편 살포",
-        damage: 18,
+        damage: 105,
         etherCost: 0,
         type: "physical",
         targetType: "single",
@@ -617,7 +621,7 @@ export const SKILLS: Record<string, Skill> = {
     maw_time_bite: {
         id: "maw_time_bite",
         name: "시간 삼키기",
-        damage: 40,
+        damage: 231,
         etherCost: 0,
         type: "magic",
         targetType: "single",
