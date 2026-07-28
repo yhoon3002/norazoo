@@ -123,6 +123,7 @@ export default function RpgGame() {
                 else if (key === "tab") {
                     const st = useGame.getState();
                     if (st.dialogue.length > 0) return;
+                    if ((st as any).cutscene) return;
                     e.preventDefault();
                     setShowSavePanel((v) => !v);
                 }

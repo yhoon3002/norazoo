@@ -49,6 +49,11 @@ export function CutsceneController() {
         };
     }, [scene]);
 
+    // 언마운트 시 __cutsceneCam 정리 (battle 스텝으로 언마운트될 때 구 scene에 플래그 잔존 방지)
+    useEffect(() => () => {
+        scene.userData.__cutsceneCam = false;
+    }, [scene]);
+
     useFrame(() => {
         const g = useGame.getState();
         const c = g.cutscene;

@@ -692,6 +692,8 @@ export const turnSlice = (set: any, get: any) => ({
             // 대사 종료 대기 중이던 스토리 전투 예약도 함께 초기화 —
             // 안 그러면 새 타임라인에서 엉뚱한 전투가 다음 대사 종료 시 발동한다.
             pendingStoryBattle: null,
+            // 컷신도 로드와 함께 정리 — 구 타임라인의 battle 스텝이 새 상태에서 발동하는 것 방지
+            cutscene: null,
             combat: { phase: "idle" },
             turnQueue: [],
             currentTurn: 0,
