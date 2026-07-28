@@ -89,6 +89,69 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
         { type: "say", line: { speakerId: "theo", text: "국소적 현상 재개 — 시간이 이 항구에 한해서만 되감기는 느낌이에요. 왜 여기부터일까요… 흥미롭네요, 정말로." } },
         { type: "camReset", ms: 1200 },
     ],
+    // ===== SP1 1막 후반부 컷신 4종 (등대 일지·제단 수호자·협곡 진입·마수 피날레) =====
+    // 카메라 좌표는 헤드리스 rAF 캡처로 실측 확정(scratchpad/t5-cam-probe*.js, task5-cs_*.png).
+    // 원문 대사는 삭제 없이 컷신 say로 이관 + 확장(storyData.ts 구 LORE_POINTS.port_note·
+    // hill_altar·gorge_landing·gorge_boss_done 원문 참조). 협곡·아레나 일대는 실측상 국지
+    // 수면고가 예상보다 높은 침수 지형이라(근접 저고도 샷은 카메라가 물 속에 잠김) 수면 상공에서의
+    // 원경 구도로 확정 — task-5-report.md 카메라 절 참조.
+    cs_lighthouse: [
+        // 일지 클로즈업 2샷 — 등대 계단 아래 일지(구 LORE_POINTS.port_note 자리)
+        { type: "cam", pos: { x: 158, y: -35, z: -3 }, lookAt: { x: 161.2, y: -36.5, z: -0.7 }, ms: 1600, hold: 900 },
+        { type: "say", line: { speakerId: "arin", text: "등대 계단 아래, 낡은 일지가 놓여 있다. …오래되진 않은 것 같군." } },
+        { type: "cam", pos: { x: 165, y: -34, z: -5 }, lookAt: { x: 161.2, y: -36.5, z: -0.7 }, ms: 1600, hold: 1400 },
+        { type: "say", line: { speakerId: "theo", text: "등대지기가 남긴 기록이에요. 페이지가 여러 장 겹쳐 있네요 — 하나씩 읽어보죠." } },
+        { type: "say", line: { speaker: "쪽지", text: "『협곡의 불빛이 밤마다 커진다. 태엽을 삼킨 무언가가 저기 있다.』" } },
+        { type: "say", line: { speakerId: "lotti", text: "불빛이 커진다는 건… 뭔가 점점 배가 부르고 있다는 소리 같아. 좋은 징조는 아니네." } },
+        { type: "say", line: { speaker: "쪽지", text: "『다섯째 밤. 협곡에서 톱니가 갈리는 소리가 들린다. 우리 마을 태엽공이 만든 부품들이, 밤마다 하나씩 사라진다. 누군가 — 아니, 무언가가 그것들을 삼키고 있다.』" } },
+        { type: "say", line: { speakerId: "theo", text: "'우리 마을 태엽공'이라니 — 공방의 그분과 무관하지 않겠어요. 부품이 사라진 시점도 시계탑이 멎은 밤과 겹칩니다. 예사롭지 않은 대목이에요." } },
+        { type: "say", line: { speaker: "쪽지", text: "『이레째 밤. 시계탑의 종이 스스로 멎던 그 시각, 협곡 쪽에서 무언가 걸어 나오는 걸 보았다. 마을 사람들은 그것을 그저 '그분'이라 불렀다. …다시는 등대를 떠나지 않으리라.』" } },
+        { type: "say", line: { speakerId: "arin", text: "'그분'. …이 밤, 마을 곳곳에서 같은 말을 들었다. 협곡에서 답을 찾는다." } },
+        { type: "fx", popup: { text: "📜 등대지기의 일지 (3편) 완독", color: "#f5c96b" } },
+        { type: "camReset", ms: 1000 },
+    ],
+    cs_altar_guardian: [
+        // 제단 카메라 상승 2샷(y: -24 → -16) — 바람 언덕 정상 제단
+        { type: "cam", pos: { x: 6, y: -24, z: -205 }, lookAt: { x: 0, y: -25, z: -210 }, ms: 1600, hold: 800 },
+        { type: "say", line: { speakerId: "theo", text: "제단이에요. 두 번째 태엽 조각의 파동이… 바로 아래에서 느껴집니다." } },
+        { type: "cam", pos: { x: 10, y: -16, z: -218 }, lookAt: { x: 0, y: -24, z: -210 }, ms: 2200, hold: 1200 },
+        { type: "say", line: { speakerId: "lotti", text: "밤바람이 차네… 근데 이 언덕, 뭔가 식어버린 스튜 냄새가 나. 오래 방치된 것처럼." } },
+        { type: "say", line: { speakerId: "theo", text: "제단 표면의 문양이 은은히 빛나고 있어요. 파수 결계로 보이는데, 아직 작동 중이라는 뜻이겠죠." } },
+        { type: "say", line: { speakerId: "arin", text: "기척이 있다. 수호자다 — 무기 들어." } },
+        { type: "say", line: { speakerId: "lotti", text: "…좋아, 각오는 됐어! 조각은 우리가 먼저 맛본다!" } },
+        { type: "fx", popup: { text: "⚔️ 언덕의 수호자들이 나타난다", color: "#f87171" } },
+        // battle 스텝 — 기존 hill_altar 트리거의 battle 필드 이관(id·templates 그대로 →
+        // defeated_guardians_0/1/2 플래그 호환). 뒤에 camReset 없이 say/fx로 마감(규약).
+        { type: "battle", id: "guardians", templates: ["orc_chief", "orc", "orc"] },
+        { type: "say", line: { speakerId: "lotti", text: "받았어! 이게… 두 번째 조각이구나. 따뜻해, 마치 갓 구운 것처럼." } },
+        { type: "fx", popup: { text: "⚙️ 태엽 조각 (2/3) 획득", color: "#facc15" } },
+    ],
+    cs_gorge_descent: [
+        // 어둠 속 카메라 2샷 — 협곡 상륙지(gorge_landing), 원경은 아레나 방향(협곡 안쪽)을 조망
+        { type: "cam", pos: { x: 139.5, y: -35, z: 8 }, lookAt: { x: 180, y: -42, z: 60 }, ms: 2000, hold: 1200 },
+        { type: "say", line: { speakerId: "arin", text: "…공기가 다르다. 여기가 어둠의 협곡이군." } },
+        { type: "cam", pos: { x: 145, y: -30, z: 12 }, lookAt: { x: 139.5, y: -38, z: 17.5 }, ms: 1800, hold: 1200 },
+        { type: "say", line: { speakerId: "theo", text: "시간의 정체가 가장 짙어요. 태엽 조각이 — 아니, '삼킨 자'가 깊은 곳에 있습니다." } },
+        { type: "say", line: { speakerId: "lotti", text: "발밑 조심해. 뭔가… 움직이고 있어." } },
+        { type: "say", line: { speakerId: "theo", text: "저 안쪽, 그림자의 윤곽이 예사롭지 않아요. 몸집이 저희가 상대했던 것들과는 급이 다릅니다." } },
+        { type: "fx", popup: { text: "…저 멀리, 거대한 그림자가 꿈틀거린다", color: "#a78bfa" } },
+        { type: "say", line: { speakerId: "arin", text: "밤이 깊을수록 저것의 기운도 짙어진다. 서둘러야 한다." } },
+        { type: "say", line: { speakerId: "lotti", text: "…솔직히 무서워. 그치만 사부님 요리, 다 같이 다시 먹으러 가야지." } },
+        { type: "camReset", ms: 1200 },
+    ],
+    cs_maw_finale: [
+        // 아레나 원경 리빌 2샷 — GORGE_BOSS_ARENA(침수 폐허, 수면 상공에서 조망)
+        { type: "cam", pos: { x: 300, y: -18, z: 75 }, lookAt: { x: 268.5, y: -35, z: 42.5 }, ms: 2000, hold: 1000 },
+        { type: "say", line: { speaker: "태엽을 삼킨 마수", text: "…그분의 시간은, 되돌아온다." } },
+        { type: "cam", pos: { x: 290, y: -12, z: 65 }, lookAt: { x: 268.5, y: -33, z: 42.5 }, ms: 1800, hold: 1200 },
+        { type: "say", line: { speakerId: "lotti", text: "해냈어…! 마지막 조각이야!" } },
+        { type: "say", line: { speakerId: "theo", text: "세 조각이 공명하고 있어요. 시계탑이 부르는 겁니다." } },
+        { type: "say", line: { speakerId: "theo", text: "방금 그 말, '그분'이라니 — 무시할 수 없는 단서예요. 조각을 모은 뒤엔 반드시 되짚어봐야겠습니다." } },
+        { type: "say", line: { speakerId: "arin", text: "돌아가자. 노라의 아침을 되찾으러." } },
+        { type: "say", line: { speakerId: "arin", text: "…경계는 늦추지 않는다. 이 밤이 끝나도, '그분'이라는 이름은 잊지 않겠다." } },
+        { type: "fx", popup: { text: "✨ 태엽 조각 (3/3) 획득 — 공명", color: "#a78bfa" } },
+        { type: "camReset", ms: 1200 },
+    ],
     sp0_test_battle: [
         { type: "say", line: { speakerId: "theo", text: "(SP0 테스트) 기척입니다 — 전투!" } },
         { type: "battle", id: "sp0_evt", templates: ["slime"] },

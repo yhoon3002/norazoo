@@ -160,14 +160,19 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         target: { x: 0, z: -210 },
     },
     {
+        // 등대지기의 일지(구 LORE_POINTS.port_note 자리) — 항구 진입 전 도로변에서 자연 발동.
+        // 원문(『협곡의 불빛이 밤마다 커진다…』)은 cs_lighthouse의 say로 이관+확장(SP1 T5).
+        id: "lighthouse_journal",
+        stage: "ch3_port",
+        near: { x: 161.2, z: -0.7, radius: 6 },
+        cutscene: "cs_lighthouse",
+    },
+    {
         id: "hill_altar",
         stage: "ch4_hill",
         near: { x: 0, z: -210, radius: 8 },
-        dialogue: [
-            { speakerId: "theo", text: "제단이에요. 두 번째 태엽 조각의 파동이… 바로 아래에서 느껴집니다." },
-            { speakerId: "arin", text: "기척이 있다. 수호자다 — 무기 들어." },
-        ],
-        battle: { id: "guardians", templates: ["orc_chief", "orc", "orc"] },
+        // battle 스텝으로 컷신 내부에 이관(id·templates 그대로 → defeated_guardians_0 호환, SP1 T5)
+        cutscene: "cs_altar_guardian",
     },
     {
         id: "hill_altar_done",
@@ -186,11 +191,7 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         id: "gorge_landing",
         stage: "ch5_gorge",
         near: { x: 139.5, z: 17.5, radius: 10 },
-        dialogue: [
-            { speakerId: "arin", text: "…공기가 다르다. 여기가 어둠의 협곡이군." },
-            { speakerId: "theo", text: "시간의 정체가 가장 짙어요. 태엽 조각이 — 아니, '삼킨 자'가 깊은 곳에 있습니다." },
-            { speakerId: "lotti", text: "발밑 조심해. 뭔가… 움직이고 있어." },
-        ],
+        cutscene: "cs_gorge_descent",
         objective: "협곡 깊은 곳의 기척을 쫓자",
         target: { x: GORGE_BOSS_ARENA.x, z: GORGE_BOSS_ARENA.z },
     },
@@ -210,11 +211,7 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         id: "gorge_boss_done",
         stage: "ch5_gorge",
         flagsAll: ["defeated_gorge_boss_0", "defeated_gorge_boss_1", "defeated_gorge_boss_2"],
-        dialogue: [
-            { speakerId: "lotti", text: "해냈어…! 마지막 조각이야!" },
-            { speakerId: "theo", text: "세 조각이 공명하고 있어요. 시계탑이 부르는 겁니다." },
-            { speakerId: "arin", text: "돌아가자. 노라의 아침을 되찾으러." },
-        ],
+        cutscene: "cs_maw_finale",
         objective: "노라로 돌아가 시계탑을 깨우자 🔔",
         target: { x: 24.5, z: -17 },
     },
@@ -412,16 +409,10 @@ export const LORE_POINTS: LorePoint[] = [
             { speaker: "어부", text: "그물이 이렇게 무거웠나! 이봐, 오늘 잡은 건 전부 자네들 몫일세!" },
         ],
     },
-    {
-        id: "port_note",
-        x: 161.2, y: -37.25, z: -0.7,
-        kind: "note",
-        label: "등대지기의 쪽지",
-        lines: [
-            { speaker: "쪽지", text: "『협곡의 불빛이 밤마다 커진다. 태엽을 삼킨 무언가가 저기 있다.』" },
-        ],
-    },
 ];
+// port_note(등대지기의 쪽지, 161.2,-37.25,-0.7)는 SP1 T5에서 원문을 cs_lighthouse의
+// say 3편으로 이관·확장했다 — 동일 지점의 신규 StoryTrigger(lighthouse_journal)가
+// 근접 시 자동 발동하므로 별도 조사(E) 오브젝트로는 유지하지 않는다.
 
 
 // 체크포인트 깃발 (y는 의도한 층 — navmesh 스냅 기준. 없으면 플레이어 층 기준)
