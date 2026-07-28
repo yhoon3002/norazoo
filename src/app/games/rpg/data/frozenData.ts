@@ -52,7 +52,7 @@ export const FROZEN_VILLAGERS: FrozenVillagerDef[] = [
         rotationY: Math.PI,
         frozen: [
             { speaker: "…", text: "골목 어귀, 술래와 도망자가 나란히 굳어 있다. 술래는 아직도 눈을 가린 채 열을 세는 자세다." },
-            { speakerId: "arin", text: "숨바꼭질 도중인가. …다치지 않았으니 다행이다." },
+            { speakerId: "arin", text: "술래잡기 도중인가. …다치지 않았으니 다행이다." },
         ],
         awake: [
             { speaker: "아이들", text: "…열, 다 셌다! 어라, 얘 어디 갔지? 우리 계속 놀아도 돼요?" },
@@ -78,11 +78,12 @@ export const FROZEN_VILLAGERS: FrozenVillagerDef[] = [
         model: "/character/VikingHelmet.fbx",
         rotationY: Math.PI,
         frozen: [
-            { speaker: "…", text: "망치를 치켜든 자세 그대로 굳어 있다. 화로의 불씨는 이미 식어 재만 남았다." },
-            { speakerId: "arin", text: "대장장이의 도제인가. 스승 쪽은 이미 조사했다 — 둘 다 같은 순간에 멈췄겠지." },
+            { speaker: "…", text: "편자를 주문하려던 마부가 대장간 앞에 굳어 있다. 이미 내려놓은 짐에는 말 발굽의 타박음이 남아 있다." },
+            { speakerId: "lotti", text: "말도 기다리다 지쳤나 봐. 주인 찾으러 어디 갔을까." },
+            { speakerId: "theo", text: "마부의 눈이 공포로 가득 차 있어요. 편자를 받기 전에 무언가 목격했다는 뜻이겠죠." },
         ],
         awake: [
-            { speaker: "대장간 견습공", text: "어라, 망치가 무거워졌잖아! 스승님! 저 여기 있어요, 무사해요!" },
+            { speaker: "마부", text: "어라, 내 말이…! 고맙습니다, 덕분에 살 것 같아요. 이 밤에 정말로 이상했어요, 다들 그 자리에서 굳어서…" },
         ],
     },
     {
