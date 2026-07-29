@@ -80,6 +80,8 @@ export type StoryTrigger = {
     battle?: { id: string; templates: string[] };
     /** 발동 시 지급 — Task 4 구현 */
     reward?: { gold?: number; items?: Array<{ id: string; qty: number }> };
+    /** 발동 시 병합할 플래그 — reward와 동일하게 최초 발동에만 적용 (SP1 최종 리뷰 I-2) */
+    setFlags?: Record<string, boolean>;
 };
 
 export const INITIAL_STAGE = "prologue";
@@ -210,10 +212,14 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         target: { x: 0, z: -210 },
     },
     {
-        // 등대지기의 일지(구 LORE_POINTS.port_note 자리) — 항구 진입 전 도로변에서 자연 발동.
+        // 등대지기의 일지(구 LORE_POINTS.port_note 자리) — 도로변 좌표(161.2,-0.7)가
+        // cs_port_arrival 도착 지점(218.6,-14.7)보다 마을 쪽에 있어, stage를 ch3_port로 두면
+        // 항구 도착 전에 먼저 지나치며 선발동해 cs_port_arrival의 "나머지도 마저 읽어봐야겠군"
+        // 셋업보다 앞서는 순서 역전이 났다(SP1 최종 리뷰 I-1). stage를 ch4_hill로 옮겨
+        // 항구→언덕 복귀 동선(reach_port 발동 후 hill_altar로 향하는 길)에서 발동하도록 정정.
         // 원문(『협곡의 불빛이 밤마다 커진다…』)은 cs_lighthouse의 say로 이관+확장(SP1 T5).
         id: "lighthouse_journal",
-        stage: "ch3_port",
+        stage: "ch4_hill",
         near: { x: 161.2, z: -0.7, radius: 6 },
         cutscene: "cs_lighthouse",
     },
@@ -297,6 +303,8 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         objective: "되살아난 노라를 자유롭게 여행하자",
         target: null,
         reward: { gold: 3000, items: [ { id: "golden_herb", qty: 3 }, { id: "monster_core", qty: 5 } ] },
+        // 항구의 시간도 돌아왔다 — SP2a에서 재발 (SP1 최종 리뷰 I-2)
+        setFlags: { phen_port: false },
     },
 ];
 
@@ -477,7 +485,9 @@ export const LORE_POINTS: LorePoint[] = [
         label: "등대지기의 일지 (요약본)",
         lines: [
             { speaker: "일지", text: "『협곡의 불빛이 밤마다 커지고, 태엽 부품이 하나씩 사라지더니 — 이레째 밤, 마침내 '그분'이 협곡에서 걸어 나왔다.』" },
-            { speakerId: "theo", text: "다시 읽어도 소름 끼치는 기록이에요. …협곡에서 마주친 것과, 분명 같은 존재였겠죠." },
+            // 시점 중립 리워딩 — 협곡 미조우 시점에도 열람 가능하도록 과거 조우를
+            // 전제하지 않는다(SP1 최종 리뷰 M-4). '그분'은 cs_lighthouse 3편에서 이미 명명.
+            { speakerId: "theo", text: "다시 읽어도 소름 끼치는 기록이에요. …협곡의 '그분'과, 분명 같은 존재일 겁니다." },
         ],
     },
     {

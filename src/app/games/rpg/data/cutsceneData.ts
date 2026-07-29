@@ -58,7 +58,8 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
         { type: "say", line: { speaker: "요리사", text: "오오, 로티! 많이 컸구나. …그날 밤, 시계탑의 태엽 조각 셋이 흩어지면서 다들 잠들듯 사라졌단다." } },
         { type: "say", line: { speaker: "요리사", text: "조각을 모아 시계탑을 다시 돌려주게. 우선 저기 빛나는 상자의 물자부터 챙기고." } },
         { type: "say", line: { speaker: "요리사", text: "내가 본 걸로는— 하나는 반짝이며 바다 쪽으로, 하나는 바람 부는 언덕으로, 마지막 하나는 저 어두운 협곡 쪽으로 날아갔지. 셋 다 챙겨야 탑이 다시 돈다네." } },
-        { type: "say", line: { speaker: "요리사", text: "참, 옛날 공방 장인이 저 시계탑을 만들었지. …요즘 그 사람 소식을 통 못 들었는데, 무사한지 모르겠군." } },
+        // 공방 장인 언급은 FieldMerchant 화덕 씨앗 퀘스트(quest_cook) 쪽 1곳에만 유지 —
+        // 여기 있던 동일 문장은 중복이라 삭제 (SP1 최종 리뷰 M-3).
         { type: "say", line: { speakerId: "lotti", text: "사부님 화덕 불씨는 여전하네요! 이 냄새 하나로도 배가 든든해지는 기분이에요. …얼른 조각 찾아서, 다 같이 사부님 요리 다시 먹어요!" } },
         { type: "camReset", ms: 1000 },
     ],

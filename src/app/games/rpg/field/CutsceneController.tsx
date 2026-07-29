@@ -62,6 +62,12 @@ export function CutsceneController() {
         const c = g.cutscene;
         if (!c) {
             if (scene.userData.__cutsceneCam) scene.userData.__cutsceneCam = false;
+            // 컷신 자연 종료(끝까지 재생) 직후에만 유예를 준다 — 스킵/패배 복귀는 각자의
+            // 핸들러가 stepRef를 먼저 비우므로 여기 도달할 땐 이미 null이라 걸리지 않는다.
+            // 컷신 중 밀착한 로머의 종료 직후 기습 방지 — 기존 리스폰 유예와 동일 패턴(SP1 최종 리뷰 M-2).
+            if (stepRef.current) {
+                useGame.setState({ encounterCooldownUntil: performance.now() + 2500 });
+            }
             stepRef.current = null;
             savedCam.current = null;
             lookRef.current = null;

@@ -22,6 +22,7 @@ export function StoryTriggers() {
 
         const g = useGame.getState();
         if (g.combat.phase !== "idle") return;
+        if (g.cutscene) return; // 컷신 재생 중엔 트리거 보류 (SP1 최종 리뷰 M-1)
         if (g.dialogue.length > 0) return; // 대화 중엔 다음 트리거 보류
         const ui = g.ui as { mapOpen?: boolean; fishingOpen?: boolean; smithOpen?: boolean; bountyOpen?: boolean; tailorOpen?: boolean };
         if (ui.mapOpen || ui.fishingOpen || ui.smithOpen || ui.bountyOpen || ui.tailorOpen) return; // 오버레이 중에도 보류
@@ -100,6 +101,13 @@ export function StoryTriggers() {
                 if (t.objective) patch.objective = t.objective;
                 if (t.target !== undefined) patch.target = t.target;
                 if (Object.keys(patch).length) g.setStory(patch);
+
+                // 트리거 플래그 강제 병합 (최초 1회만) — 예: finale의 phen_port 소등 (SP1 최종 리뷰 I-2)
+                if (t.setFlags) {
+                    useGame.setState((s: { flags: Record<string, boolean> }) => ({
+                        flags: { ...s.flags, ...t.setFlags },
+                    }));
+                }
 
                 // 트리거 보상 지급 (최초 1회만 — 재도전 시 중복 지급 방지)
                 if (t.reward) {
