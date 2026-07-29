@@ -159,7 +159,13 @@ export const ModelAvatar = forwardRef<THREE.Group, Props>(function ModelAvatar(
         const cloned = SkeletonUtils.clone(fbx) as THREE.Group;
         cloned.traverse((o: any) => {
             if (o.isMesh || o.isSkinnedMesh) {
-                o.castShadow = true;
+                // paused(굳은 주민 등 정지 인형)는 그림자를 드리우지 않아도 시각적 손실이
+                // 적은 반면, 그림자 패스는 드로우콜을 2배로 태운다 — 필드에 항시 마운트되는
+                // 정지 인형 수(SP1: 20명)가 늘면서 실측 드로우콜/시작 정지 타임라인에
+                // 누적 비용으로 잡혀(task-7 성능 스팟 실측) 정지 상태에서만 제외한다.
+                // isAwake 전환 시 FrozenVillager가 key로 전체 리마운트하므로 이 값은
+                // 인스턴스 생애 동안 고정이라 useMemo 재평가 비용 우려는 없다.
+                o.castShadow = !paused;
                 o.receiveShadow = true;
                 if (o.geometry) prepareAvatarGeometry(o.geometry);
                 const setMat = (m: any) => {
@@ -187,7 +193,7 @@ export const ModelAvatar = forwardRef<THREE.Group, Props>(function ModelAvatar(
         }
 
         return cloned;
-    }, [fbx, normalizeHeightTo]);
+    }, [fbx, normalizeHeightTo, paused]);
 
     const groupRef = useRef<THREE.Group>(null);
 
