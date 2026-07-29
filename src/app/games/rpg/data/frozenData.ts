@@ -49,7 +49,7 @@ export const FROZEN_VILLAGERS: FrozenVillagerDef[] = [
         id: "f_kids2",
         pos: { x: 33, y: -33.25, z: -13 },
         model: "/character/Cowboy_Hair.fbx",
-        rotationY: Math.PI,
+        rotationY: Math.atan2(32, 11), // 도망친 친구를 쫓듯 고개를 돌린 방향(길 건너편)
         frozen: [
             { speaker: "…", text: "골목 어귀, 술래와 도망자가 나란히 굳어 있다. 술래는 아직도 눈을 가린 채 열을 세는 자세다." },
             { speakerId: "arin", text: "술래잡기 도중인가. …다치지 않았으니 다행이다." },
@@ -76,7 +76,7 @@ export const FROZEN_VILLAGERS: FrozenVillagerDef[] = [
         id: "f_smith_helper",
         pos: { x: 38, y: -33.25, z: -25 },
         model: "/character/VikingHelmet.fbx",
-        rotationY: Math.PI,
+        rotationY: Math.atan2(8.5, -1.5), // 대장간(46.5,-26.5) 쪽 — 말 찾으러 두리번거리던 방향
         frozen: [
             { speaker: "…", text: "편자를 주문하러 온 마부가 대장간 앞에 굳어 있다. 내려놓은 짐꾸러미 사이로 낡은 편자가 삐죽 나와 있다." },
             { speakerId: "lotti", text: "말도 기다리다 지쳤나 봐. 주인 찾으러 어디 갔을까." },
@@ -90,7 +90,7 @@ export const FROZEN_VILLAGERS: FrozenVillagerDef[] = [
         id: "f_lovers",
         pos: { x: 65, y: -33.25, z: -2 },
         model: "/character/Knight_Golden_Female.fbx",
-        rotationY: Math.PI,
+        rotationY: Math.atan2(-52.2, -12), // 광장(12.8,-14) 쪽 — 마을 소리에 돌아본 방향
         frozen: [
             { speaker: "…", text: "손을 맞잡으려던 두 사람이 반걸음 거리를 둔 채 굳어 있다. 마지막 한마디가 입술에 걸려 있다." },
             { speakerId: "lotti", text: "고백하려던 순간 굳어버린 거야…? 너무해, 이건 꼭 되돌려놔야 해!" },
@@ -104,7 +104,7 @@ export const FROZEN_VILLAGERS: FrozenVillagerDef[] = [
         id: "f_grandma",
         pos: { x: 8, y: -33.25, z: -38 },
         model: "/character/Witch.fbx",
-        rotationY: Math.PI,
+        rotationY: Math.atan2(4.8, 24), // 광장(12.8,-14) 창밖 방향 — 뜨개질하며 지켜보던 쪽
         frozen: [
             { speaker: "…", text: "뜨개바늘을 쥔 손이 굳어 있다. 실타래만 바람이 불 때마다 조금씩 풀렸다 감겼다 한다." },
             { speakerId: "arin", text: "실이 바람에 흔들리는군. …완전한 정지는 아니라는 뜻이다." },
@@ -118,7 +118,7 @@ export const FROZEN_VILLAGERS: FrozenVillagerDef[] = [
         id: "f_watchman",
         pos: { x: 10, y: -33.25, z: 18 },
         model: "/character/BlueSoldier_Female.fbx",
-        rotationY: Math.PI,
+        rotationY: Math.atan2(14.5, -35), // 시계탑(24.5,-17) 방향 — 손가락으로 가리키던 쪽
         frozen: [
             { speaker: "…", text: "성문 앞에서 시계탑을 향해 손가락을 뻗은 채 굳어 있다. 눈에는 놀란 빛이 그대로 남아 있다." },
             { speakerId: "arin", text: "탑을 가리키고 있다. 마지막으로 본 게 저것이었나." },
@@ -132,7 +132,7 @@ export const FROZEN_VILLAGERS: FrozenVillagerDef[] = [
         id: "f_diary_girl",
         pos: { x: 20, y: -33.25, z: -45 },
         model: "/character/Viking_Female.fbx",
-        rotationY: Math.PI,
+        rotationY: Math.atan2(-4.5, -28), // 시계탑(24.5,-17) 반대 — 겁에 질려 돌아앉은 방향
         frozen: [
             { speaker: "…", text: "무릎 위에 일기장을 펼친 채 굳어 있다. 마지막 문장이 잉크도 마르지 못하고 멈춰 있다." },
             { speakerId: "lotti", text: "『오늘 밤, 시계탑에서 이상한 소리가—』…여기서 끊겼어. 무서웠겠다." },
@@ -202,7 +202,7 @@ export const FROZEN_VILLAGERS: FrozenVillagerDef[] = [
         id: "f_shepherd",
         pos: { x: 22, y: -31.32, z: -235 },
         model: "/character/Cow.fbx",
-        rotationY: Math.PI,
+        rotationY: Math.atan2(-22, 25), // 제단(0,-210) 방향 — 양떼를 몰고 오르던 쪽
         frozen: [
             { speaker: "…", text: "양떼와 함께 언덕 비탈에 굳어 있다. 지팡이는 쓰러졌고, 풀만 발목 높이까지 자라 있다." },
             { speakerId: "theo", text: "식물은 멈추지 않았어요. 시간이 완전히 정지한 게 아니라, '사람만' 골라 멈춘 겁니다." },
@@ -216,7 +216,7 @@ export const FROZEN_VILLAGERS: FrozenVillagerDef[] = [
         id: "f_pilgrim",
         pos: { x: 2, y: -21.25, z: -165 },
         model: "/character/Ninja_Female.fbx",
-        rotationY: Math.PI,
+        rotationY: Math.atan2(-2, -45), // 제단(0,-210) 방향 — 기어오르던 쪽
         frozen: [
             { speaker: "…", text: "제단으로 이어진 비탈을 기어오르다 굳어 있다. 손톱 밑에 흙이 그대로 박혀 있다." },
             { speakerId: "arin", text: "여기까지 기어 올라왔다. 뭔가에 쫓기고 있었나." },
@@ -230,7 +230,7 @@ export const FROZEN_VILLAGERS: FrozenVillagerDef[] = [
         id: "f_hermit",
         pos: { x: -32, y: -22.25, z: -192 },
         model: "/character/Wizard.fbx",
-        rotationY: Math.PI,
+        rotationY: Math.atan2(34, 27), // 순례자 오솔길(2,-165) 쪽 — 손님을 기다리던 방향
         frozen: [
             { speaker: "…", text: "찻주전자를 기울인 채 굳어 있다. 따르던 찻물 한 줄기가 공중에 그대로 얼어붙어 있다." },
             { speakerId: "lotti", text: "차가 아직 안 떨어졌어! 이거 무슨 마법 같은 거야?" },
@@ -260,7 +260,7 @@ export const FROZEN_VILLAGERS: FrozenVillagerDef[] = [
         id: "f_runaway",
         pos: { x: 230, y: -44, z: 80 },
         model: "/character/Zombie_Female.fbx",
-        rotationY: Math.PI,
+        rotationY: Math.atan2(90.5, 62.5), // 협곡 입구(139.5,17.5) 반대 — 계속 달아나던 방향
         frozen: [
             { speaker: "…", text: "달아나던 자세 그대로 굳어 있다. 얼굴에는 지워지지 않은 공포가 남아 있다." },
             { speakerId: "lotti", text: "표정이… 너무 무서워하고 있어. 대체 뭘 본 거야?" },
@@ -275,7 +275,7 @@ export const FROZEN_VILLAGERS: FrozenVillagerDef[] = [
         id: "f_toymaker",
         pos: { x: 64, y: -33.25, z: -18 },
         model: "/character/Goblin_Male.fbx",
-        rotationY: Math.PI,
+        rotationY: Math.atan2(-1, 7), // 문 두드리는 소리(f_apprentice 63,-11) 쪽으로 고개 돌린 방향
         frozen: [
             { speaker: "…", text: "태엽 장난감을 감던 손이 굳어 있다. 장난감 병정만 홀로 태엽 소리를 내며 돌고 있다." },
             { speakerId: "theo", text: "손은 멈췄는데 장난감은 계속 돌아가요. 이 정교함은 보통 장인의 솜씨가 아니에요 — 스승이 따로 있다는 뜻이겠죠." },
@@ -289,7 +289,7 @@ export const FROZEN_VILLAGERS: FrozenVillagerDef[] = [
         id: "f_apprentice",
         pos: { x: 63, y: -33.25, z: -11 },
         model: "/character/Zombie_Male.fbx",
-        rotationY: Math.PI,
+        rotationY: Math.atan2(1, -7), // 공방 문(f_toymaker 64,-18) 방향 — 두드리려던 쪽
         frozen: [
             { speaker: "…", text: "공방 문을 두드리려던 자세로 굳어 있다. \"스승님!\"이라 외치던 입 모양이 그대로 남아 있다." },
             { speakerId: "arin", text: "스승이 이상해졌다고 외치는 중이었군. …공방 안쪽부터 조사한다." },

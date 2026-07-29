@@ -36,6 +36,28 @@ export const NPC_SPEAKERS: Record<string, { icon: string }> = {
     "퇴역 뱃사람": { icon: "⚓" },
     태엽기술자: { icon: "⚙️" },
     "투기장 관장": { icon: "🏟️" },
+    // SP1 T6 — frozenData 화자 라벨 전수(정경 묘사 "…" 포함) 아이콘 등록
+    "…": { icon: "⏸️" },
+    "빵집 주인": { icon: "🥖" },
+    아이들: { icon: "🙈" },
+    꽃장수: { icon: "🌸" },
+    마부: { icon: "🐴" },
+    연인들: { icon: "💑" },
+    할머니: { icon: "🧶" },
+    파수병: { icon: "👉" },
+    소녀: { icon: "📔" },
+    짐꾼: { icon: "📦" },
+    "늙은 어부": { icon: "🍲" },
+    선원: { icon: "🪢" },
+    고양이: { icon: "🐱" },
+    양치기: { icon: "🐑" },
+    순례자: { icon: "🙏" },
+    은둔자: { icon: "🍵" },
+    광부: { icon: "⛏️" },
+    도망자: { icon: "🏃" },
+    "공방 주인": { icon: "🧸" },
+    견습생: { icon: "🔧" },
+    탑지기: { icon: "🕰️" },
 };
 
 export type StoryTrigger = {
@@ -111,12 +133,24 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
                 text: "좋은 장비다! 인벤토리(I)에서 장착할 수 있어. 갓 구운 빵만큼 든든한걸.",
             },
             {
+                speakerId: "theo",
+                text: "남쪽에서 인기척이 느껴지네요. 정찰해 볼까요?",
+            },
+            {
                 speakerId: "arin",
                 text: "저쪽에 마물이 보인다. 놈들부터 정리한다.",
             },
             {
+                speakerId: "lotti",
+                text: "슬라임이라니, 물컹거리는 건 질색인데… 그래도 해야지, 뭐!",
+            },
+            {
                 speakerId: "theo",
                 text: "적 몸의 링이 조여들어 닿는 순간 — F로 쳐내고(패리), W로 피하세요(회피)! 빨간 링은 회피만 통합니다.",
+            },
+            {
+                speakerId: "arin",
+                text: "다치지 마라. 둘 다.",
             },
         ],
         nextStage: "tutorial_battle",
@@ -142,8 +176,24 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
                 text: "마을은 한숨 돌렸군. 다음은 항구다 — 등대지기가 태엽 조각을 지녔었다지.",
             },
             {
+                speakerId: "lotti",
+                text: "휴, 조용해지니까 마음이 놓이네. 다들 다치진 않았지?",
+            },
+            {
                 speakerId: "theo",
                 text: "동쪽 골목을 지나면 물가가 나옵니다. 가는 길에 깃발이 보이면 꼭 쉬어 가죠 — 기록은 생명이니까요.",
+            },
+            {
+                speakerId: "arin",
+                text: "서둘러야 한다. 태엽 조각이 물살에 휩쓸리기 전에.",
+            },
+            {
+                speakerId: "lotti",
+                text: "항구라니, 거기 생선구이가 유명하다던데… 나중에 꼭 먹어보자!",
+            },
+            {
+                speakerId: "theo",
+                text: "바닷바람에 지도 잉크가 번지지 않게 조심하죠. 자, 갑시다.",
             },
         ],
         nextStage: "ch3_port",
@@ -183,8 +233,11 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         flagsAll: ["defeated_guardians_0", "defeated_guardians_1", "defeated_guardians_2"],
         dialogue: [
             { speakerId: "lotti", text: "두 번째 조각이다! 반짝반짝… 갓 구운 파이처럼 탐스러운걸." },
+            { speakerId: "arin", text: "이걸로 둘. 하나 남았다." },
             { speakerId: "theo", text: "남은 건 하나 — 쪽지의 '협곡'이군요. 바다 건너 남동쪽 군도입니다." },
+            { speakerId: "lotti", text: "협곡이라니… 배 타고 가는 거지? 배멀미만 안 하면 좋겠는데." },
             { speakerId: "arin", text: "항구로 간다. 배를 내줄 사람을 찾지." },
+            { speakerId: "theo", text: "사공에게 서둘러 부탁해야겠네요. 해 지기 전에 항구에 닿아야 합니다." },
         ],
         nextStage: "ch5_gorge",
         objective: "항구의 사공을 찾아가자 ⛵",
@@ -205,8 +258,11 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         flagsAll: ["story_gorge_landing"],
         dialogue: [
             { speakerId: "theo", text: "저기! 태엽 조각을… 몸에 박아 넣은 마수예요. 시간을 삼키며 자란 겁니다." },
+            { speakerId: "lotti", text: "저게… 마수? 커도 너무 크다… 그래도 물러설 순 없어!" },
             { speaker: "태엽을 삼킨 마수", text: "…돌아가라. 시간은 이제, 나의 것이다." },
+            { speakerId: "theo", text: "링의 회전이 불규칙해요 — 패턴을 잘 살펴야 합니다. 다들 조심하세요." },
             { speakerId: "arin", text: "노라의 것을 돌려받겠다. 간다!" },
+            { speakerId: "lotti", text: "가자! 노라를 위해서!" },
         ],
         battle: { id: "gorge_boss", templates: ["gear_devourer", "clockwork_soldier", "clockwork_soldier"] },
     },
@@ -225,10 +281,17 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         flagsAll: ["story_gorge_boss_done"],
         dialogue: [
             { speakerId: "theo", text: "조각을 끼웁니다… 하나, 둘… 셋!" },
+            { speakerId: "arin", text: "…종소리다." },
             { speaker: "요리사", text: "종이… 종이 울린다! 오오, 거리를 봐 — 모두 깨어나고 있어!" },
+            { speakerId: "lotti", text: "저기 봐! 빵집 아저씨가 움직여— 진짜야, 갓 구운 빵 냄새가 나!" },
+            { speakerId: "theo", text: "곳곳에서 동시에 — 대장간 망치 소리, 아이들 웃음소리, 꽃향기까지. 시간이 정말로 다시 흐르고 있어요." },
+            { speakerId: "arin", text: "…다행이다. 정말로." },
             { speakerId: "arin", text: "임무 완료다. …수고했다, 둘 다." },
+            { speakerId: "lotti", text: "밤새 얼어 있던 마을이 아침 냄새로 가득해! 우리가 이걸 해낸 거야!" },
             { speakerId: "lotti", text: "끝나고 나니 배고파! 사부님, 축하 잔치 해요!" },
+            { speaker: "요리사", text: "여부가 있나! 온 마을이 다 함께 먹을 만큼 차려주지 — 다들 오늘은 배불리 자게!" },
             { speakerId: "theo", text: "노라의 시간이 다시 흐릅니다. 우리가, 해냈어요." },
+            { speakerId: "arin", text: "이제부터는… 노라의 아침이다. 마음껏 걸어봐라." },
         ],
         nextStage: "epilogue",
         objective: "되살아난 노라를 자유롭게 여행하자",
@@ -397,6 +460,24 @@ export const LORE_POINTS: LorePoint[] = [
             { speaker: "일지", text: "『태엽이 셋으로 갈라져 날아갔다. 하나는 바다로, 하나는 바람의 언덕으로, 하나는… 그 협곡으로.』" },
             { speaker: "일지", text: "『종이 다시 울릴 때까지, 아무도 깨어나지 못하리라.』" },
             { speakerId: "arin", text: "조사 완료다. 태엽 조각 셋 — 그게 우리 임무다." },
+        ],
+    },
+    {
+        // 등대지기 일지 재열람 — cs_lighthouse(T5) 3편 원문의 요약본. 낭독 컷신과 별개로
+        // 항구 도로변에 남겨진 사본을 언제든 다시 조사할 수 있게 한다(SP1 T6 §④).
+        // lighthouse_journal 트리거(161.2,-0.7, near radius 6)에서 9.98m 이격 —
+        // 단순 3.5m+ 최소 간격이 아니라 트리거의 자동발동 반경(6m) 밖에 두어 진입 시
+        // cs_lighthouse가 겹쳐 발동하는 것을 방지(헤드리스 실측으로 최초 배치 5.87m는
+        // 반경 6m 안쪽이라 재진입 시 컷신이 끼어드는 충돌을 확인해 재배치, 두 번째 후보
+        // (170,6)는 treasure:t8과 3.39m로 미달해 재차 이동). 기존 스팟 전수 3.5m+
+        // (audit-lore-e.ts, __navFindWalkable 드리프트 0.00m) 실측 완료.
+        id: "lighthouse_recap",
+        x: 168, y: -37.25, z: -8,
+        kind: "note",
+        label: "등대지기의 일지 (요약본)",
+        lines: [
+            { speaker: "일지", text: "『협곡의 불빛이 밤마다 커지고, 태엽 부품이 하나씩 사라지더니 — 이레째 밤, 마침내 '그분'이 협곡에서 걸어 나왔다.』" },
+            { speakerId: "theo", text: "다시 읽어도 소름 끼치는 기록이에요. …협곡에서 마주친 것과, 분명 같은 존재였겠죠." },
         ],
     },
     {
