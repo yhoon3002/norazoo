@@ -237,7 +237,7 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
             { speakerId: "theo", text: "남은 건 하나 — 쪽지의 '협곡'이군요. 바다 건너 남동쪽 군도입니다." },
             { speakerId: "lotti", text: "협곡이라니… 배 타고 가는 거지? 배멀미만 안 하면 좋겠는데." },
             { speakerId: "arin", text: "항구로 간다. 배를 내줄 사람을 찾지." },
-            { speakerId: "theo", text: "사공에게 서둘러 부탁해야겠네요. 해 지기 전에 항구에 닿아야 합니다." },
+            { speakerId: "theo", text: "사공에게 서둘러 부탁해야겠네요. 이 밤이 더 깊어지기 전에 항구에 닿아야 합니다." },
         ],
         nextStage: "ch5_gorge",
         objective: "항구의 사공을 찾아가자 ⛵",
