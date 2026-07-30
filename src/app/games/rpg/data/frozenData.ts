@@ -23,6 +23,14 @@ export type FrozenVillagerDef = {
     /** 에필로그 후 각성 대사 (1줄) */
     awake: DialogueLine[];
     reward?: { gold?: number; items?: Array<{ id: string; qty: number }> };
+    /**
+     * SP2a §④ awake2 규약 — 이 스테이지(stageAtLeast 기준) 도달 시 awake 대신
+     * awake2를 표시한다(둘 다 지정돼야 적용 — E 반복 가능·플래그/보상 없음, awake와
+     * 동일 계약). 2막 존별 각성 주민(f_porter·f_sailor 등)이 스테이지가 깊어질수록
+     * 증언 대사를 갈아 끼우는 데 쓴다. T1은 타입만 추가 — 실제 데이터는 T2/T5.
+     */
+    awake2From?: string;
+    awake2?: DialogueLine[];
 };
 
 /** 시간에 갇힌 청회색 — SP0 틴트 시스템(ModelAvatar tint) 재사용 */

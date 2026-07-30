@@ -13,7 +13,7 @@ import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import { useGame } from "../presenter/useGameStore";
 import { ModelAvatar } from "../actors/ModelAvatar";
-import { stageAtLeast } from "../data/storyData";
+import { stageAtLeast, type DialogueLine } from "../data/storyData";
 import { FROZEN_TINT, type FrozenVillagerDef } from "../data/frozenData";
 
 const INTERACT_RANGE = 2.6;
@@ -28,6 +28,11 @@ export function FrozenVillager({ def }: { def: FrozenVillagerDef }) {
     const stage = useGame((s) => s.story.stage);
     const inspected = useGame((s) => !!s.flags[`frozen_${def.id}`]);
     const isAwake = stageAtLeast(stage, "epilogue");
+    // SP2a §④ awake2 규약 — awake2From 스테이지 도달 + awake2 지정 시 awake 대신 표시
+    // (E 반복 가능·플래그/보상 없음, awake와 동일 계약).
+    const awake2Active =
+        !!def.awake2From && !!def.awake2 && stageAtLeast(stage, def.awake2From);
+    const awakeDialogue = awake2Active ? (def.awake2 as DialogueLine[]) : def.awake;
 
     useFrame((state) => {
         if (!groupRef.current) return;
@@ -82,7 +87,7 @@ export function FrozenVillager({ def }: { def: FrozenVillagerDef }) {
                 return;
 
             if (isAwake) {
-                s.startDialogue(def.awake);
+                s.startDialogue(awakeDialogue);
                 return;
             }
 
@@ -112,7 +117,9 @@ export function FrozenVillager({ def }: { def: FrozenVillagerDef }) {
         };
         window.addEventListener("keydown", h);
         return () => window.removeEventListener("keydown", h);
-    }, [inRange, isAwake, inspected, def]);
+        // awake2Active를 deps에 포함 — stage가 깊어져 isAwake는 이미 true인 채
+        // awake2 분기로 전환될 때도 핸들러가 최신 awakeDialogue를 잡도록 재구독한다.
+    }, [inRange, isAwake, inspected, def, awake2Active, awakeDialogue]);
 
     return (
         <group

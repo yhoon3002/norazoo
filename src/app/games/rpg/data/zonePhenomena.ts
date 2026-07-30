@@ -16,6 +16,10 @@ export type PhenomenonDef = {
     particles?: { count: number; color: string; size: number; yBand: [number, number] };
 };
 
+// 배열 순서 = 우선순위 — 같은 존에서 여러 현상이 동시에 활성(flag=true)이면
+// 배열상 앞에 놓인 항목이 이긴다(phenomenonAt은 Array.find로 첫 매치를 반환 —
+// SP2a에서 phen_port2가 phen_port "재발"판으로 항구에 겹쳐 점등될 때, phen_port2를
+// 이 배열의 phen_port 항목 앞에 배치하면 별도 로직 변경 없이 우선순위가 해결된다).
 export const ZONE_PHENOMENA: PhenomenonDef[] = [
     {
         zone: "port",

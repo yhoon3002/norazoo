@@ -159,4 +159,30 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
         { type: "say", line: { speakerId: "lotti", text: "(SP0 테스트) 전투 후에도 이어진다!" } },
         { type: "set", flags: { sp0_battle_cutscene_done: true } },
     ],
+    // ===== SP2a T1 — 2막 개막 막간① (징조 컷신) =====
+    // 카메라는 헤드리스 rAF 캡처로 실측 확정(scratchpad/sp2a-t1-cam-probe.js,
+    // sp2a-cs_act2_omen.png). 광장 두 샷(요리사 앞 대로)은 cs_cook_meet의 두 번째 cam
+    // 좌표를 재사용(같은 앵커·재건 광장 배경 — 1막 보상의 시각적 재확인), 시계탑 실루엣은
+    // cs_opening 엔딩 리빌 구도를 재사용(같은 탑, "헛도는 조짐"이라는 다른 의미로).
+    cs_act2_omen: [
+        { type: "cam", pos: { x: 16, y: -31, z: -17 }, lookAt: { x: 12.8, y: -31.8, z: -14 }, ms: 1600, hold: 1200 },
+        { type: "fx", popup: { text: "🔔 시계탑이 한 박자, 헛돈다", color: "#f5c96b" } },
+        { type: "say", line: { speakerId: "theo", text: "…방금, 종소리 박자가 하나 어긋났어요. 재보정 오차치고는 너무 큽니다." } },
+        { type: "say", line: { speakerId: "arin", text: "다시 멈추는 조짐인가. …경계한다." } },
+        { type: "say", line: { speakerId: "lotti", text: "잔치 끝난 지 얼마나 됐다고… 부디 착각이었으면 좋겠는데." } },
+        { type: "cam", pos: { x: 30, y: -20, z: -30 }, lookAt: { x: 18, y: -8, z: 0 }, ms: 2000, hold: 1400 },
+        { type: "say", line: { speakerId: "arin", text: "탑은 아직 돌고 있다. …그런데도 이 불안은 가시지 않는다." } },
+        { type: "cam", pos: { x: 16, y: -31, z: -17 }, lookAt: { x: 12.8, y: -31.8, z: -14 }, ms: 1400, hold: 900 },
+        { type: "say", line: { speaker: "전령", text: "실례합니다 — 왕도 조사대를 찾고 있었습니다! 항구 쪽에서 급보가 왔습니다." } },
+        { type: "say", line: { speaker: "전령", text: "『파도가 다시 멈췄소.』 등대지기가 보내온 전갈입니다. …혹 아직 이 근방에 계신다면, 다시 한번 힘을 빌리고 싶다 했습니다." } },
+        { type: "say", line: { speakerId: "lotti", text: "또…? 겨우 되찾은 아침인데. 그래도 파도가 멈췄다면, 누군가 또 그 자리에 굳어 있단 소리잖아." } },
+        { type: "say", line: { speakerId: "theo", text: "재발이라니 — 반갑지 않은 소식이네요. 태엽 조각 셋을 전부 되찾았는데도 이상이 되풀이된다는 뜻이니까요." } },
+        { type: "say", line: { speakerId: "arin", text: "이유는 항구에 가서 찾는다. …지금은 서두르는 게 먼저다." } },
+        { type: "say", line: { speakerId: "theo", text: "동감이에요. 다만 기록은 남겨두죠 — 이 재발, 노라 하나만의 사정이 아닐 수도 있습니다." } },
+        { type: "say", line: { speakerId: "lotti", text: "무섭게 말하지 마… 그치만 짐꾼 아저씨랑 뱃사람들, 또 굳어버렸을지도 모르잖아. 가만있을 순 없어." } },
+        { type: "say", line: { speakerId: "arin", text: "간다. 항구부터 — 이번에도 우리가 되돌린다." } },
+        { type: "say", line: { speakerId: "lotti", text: "좋아! 이번엔 진짜로 그 생선구이 먹으러 가는 거야. 가자!" } },
+        { type: "fx", popup: { text: "⚙️ 2막 — 여덟 개의 멈춘 시간", color: "#a78bfa" } },
+        { type: "camReset", ms: 1200 },
+    ],
 };

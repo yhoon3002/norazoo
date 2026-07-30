@@ -58,6 +58,8 @@ export const NPC_SPEAKERS: Record<string, { icon: string }> = {
     "공방 주인": { icon: "🧸" },
     견습생: { icon: "🔧" },
     탑지기: { icon: "🕰️" },
+    // SP2a T1 — 막간① cs_act2_omen 신규 화자(항구발 전갈을 낭독하는 왕도 전령)
+    전령: { icon: "📯" },
 };
 
 export type StoryTrigger = {
@@ -98,6 +100,10 @@ export const STAGE_ORDER = [
     "ch4_hill",
     "ch5_gorge",
     "epilogue",
+    // SP2a — 2막 「여덟 개의 멈춘 시간」 개막(항구·바람 언덕). 뒤에 append만
+    // (구세이브 stage 인덱스 불변 — 에필로그 세이브가 자연스럽게 2막 진입).
+    "act2_port",
+    "act2_hill",
 ] as const;
 
 export function stageAtLeast(current: string, target: string): boolean {
@@ -305,6 +311,18 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         reward: { gold: 3000, items: [ { id: "golden_herb", qty: 3 }, { id: "monster_core", qty: 5 } ] },
         // 항구의 시간도 돌아왔다 — SP2a에서 재발 (SP1 최종 리뷰 I-2)
         setFlags: { phen_port: false },
+    },
+    // ===== SP2a T1 — 2막 개막 막간① (징조 컷신) =====
+    // 에필로그(1막 완료) 상태에서 재건 광장 인근 재진입 시 발동. 신규 스테이지라
+    // 구세이브(에필로그 완료본)는 그대로 광장에 서 있다가 자연히 마주친다.
+    {
+        id: "act2_omen",
+        stage: "epilogue",
+        near: { x: 12.8, z: -14, radius: 8 }, // 재건 광장(요리사 위치 인근)
+        cutscene: "cs_act2_omen",
+        nextStage: "act2_port",
+        objective: "항구로 — 파도가 다시 멈췄다",
+        target: { x: 218.6, z: -14.7 },
     },
 ];
 
