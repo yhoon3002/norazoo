@@ -21,6 +21,15 @@ export type PhenomenonDef = {
 // SP2a에서 phen_port2가 phen_port "재발"판으로 항구에 겹쳐 점등될 때, phen_port2를
 // 이 배열의 phen_port 항목 앞에 배치하면 별도 로직 변경 없이 우선순위가 해결된다).
 export const ZONE_PHENOMENA: PhenomenonDef[] = [
+    // SP2a T2 — 「멈춘 파도」 재발(강화판). phen_port(1막)보다 앞에 두어 두 플래그가
+    // 공존해도(구세이브 잔존 등) 이 항목이 우선한다 — 포그 짙고 파티클 증량.
+    {
+        zone: "port",
+        flag: "phen_port2",
+        fog: { color: "#46626f", near: 10, far: 55 },
+        dirIntensity: 2.2,
+        particles: { count: 550, color: "#dceaf2", size: 0.07, yBand: [-38, -30] },
+    },
     {
         zone: "port",
         flag: "phen_port",

@@ -165,6 +165,13 @@ export const FROZEN_VILLAGERS: FrozenVillagerDef[] = [
         awake: [
             { speaker: "짐꾼", text: "어이쿠, 무거워라! …근데 방금 파도 소리가 다시 들리지 않았소?" },
         ],
+        // SP2a T2 — 항구 재발 증언(2막 act2_port부터). 1막 awake의 마지막 질문
+        // ("파도 소리가 다시 들리지 않았소?")에 대한 답으로 자연스럽게 이어진다.
+        awake2From: "act2_port",
+        awake2: [
+            { speaker: "짐꾼", text: "파도가 또… 그날 밤이 돌아온 것 같소. 아까 그렇게 출렁이더니, 순식간에 다시 얼어붙어 버렸다니까." },
+            { speaker: "짐꾼", text: "부두 끝자락에 못 보던 소용돌이가 생겼소 — 물빛부터 심상치 않더군. 조심들 하시게." },
+        ],
     },
     {
         id: "f_fisher_old",
@@ -192,6 +199,14 @@ export const FROZEN_VILLAGERS: FrozenVillagerDef[] = [
         ],
         awake: [
             { speaker: "선원", text: "밧줄이 당겨진다! 자, 이제야 출항이다 — 다들 고맙소, 정말!" },
+        ],
+        // SP2a T2 — 항구 재발 증언(2막 act2_port부터). 1막 awake에서 겨우 출항하려던
+        // 참이었는데 그마저 재발로 다시 멎었다는 연결.
+        awake2From: "act2_port",
+        awake2: [
+            { speaker: "선원", text: "돛을 올리자마자 이 꼴이오! 밧줄이 손에서 그대로 얼어붙었으니, 원." },
+            { speaker: "선원", text: "바다 쪽 소용돌이 봤소? 배를 그리로 못 내겠더군 — 저건 그냥 물살이 아니오." },
+            { speaker: "선원", text: "그대들이 한 번 해결해 줬으니, 이번에도 기대해 보겠소." },
         ],
     },
     {

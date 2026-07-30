@@ -185,4 +185,42 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
         { type: "fx", popup: { text: "⚙️ 2막 — 여덟 개의 멈춘 시간", color: "#a78bfa" } },
         { type: "camReset", ms: 1200 },
     ],
+    // ===== SP2a T2 — 항구 챕터 「멈춘 파도」 재발(조사 아크 컷신 2종) =====
+    // 카메라는 헤드리스 rAF 캡처로 실측 확정(scratchpad/sp2a-t2-cam-probe.js →
+    // sp2a-cs_port2_arrival.png·sp2a-cs_arin_letter.png). 항구 앵커 박스(214~235,-38층) 준수.
+    // cs_port2_arrival 1번 샷은 1막 cs_port_arrival의 첫 샷 좌표를 그대로 재사용(같은 부두,
+    // "재발"이라는 다른 의미로 — cs_act2_omen의 재사용 관례 계승). 2번 샷은 신규 실측(수로를
+    // 따라 내려다보는 수평에 가까운 조망 — 부두 수면 방향, 부감 아님).
+    cs_port2_arrival: [
+        { type: "set", flags: { phen_port2: true } },
+        { type: "cam", pos: { x: 222, y: -33, z: -13 }, lookAt: { x: 235, y: -36, z: -9 }, ms: 1800, hold: 900 },
+        { type: "say", line: { speakerId: "lotti", text: "또 이 침묵이야… 아니, 이번엔 그때보다 더 무거워. 냄새조차 하나도 없어." } },
+        { type: "cam", pos: { x: 233, y: -25, z: -8 }, lookAt: { x: 233, y: -38, z: 25 }, ms: 1800, hold: 1400 },
+        { type: "fx", popup: { text: "🐦 얼어붙은 파도 위, 갈매기 한 마리가 멈춰 있다", color: "#7dd3fc" } },
+        { type: "say", line: { speakerId: "theo", text: "포그 밀도가 1막 때보다 짙어요. 저 갈매기도 날갯짓 중에 그대로 멈췄고요 — 단순 재발이 아니라, 정지 강도 자체가 짙어진 겁니다." } },
+        { type: "say", line: { speakerId: "theo", text: "지난번엔 항구부터 시간이 풀렸었죠. 이번엔 반대로 항구부터 다시 잠깁니다. …원인이 이 근방에 있다는 뜻이겠죠." } },
+        { type: "say", line: { speakerId: "arin", text: "다 되돌렸다고 생각했다. …그런데 이번엔 더 깊이 얼어붙었다. 짐꾼과 뱃사람부터 확인한다." } },
+        { type: "say", line: { speakerId: "lotti", text: "돌아온 거야, 그 밤이…? 그래도 이번엔 뭐가 다른지부터 알아보고 가자. 무작정 무서워만 하기엔 억울하잖아." } },
+        { type: "camReset", ms: 1200 },
+    ],
+    // 아린 서사 1장 — 부두에서 왕도 전령과 조우(cs_act2_omen과 동일 인물, 화자 "전령" 라벨
+    // 재사용 — 브리프의 "왕도 전령" 표기는 통일 대상, T1 리뷰 이월 지시 반영). 봉인 서신
+    // 낭독 + 아린의 절제된 갈등 개시. "그분"은 이미 1막에서 명명된 용어를 재언급할 뿐,
+    // 정체를 새로 지목하지 않는다 — 태엽장인(공방 주인)도 이름으로 특정하지 않는다.
+    cs_arin_letter: [
+        { type: "cam", pos: { x: 220, y: -35, z: -8 }, lookAt: { x: 216, y: -37, z: -12 }, ms: 1600, hold: 900 },
+        { type: "say", line: { speaker: "전령", text: "실례합니다 — 왕도 조사대를 다시 뵙는군요. 항구까지 오시느라 고생하셨을 텐데, 하나만 더 부탁드리러 왔습니다." } },
+        { type: "cam", pos: { x: 214, y: -36, z: -14 }, lookAt: { x: 226, y: -37, z: -14 }, ms: 1600, hold: 1200 },
+        { type: "say", line: { speaker: "전령", text: "봉인 서신입니다. 기사단 문장이 찍혀 있더군요 — 저는 내용을 알지 못합니다. 조사대분들께 직접 전하라는 명이었습니다." } },
+        { type: "fx", popup: { text: "📜 봉인 서신 — 기사단 문장", color: "#f5c96b" } },
+        { type: "say", line: { speakerId: "arin", text: "…내가 개봉하지." } },
+        { type: "say", line: { speakerId: "arin", text: "『대륙 전역에서 유사한 시간 이상이 다수 보고됨. 노라는 처음이 아니었다.』 …기사단이, 이걸 알고 있었다는 건가." } },
+        { type: "say", line: { speakerId: "theo", text: "처음이 아니었다니 — 저희가 항구를 되돌리기 전부터, 이미 다른 곳에서도 벌어지고 있었단 뜻이겠군요. 보고를 받고도 왜 침묵했을까요." } },
+        { type: "say", line: { speakerId: "arin", text: "…알면서도, 보내지 않았다. 그럴 이유가 있었겠지. 지금은 묻지 않는다." } },
+        { type: "say", line: { speakerId: "lotti", text: "아린…? 괜찮아? 그런 표정, 나한테는 그냥 숨기지 않아도 돼." } },
+        { type: "say", line: { speakerId: "arin", text: "괜찮다. …다만 등대지기의 일지에 있던 '그분'이, 이 일과 무관하지 않다는 확신만 굳어질 뿐이다." } },
+        { type: "say", line: { speakerId: "theo", text: "공방 쪽 흔적도 겹칩니다. …전부 기록해 두죠. 지금은 소용돌이 아래부터 확인해야겠어요." } },
+        { type: "say", line: { speakerId: "lotti", text: "가자. …근데 이번 잔치는, 다 끝나고 제대로 하는 거다? 사부님 몫까지 남겨둬야지." } },
+        { type: "camReset", ms: 1200 },
+    ],
 };

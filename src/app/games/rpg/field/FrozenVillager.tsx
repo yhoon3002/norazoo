@@ -2,6 +2,8 @@
 // 에필로그(시계탑 복구) 전: ModelAvatar paused+FROZEN_TINT 정지 인형 —
 //   E로 사연 대사(2~3줄) + frozen_${id} 플래그 + killCounts.frozen_seen 증가 + 최초 1회 보상.
 // 에필로그 후: 틴트 해제·idle 재생으로 각성 — E로 감사 대사 1줄(플래그·보상 없음, 반복 가능).
+// SP2a §④: awake2From 스테이지(예: act2_port) 도달 시 awake 대신 awake2를 표시(2막 존별
+// 증언 갱신 — E 반복 가능·플래그/보상 없음, awake와 동일 계약. 아래 awake2Active 참조).
 // tint 해제는 ModelAvatar가 지원하지 않으므로(SP0 설계) key 변경으로 리마운트해 처리한다.
 // E 게이트: FieldSmith/DungeonDoor 관례(combat idle·dialogue 0·패널 닫힘·cutscene 게이트·
 // INTERACT_RANGE 2.6·8프레임 스로틀 inRange·navFindWalkable 스냅) 그대로.

@@ -324,6 +324,64 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         objective: "항구로 — 파도가 다시 멈췄다",
         target: { x: 218.6, z: -14.7 },
     },
+    // ===== SP2a T2 — 항구 챕터 「멈춘 파도」 재발 조사 아크(체인 4비트) =====
+    // 전부 nextStage 미지정(act2_port 유지) — act2_hill 전이는 T4의 relic 트리거(보스
+    // 격파 후) 몫. 좌표는 전부 __navFindWalkable 이원 검증 완료(drift ≤1.0m —
+    // scratchpad/sp2a-t2-probe.js·sp2a-t2-probe3.js) + 배치 감사 위반 0
+    // (scratchpad/sp2a-t2-audit.ts).
+    {
+        id: "port2_arrival",
+        stage: "act2_port",
+        // 부두 초입 — 1막 reach_port(218.6,-14.7) 일대는 treasure:t10·flag:port·
+        // trigger:reach_port·보트맨·어군 등 기존 상호작용점이 밀집해 3.5m 클리어 지점이
+        // 없다. TRAIL_PORT_ROAD 진입 지점(218.6,-16.1)에서 반경8 안(5.91m)에 들면서도
+        // 기존 전 스팟과 3.5m+ 이격된 지점으로 소폭 이동(__navFindWalkable drift 0.50m,
+        // 배치 감사 위반 0 — sp2a-t2-audit.ts).
+        near: { x: 219, z: -22, radius: 8 },
+        cutscene: "cs_port2_arrival",
+        objective: "깨어난 주민들의 증언을 듣자",
+        target: { x: 231.5, z: -19 },
+    },
+    {
+        // 증언 완료 판정은 두 주민(f_porter·f_sailor)의 awake2 E 조사를 직접 게이팅하지
+        // 않는다 — FrozenVillager는 임의 플래그를 세우는 계약이 없으므로, 두 주민 사이
+        // 부두 중간 지점 근접으로 "증언 2곳 순회"를 대신한다(주민 E는 연출, 진행은 트리거).
+        id: "port2_witness",
+        stage: "act2_port",
+        near: { x: 231.5, z: -19, radius: 8 }, // 부두 중간(f_porter 230,-30 / f_sailor 233,-8의 중점)
+        dialogue: [
+            { speakerId: "arin", text: "짐꾼도, 뱃사람도 같은 말을 했다. 파도가 멎었던 그 밤이 되풀이됐다고. 그리고 부두 끝에서 이상한 소용돌이를 봤다더군." },
+            { speakerId: "theo", text: "두 증언이 겹친다는 건 우연이 아닐 겁니다. 부두 끝의 소용돌이부터 확인해 보죠." },
+            { speakerId: "lotti", text: "그 밤이 또…? 국이 다시 끓어오르듯 파도가 되살아났다니, 이번엔 얼른 잠재우고 오자." },
+        ],
+        objective: "부두 끝의 소용돌이를 조사하자",
+        target: { x: 245, z: -15 },
+    },
+    {
+        id: "port2_vortex",
+        stage: "act2_port",
+        near: { x: 245, z: -15, radius: 8 }, // 부두 끝
+        flagsAll: ["story_port2_witness"],
+        dialogue: [
+            { speakerId: "theo", text: "저게… 소용돌이입니다. 자연스러운 물살이 아니에요 — 파도가 한 지점으로만 계속 빨려 들어가고 있어요." },
+            { speakerId: "arin", text: "바닥에 뭔가 있다는 뜻이다. …물 아래, 침수된 창고 쪽인가." },
+            { speakerId: "lotti", text: "저 아래 뭐가 있든, 이번에도 우리가 건져내야겠지. 생선구이는 다음으로 미뤄야겠다." },
+        ],
+        objective: "부두 입구로 돌아가자",
+        target: { x: 216, z: -12 },
+        setFlags: { port2_vortex_found: true },
+    },
+    {
+        // 아린 서사 1장 — 부두에서 왕도 전령과 조우(cs_act2_omen과 동일 인물, "전령" 라벨 재사용).
+        // 봉인 서신 낭독 + 아린 갈등 개시("그분" 직접 명명 없이 교차).
+        id: "port2_arin",
+        stage: "act2_port",
+        near: { x: 216, z: -12, radius: 8 }, // 부두 입구 인근(항구 앵커 대역 214~235,-38층 안)
+        flagsAll: ["story_port2_vortex"],
+        cutscene: "cs_arin_letter",
+        objective: "소용돌이 아래, 침수된 창고를 살펴보자",
+        target: { x: 245, z: -15 },
+    },
 ];
 
 // ===== 길잡이 마커 경로 (스테이지별) =====
