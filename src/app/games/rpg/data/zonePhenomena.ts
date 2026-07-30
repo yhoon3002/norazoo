@@ -38,6 +38,19 @@ export const ZONE_PHENOMENA: PhenomenonDef[] = [
         ambientColor: "#a8c4d4",
         particles: { count: 400, color: "#cfe8f5", size: 0.06, yBand: [-38, -30] },
     },
+    // SP2a T5 — 바람 언덕 「반복되는 하루」. hill 존에 기존 현상 항목이 없어 우선순위 경합이
+    // 없다(port2/port처럼 같은 존에서 겹치는 항목이 있을 때만 배열 순서가 의미를 가진다).
+    // 호박색 여명이 미동 없이 고정된 인상 — 짙은 호박빛 포그·낮은 디렉셔널·앰비언트 틴트·
+    // 뜬 채 멈춘 꽃가루 파티클. yBand는 hill 존 도보 구간 표고(대략 -33~-7) 중 트리거
+    // 3곳 실측 표고(-20.56~-31.32)를 감싸는 대역으로 선정.
+    {
+        zone: "hill",
+        flag: "phen_hill",
+        fog: { color: "#c9a86a", near: 14, far: 80 },
+        dirIntensity: 3.2,
+        ambientColor: "#e8c890",
+        particles: { count: 300, color: "#f5e6c8", size: 0.05, yBand: [-30, -12] },
+    },
 ];
 
 /**

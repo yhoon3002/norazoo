@@ -247,4 +247,41 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
         { type: "fx", popup: { text: "🌊✨ 파도의 유물 획득 (1/?)", color: "#a78bfa" } },
         { type: "camReset", ms: 1200 },
     ],
+    // ===== SP2a T5 — 바람 언덕 챕터 「반복되는 하루」(체인 컷신 2종) =====
+    // 카메라는 헤드리스 rAF 캡처로 실측 확정(scratchpad/sp2a-t5-cam-probe.js·-probe3.js →
+    // sp2a-cs_hill2_arrival.png·sp2a-cs_lotti_home.png). 언덕 앵커 박스(hill2_arrival~lotti
+    // 4트리거 walkable 실측) 준수, 전부 수평 시선(부감 없음).
+    cs_hill2_arrival: [
+        // phen_hill 활성 — 호박빛 여명 고정 첫 가동(선점등 규약, 순수 점등이라 선적용 무해)
+        { type: "set", flags: { phen_hill: true } },
+        { type: "cam", pos: { x: 8, y: -18, z: -184 }, lookAt: { x: 0, y: -20.5, z: -178 }, ms: 1800, hold: 900 },
+        { type: "say", line: { speakerId: "lotti", text: "…같은 뱃고동 소리인 줄 알았어. 아니, 이건— 같은 양 울음이야. 방금 그 울음, 분명 아까도 들었어." } },
+        { type: "cam", pos: { x: -6, y: -17, z: -172 }, lookAt: { x: 0, y: -20.5, z: -178 }, ms: 1800, hold: 1400 },
+        { type: "fx", popup: { text: "🌅 호박빛 여명이 미동조차 없다", color: "#f5c96b" } },
+        { type: "say", line: { speakerId: "theo", text: "여명이 조금도 움직이지 않아요. 해가 뜨는 게 아니라, 뜬 채로 멈춰 있는 겁니다 — 항구 때와는 결이 달라요." } },
+        { type: "say", line: { speakerId: "arin", text: "같은 아침이 되풀이되고 있다. …주민들은 눈치채지 못한 채로." } },
+        { type: "say", line: { speakerId: "lotti", text: "매일 같은 국을 끓이는 셈이야. 간도, 불 조절도 하나 안 바뀌는… 그런 국. 생각만 해도 소름 끼쳐." } },
+        { type: "say", line: { speakerId: "theo", text: "주민들 반응부터 확인해 보죠. 다들 오늘이 처음이라고 믿고 있을 겁니다." } },
+        { type: "say", line: { speakerId: "arin", text: "간다. 증인을 찾는다." } },
+        { type: "camReset", ms: 1200 },
+    ],
+    // 제단 뒤 목장의 오두막 — 로티의 고향, 사부의 낡은 조리 노트 발견(T2의 cs_arin_letter
+    // 대응: 서사 컷신 + 귀환 동선). "장인과 함께 먹던 스튜" 1줄로 공방 장인(f_toymaker) 복선과
+    // 교차하되, 태엽장인("그분")을 직접 지목하지 않는다 — 1막 로어(공방 주인이 "그분"에게
+    // 태엽 기술을 배웠다는 f_toymaker 증언, cs_lighthouse의 "그분" 명명)와 모순 없이, 로티의
+    // 사부와 공방 주인이 아는 사이였다는 인간적 디테일만 additive로 얹는다.
+    cs_lotti_home: [
+        { type: "cam", pos: { x: 22, y: -29, z: -246 }, lookAt: { x: 32, y: -31, z: -248 }, ms: 1800, hold: 900 },
+        { type: "say", line: { speakerId: "lotti", text: "…이 문, 손잡이 모양이… 사부님 댁이랑 똑같아. 설마—" } },
+        { type: "cam", pos: { x: 26, y: -29, z: -253 }, lookAt: { x: 32, y: -30, z: -246 }, ms: 1800, hold: 1200 },
+        { type: "say", line: { speakerId: "arin", text: "…이곳이, 요리사의 고향인가." } },
+        { type: "fx", popup: { text: "📓 낡은 조리 노트를 발견했다", color: "#f5c96b" } },
+        { type: "say", line: { speakerId: "lotti", text: "『소금은 손끝으로, 온도는 마음으로.』 …사부님 글씨체야. 진짜, 진짜 사부님 거야." } },
+        { type: "say", line: { speaker: "조리 노트", text: "『이 스튜는 그 공방의 장인과 함께 먹던 맛이다. 톱니 소리 울리던 그곳에서, 처음 이 조리법을 배웠다.』" } },
+        { type: "say", line: { speakerId: "theo", text: "'공방의 장인'이라니 — 그냥 넘기기엔 걸리는 대목이네요. …기록해 두겠습니다." } },
+        { type: "say", line: { speakerId: "lotti", text: "사부님이 여기 살았었구나… 근데 왜 한 번도 얘기 안 해주셨을까. 조리법 자랑은 그렇게 하시더니." } },
+        { type: "say", line: { speakerId: "theo", text: "…물어보고 싶은 게 많으시겠죠. 지금은, 우선 이 반복부터 끊어야겠지만요." } },
+        { type: "say", line: { speakerId: "arin", text: "돌아가면, 사부에게 직접 묻는다. …지금은 이 아래부터다." } },
+        { type: "camReset", ms: 1200 },
+    ],
 };

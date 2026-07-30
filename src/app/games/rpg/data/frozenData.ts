@@ -238,6 +238,13 @@ export const FROZEN_VILLAGERS: FrozenVillagerDef[] = [
         awake: [
             { speaker: "양치기", text: "어라, 풀이 이렇게 자랐나! 얘들아, 다들 무사하구나 — 다행이다!" },
         ],
+        // SP2a T5 — 언덕 재발 증언(2막 act2_hill부터). 1막 awake의 안도("다들 무사하구나")가
+        // 재발로 다시 불안으로 뒤집힌다는 연결.
+        awake2From: "act2_hill",
+        awake2: [
+            { speaker: "양치기", text: "…이상하지, 어제 기억이 나질 않아. 분명 눈을 뜨면 어제와 똑같은 아침이야." },
+            { speaker: "양치기", text: "양들도 매번 같은 자리에서 풀을 뜯어. 하루가 아니라, 몇 번째인지도 모르겠구먼." },
+        ],
     },
     {
         id: "f_pilgrim",
@@ -266,6 +273,13 @@ export const FROZEN_VILLAGERS: FrozenVillagerDef[] = [
             { speaker: "은둔자", text: "…아, 차가 식어버렸군. 뭐, 다시 끓이면 그만이지. 앉아서 한잔 하고 가려나?" },
         ],
         reward: { items: [{ id: "herb", qty: 2 }] },
+        // SP2a T5 — 언덕 재발 증언(2막 act2_hill부터). 1막 awake에서 "다시 끓이면 그만"이라던
+        // 여유가, 재발로는 끓지도 식지도 않는 이상 현상으로 뒤집힌다는 연결.
+        awake2From: "act2_hill",
+        awake2: [
+            { speaker: "은둔자", text: "…이거 보게, 찻물이 매일 아침 같은 온도야. 식지도, 더 끓지도 않아. 이상한 일이지." },
+            { speaker: "은둔자", text: "제단 너머 목장 쪽에서 뭔가 시작된 것 같은데… 나이 든 몸으로 가보긴 무리일세." },
+        ],
     },
     // ===== 어둠의 협곡 (2) =====
     {

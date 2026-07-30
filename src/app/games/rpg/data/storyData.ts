@@ -60,6 +60,8 @@ export const NPC_SPEAKERS: Record<string, { icon: string }> = {
     탑지기: { icon: "🕰️" },
     // SP2a T1 — 막간① cs_act2_omen 신규 화자(항구발 전갈을 낭독하는 왕도 전령)
     전령: { icon: "📯" },
+    // SP2a T5 — cs_lotti_home 신규 화자(목장 오두막에서 발견한 사부의 낡은 조리 노트)
+    "조리 노트": { icon: "📓" },
 };
 
 export type StoryTrigger = {
@@ -421,6 +423,67 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         objective: "바람 언덕으로 향하자",
         target: { x: 0, z: -210 },
         setFlags: { relic_wave: true, phen_port2: false },
+    },
+    // ===== SP2a T5 — 바람 언덕 챕터 「반복되는 하루」 재발 조사 아크(체인 4비트) =====
+    // T2(항구)와 동일 패턴: 전부 nextStage 미지정(act2_hill 유지) — 던전/보스로의 전이는
+    // T6(제단 지하) 몫. 좌표는 전부 __navFindWalkable 이원 검증 완료(drift 0.00m —
+    // scratchpad/sp2a-t5-probe1.js·sp2a-t5-probe2.js) + 배치 감사 위반 0
+    // (scratchpad/sp2a-t5-audit.ts).
+    {
+        // 언덕 초입 — GEN_POIS.hill의 "바람 언덕 초입"(0,-170, poiData.ts) 관성 명칭을 그대로
+        // 잇는 지점. POI 자체와는 8m 이격(3.5m+ 충분), hill_altar(0,-210 r8, ch4_hill
+        // 전용 스테이지라 물리 충돌 없음)와도 32m 이격.
+        id: "hill2_arrival",
+        stage: "act2_hill",
+        near: { x: 0, z: -178, radius: 8 },
+        cutscene: "cs_hill2_arrival",
+        objective: "되풀이되는 하루의 증인들을 찾자",
+        target: { x: -3.5, z: -213.8 },
+    },
+    {
+        // f_shepherd(22,-235)·f_hermit(-32,-192) 실좌표의 중점(-5,-213.5) 부근 —
+        // navFindWalkable 스냅 지점(-3.5,-213.8, drift 0.00m)을 그대로 채택.
+        // 순서 게이트 — port2_witness와 동일 이유(T2 리뷰 반영: 패스트트래블로 arrival을
+        // 건너뛰고 여기부터 진행 가능한 우회 방지). 언덕 존에도 패스트트래블 깃발("hill",
+        // 0,-210)이 있어 동일 리스크가 있다.
+        id: "hill2_witness",
+        stage: "act2_hill",
+        near: { x: -3.5, z: -213.8, radius: 8 },
+        flagsAll: ["story_hill2_arrival"],
+        dialogue: [
+            { speakerId: "arin", text: "양치기도, 은둔자도 같은 말을 했다. 어제가 기억나지 않는다고. 그리고 둘 다 '늘 같은 온도의 찻물'을 이야기했다." },
+            { speakerId: "theo", text: "기억이 겹친다는 것도 예사롭지 않지만, '항상 같은 온도'라는 표현이 특히 걸립니다. 하루가 통째로 다시 재생되고 있다는 뜻일 수 있어요." },
+            { speakerId: "lotti", text: "매일 아침 같은 스튜를 끓이는 거랑은 달라… 이건 재료도, 불 조절도 하나 안 바뀌는 거잖아. 소름 끼치게 완벽해." },
+        ],
+        objective: "반복의 근원을 찾아가자",
+        target: { x: 18, z: -242 },
+    },
+    {
+        // 제단 뒤 목장 — f_shepherd(22,-235) 인근(8.6m 이격, "그 목장의 양치기"라는 인상은
+        // 유지하되 3.5m+ 규약 준수). 반복의 진원이 발견되는 지점(T2의 vortex 대응).
+        id: "hill2_source",
+        stage: "act2_hill",
+        near: { x: 18, z: -242, radius: 8 },
+        flagsAll: ["story_hill2_witness"],
+        dialogue: [
+            { speakerId: "theo", text: "이 목장… 시간이 가장 깊게 고여 있어요. 제단 바로 뒤편이라는 게 우연은 아닐 겁니다." },
+            { speakerId: "arin", text: "여기가 근원이다. …울타리 안쪽, 오두막에서 뭔가 새어 나온다." },
+            { speakerId: "lotti", text: "저 오두막… 어쩐지 낯이 익어. 이상하다, 와 본 적도 없는데." },
+        ],
+        objective: "낯익은 오두막을 살피자",
+        target: { x: 32, z: -248 },
+        // T6 던전 게이트 인터페이스 — hill2_source 트리거에서 산출(브리프 지시).
+        setFlags: { hill2_source_found: true },
+    },
+    {
+        // 오두막 — 로티의 고향, 사부의 낡은 조리 노트(T2의 arin 대응: 서사 컷신 + 귀환 동선).
+        id: "hill2_lotti",
+        stage: "act2_hill",
+        near: { x: 32, z: -248, radius: 8 },
+        flagsAll: ["story_hill2_source"],
+        cutscene: "cs_lotti_home",
+        objective: "제단 지하로 이어진 길을 찾자",
+        target: { x: 0, z: -210 },
     },
 ];
 
