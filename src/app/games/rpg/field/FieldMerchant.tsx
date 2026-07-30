@@ -6,6 +6,7 @@ import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import { useGame } from "../presenter/useGameStore";
+import { stageAtLeast } from "../data/storyData";
 import { ModelAvatar } from "../actors/ModelAvatar";
 import { MERCHANT_POS, COOK_QUEST } from "../data/gameData";
 
@@ -86,7 +87,9 @@ export function FieldMerchant() {
             if (ui.mapOpen || ui.fishingOpen || ui.smithOpen || ui.bountyOpen || ui.tailorOpen) return;
 
             // ── 미니퀘스트: 멈춘 화덕을 위한 재료 ──
-            if (COOK_QUEST.availableFrom.includes(s.story.stage)) {
+            // 정확 배열 검사는 STAGE_ORDER가 뒤로 늘어날 때마다(2막 act2_* 등) 조용히
+            // 잠겨 미납품 퀘스트가 영구 미완이 된다(SP2a T1 리뷰) — 순서 비교로 전환.
+            if (stageAtLeast(s.story.stage, COOK_QUEST.availableFrom[0])) {
                 if (!s.flags.quest_cook) {
                     useGame.setState((st: any) => ({
                         flags: { ...st.flags, quest_cook: true },
