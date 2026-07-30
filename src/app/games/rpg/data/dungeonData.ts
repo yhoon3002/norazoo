@@ -23,6 +23,8 @@ export type DungeonDef = {
     /** XZ 박스 + y 상한(이 아래면 던전 내부로 판정) */
     region: { minX: number; maxX: number; minZ: number; maxZ: number; yMax: number };
     light: { ambient: number; lamp: number; fogColor: string; fogNear: number; fogFar: number };
+    /** 있으면 이 플래그(flags[requireFlag])가 true여야 게이트 진입(하강) 허용 — SP2a T3 */
+    requireFlag?: string;
 };
 
 export const DUNGEONS: DungeonDef[] = [
@@ -37,6 +39,30 @@ export const DUNGEONS: DungeonDef[] = [
         ],
         region: { minX: -20, maxX: 8, minZ: -3, maxZ: 20, yMax: -36 },
         light: { ambient: 0.14, lamp: 0.55, fogColor: "#0c211f", fogNear: 3, fogFar: 20 },
+    },
+    // ===== SP2a T3 — 「침수 창고」(항구 2막) =====
+    //
+    // 항구층 지면은 y≈-37.25(부두 끝 소용돌이 지점 245,-19 인근 — sp2a-t2-probe.js
+    // 실측 재확인). 그 하부를 헤드리스로 실측 개척(scratchpad/sp2a-t3-explore*.js,
+    // sp2a-t3-probe-final.js) 한 결과, 항구 서쪽(x 190~203, z -56~-32) 아래에
+    // y≈-42.3~-43.3의 평탄한 침수 바닥이 실재함을 확인했다(디스플레이 절전 시
+    // rAF 정지로 __navGroundAt이 소실되는 환경 문제가 있어 caffeinate -di로
+    // 재측정 후 확정 — rpg-headless-harness 메모 참조).
+    //
+    // 게이트는 XZ 54.1m 이격(지상 245,-19 ↔ 지하 196,-42) — 10m+ 규약 충분 만족.
+    // requireFlag: "port2_vortex_found" — T2의 port2_vortex 트리거가 세우는 플래그
+    // (부두 끝 소용돌이를 확인해야 해금). 게이트 좌표는 port2_vortex 트리거
+    // near(245,-15)와 3.5m 이상 이격되도록 245,-19로 소폭 이동(4.00m — 배치 감사
+    // sp2a-t3-audit.ts 확인).
+    {
+        id: "port_warehouse",
+        label: "침수 창고",
+        requireFlag: "port2_vortex_found",
+        gates: [
+            { overworld: { x: 245, y: -37.25, z: -19 }, underground: { x: 196, y: -43.25, z: -42 } },
+        ],
+        region: { minX: 190, maxX: 203, minZ: -56, maxZ: -32, yMax: -40 },
+        light: { ambient: 0.12, lamp: 0.5, fogColor: "#0a1c22", fogNear: 3, fogFar: 18 },
     },
 ];
 
@@ -79,4 +105,27 @@ export const DUNGEON_DOORS: DungeonDoorDef[] = [
         door: { pos: { x: -5.5, y: -55.323, z: 9.5 }, size: [2.6, 3.2, 0.8] },
         switch: { pos: { x: -5.5, y: -55.323, z: 12.5 }, label: "지하 수로 통로" },
     },
+    // ===== SP2a T3 — 「침수 창고」 문 2개 =====
+    // 침수 바닥은 sp0_waterway처럼 좁은 단일 통로가 아니라 열린 8~9m 폭의
+    // 침수실이라(scratchpad/sp2a-t3-explore9/10.js 실측 — 자연 벽 없음), 문 폭을
+    // 9m로 넓혀 실측 확인된 바닥 폭 전체를 막는다(기존 프리미티브 size 파라미터
+    // 그대로 재사용 — 신규 프레임워크 없음). 좌표는 전부 __navFindWalkable
+    // drift 0.00(sp2a-t3-probe-final.js) + 배치 감사 위반 0(sp2a-t3-audit.ts).
+    {
+        id: "port_warehouse_door1",
+        flag: "door_port_warehouse_1",
+        door: { pos: { x: 194, y: -43.25, z: -46 }, size: [9, 3.2, 0.8] },
+        switch: { pos: { x: 200, y: -43.25, z: -44 }, label: "침수 창고 통로 1" },
+    },
+    {
+        id: "port_warehouse_door2",
+        flag: "door_port_warehouse_2",
+        door: { pos: { x: 198, y: -43.25, z: -39 }, size: [9, 3.2, 0.8] },
+        switch: { pos: { x: 200, y: -43.25, z: -38 }, label: "침수 창고 통로 2" },
+    },
 ];
+
+/** SP2a T3 — 던전 내부 보스 진입 지점(T4 트리거 인터페이스). 정예팩2(201,-42.25,-34)
+ * 바로 북쪽, __navFindWalkable drift 0.00·실텔레포트 착지 확인(dy=0.16,
+ * scratchpad/sp2a-t3-boss-verify.js). */
+export const PORT_WAREHOUSE_BOSS_ENTRY: Vec3 = { x: 198, y: -42.25, z: -35 };

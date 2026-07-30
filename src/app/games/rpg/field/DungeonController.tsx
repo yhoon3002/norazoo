@@ -62,12 +62,18 @@ function DungeonGateNode({
     promptLabel,
     popupText,
     color,
+    requireFlag,
+    lockedLine,
 }: {
     pos: { x: number; y: number; z: number };
     destination: { x: number; y: number; z: number };
     promptLabel: string;
     popupText: string;
     color: string;
+    /** 있으면 flags[requireFlag]가 true여야 진입 허용 — SP2a T3 */
+    requireFlag?: string;
+    /** requireFlag 미충족 시 보여줄 1줄 안내 대사 */
+    lockedLine?: string;
 }) {
     const [inRange, setInRange] = useState(false);
     const inRangeRef = useRef(false);
@@ -106,12 +112,17 @@ function DungeonGateNode({
             )
                 return;
 
+            if (requireFlag && !s.flags[requireFlag]) {
+                s.startDialogue([{ speakerId: "theo", text: lockedLine ?? "아직은 지나갈 수 없다." }]);
+                return;
+            }
+
             s.requestTeleport(destination);
             s.spawnPopup({ side: "ally", text: popupText, color });
         };
         window.addEventListener("keydown", h);
         return () => window.removeEventListener("keydown", h);
-    }, [inRange, destination, popupText, color]);
+    }, [inRange, destination, popupText, color, requireFlag, lockedLine]);
 
     return (
         <group position={[pos.x, pos.y, pos.z]}>
@@ -156,6 +167,8 @@ export function DungeonController() {
                         promptLabel={`${d.label} 진입`}
                         popupText={`🌊 ${d.label}로 내려간다`}
                         color="#22d3ee"
+                        requireFlag={d.requireFlag}
+                        lockedLine="아직은 그냥 막힌 통로예요. 소용돌이의 정체부터 밝혀야 이 아래도 뭔가 보이겠죠."
                     />,
                     <DungeonGateNode
                         key={`${d.id}_gate${i}_up`}

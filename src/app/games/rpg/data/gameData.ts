@@ -13,6 +13,7 @@ export const ENEMY_MODEL_BY_TEMPLATE: Record<string, string> = {
     witch: "/character/Witch.fbx",
     ninja: "/character/Ninja_Female.fbx",
     ghoul: "/character/Zombie_Female.fbx",
+    ghoul_drowned: "/character/Zombie_Female.fbx",
     mad_bull: "/character/Cow.fbx",
     wild_dog: "/character/Pug.fbx",
     orc_chief: "/character/Goblin_Male.fbx",
@@ -42,6 +43,11 @@ export const FIELD_ENEMIES: Array<
     { id: "r3", pos: new THREE.Vector3(80, -33.25, -10), templates: ["slime", "mage"], respawn: 180_000 },
     { id: "r4", pos: new THREE.Vector3(134, -34.25, -20), template: "orc", respawn: 180_000 },
     { id: "r5", pos: new THREE.Vector3(196, -38.25, 10), templates: ["slime", "slime", "slime"], respawn: 180_000 },
+    // SP2a T3 — 「침수 창고」(port_warehouse) 던전 내부 정예 2팩. y는 던전 헤드리스
+    // 실측 착지값(scratchpad/sp2a-t3-probe-final.js) — 캠프 상호 20.62m·기존 캠프
+    // 대비 8.51m+ 이격(sp2a-t3-audit.ts, 위반 0).
+    { id: "port_warehouse_e1", pos: new THREE.Vector3(196, -43.25, -54), template: "ghoul_drowned", respawn: 180_000 },
+    { id: "port_warehouse_e2", pos: new THREE.Vector3(201, -42.25, -34), template: "ghoul_drowned", respawn: 180_000 },
     // 파수꾼 퀘스트 전용 무리 (리스폰 없음 — Task 4에서 사용)
     { id: "bounty1", pos: new THREE.Vector3(52, -33.25, -46), templates: ["orc", "orc"] },
     // 웨이브2 토벌 전용 캠프 (리스폰 없음 — bounty1과 동일 규약, 퀘스트 플래그 영구 보존)
@@ -1144,6 +1150,37 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
             items: [
                 { id: "tree_sap", chance: 0.3 },
                 { id: "monster_core", chance: 0.2 },
+            ],
+        },
+    },
+    // SP2a T3 — 「침수 창고」 정예 템플릿. ghoul 기반 Lv+2·스탯 1.25×·청록 tint 상시
+    // (비주얼은 tint 필드 — turnSlice/combatSlice가 ENEMY_TEMPLATES를 그대로 스프레드해
+    // Enemy.tint로 전달하므로 전투 중 상시 착색된다. 보스 페이즈 tint와 달리 조건부가
+    // 아닌 템플릿 고정값이라 "상시" 요구를 만족).
+    ghoul_drowned: {
+        name: "익사한 구울",
+        model: "/character/Zombie_Female.fbx",
+        level: 9,
+        stats: {
+            hp: 500,
+            maxHp: 500,
+            mp: 0,
+            maxMp: 0,
+            atk: 30,
+            def: 10,
+            speed: 25,
+            luck: 6,
+        },
+        skills: ["slash"],
+        statusEffects: [],
+        aiPattern: "aggressive",
+        tint: "#2dd4bf",
+        rewards: {
+            exp: 140,
+            gold: 90,
+            items: [
+                { id: "tree_sap", chance: 0.3 },
+                { id: "monster_core", chance: 0.35 },
             ],
         },
     },
