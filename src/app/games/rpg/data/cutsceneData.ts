@@ -223,4 +223,28 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
         { type: "say", line: { speakerId: "lotti", text: "가자. …근데 이번 잔치는, 다 끝나고 제대로 하는 거다? 사부님 몫까지 남겨둬야지." } },
         { type: "camReset", ms: 1200 },
     ],
+    // ===== SP2a T4 — 항구 보스 「파도를 삼킨 자」 진입·격파 컷신 =====
+    // 침수 창고 최심부(트리거 near 195,-37 인근) — 조명 오버라이드(__lightOverride, T3
+    // port_warehouse: ambient 0.12·lamp 0.5·fog #0a1c22 near3 far18) 상태에서 카메라 확정
+    // (헤드리스 rAF drawImage 캡처 — scratchpad/sp2a-t4-cam-probe.js →
+    // sp2a-cs_port2_relic-1.png/-2.png/-3.png). 전부 walkable 층(y≈-42.25) 기준 수평 시선
+    // (부감 없음). battle 스텝(보스전) 포함 — 승리해야 잔여 연출(유물 회수 내레이션)이
+    // 재생된다(checkedResume 게이트). phen_port2 소등·relic_wave·act2_hill 전이는 여기 두지
+    // 않고 별도 트리거(port2_relic, storyData.ts)로 분리했다 — set 스텝은 startCutscene마다
+    // 선적용되므로, 여기 두면 패배 후 재접근(재도전)만으로 승리 전에 현상이 꺼져버린다.
+    cs_port2_relic: [
+        { type: "cam", pos: { x: 191, y: -40.8, z: -37 }, lookAt: { x: 197, y: -41.2, z: -35.5 }, ms: 1600, hold: 900 },
+        { type: "say", line: { speakerId: "theo", text: "…기척이 짙어요. 이 안, 소용돌이의 근원이 있습니다." } },
+        { type: "say", line: { speakerId: "lotti", text: "물비린내가 아니야. 이건… 뭔가 살아있는 것의 숨소리 같은데." } },
+        { type: "cam", pos: { x: 189, y: -40.5, z: -35 }, lookAt: { x: 198, y: -41.3, z: -35 }, ms: 1600, hold: 1200 },
+        { type: "say", line: { speaker: "파도를 삼킨 자", text: "…돌려주지 않는다. 이 물살은, 이미 내 것이다." } },
+        { type: "say", line: { speakerId: "arin", text: "노라의 파도다. 돌려받겠다 — 무기 들어." } },
+        { type: "fx", popup: { text: "🌊 파도를 삼킨 자가 모습을 드러낸다", color: "#22d3ee" } },
+        { type: "battle", id: "port2_boss", templates: ["wave_devourer"] },
+        { type: "say", line: { speakerId: "lotti", text: "…해냈다! 소용돌이가 잦아들고 있어!" } },
+        { type: "say", line: { speakerId: "theo", text: "이 유물이 파도 자체를 붙들고 있었어요. …회수하죠. 파도의 유물, 첫 번째입니다." } },
+        { type: "say", line: { speakerId: "arin", text: "노라의 시간을 또 하나 되찾았다. …다음은 바람 언덕이다." } },
+        { type: "fx", popup: { text: "🌊✨ 파도의 유물 획득 (1/?)", color: "#a78bfa" } },
+        { type: "camReset", ms: 1200 },
+    ],
 };

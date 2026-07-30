@@ -22,6 +22,7 @@ export const ENEMY_MODEL_BY_TEMPLATE: Record<string, string> = {
     shade_beast: "/character/Zombie_Male.fbx",
     gear_devourer: "/character/Witch.fbx",
     sp0_test_boss: "/character/Zombie_Male.fbx",
+    wave_devourer: "/character/Zombie_Female.fbx",
 };
 
 // 필드 적 데이터 단일 소스 — FieldScene(렌더링)·FieldPlayer(충돌) 공용
@@ -350,6 +351,9 @@ export const ENEMY_ATTACK_PROFILES: Record<string, EnemyAttackProfile> = {
     clockwork_soldier: { chargeMs: 700, hits: [0, 350, 700], parryable: true, ringColor: "#fbbf24" },
     shade_beast: { chargeMs: 1000, hits: [0, 650], parryable: true, ringColor: "#6b21a8", applyStatus: { type: "poison", duration: 3, value: 10, chance: 0.4 } },
     gear_devourer: { chargeMs: 900, hits: [0, 450, 900], parryable: true, ringColor: "#f59e0b" }, // 보스 — 3연타
+    // SP2a T4 — wave_devourer(파도를 삼킨 자) 전용. gear_devourer와 동일한 3연타 보스 틀,
+    // 물빛 링 컬러만 항구 테마로 교체.
+    wave_devourer: { chargeMs: 850, hits: [0, 425, 850], parryable: true, ringColor: "#22d3ee" }, // 보스 — 3연타
 };
 
 export const DEFAULT_ATTACK_PROFILE: EnemyAttackProfile = {
@@ -633,6 +637,41 @@ export const SKILLS: Record<string, Skill> = {
         targetType: "single",
         description: "대상의 시간을 통째로 삼킨다.",
         statusEffect: { type: "stun", duration: 1, value: 0 },
+    },
+    // ===== SP2a T4 — wave_devourer(파도를 삼킨 자) 전용 보스 스킬 3종 =====
+    // 적 전용(character/unlockLevel 없음 — 파티 습득 경로 없음). SP0 이월 저작 규약(보스 스킬은
+    // 적 전용 신설, 파티 스킬 재사용 금지) 준수. gear_devourer 재튜닝 웨이브의 비율 스킴
+    // (약공:중공:강제공 = 1:1.4:2.2)을 그대로 채택 — TTK 양방향 게이트(task-4-report.md 참조,
+    // 메트릭 A 파티→보스 TTK 델타 +1.35%/±10% PASS, 메트릭 B 보스→파티 3턴 사이클 출력
+    // 델타 +13.87%/+10~15% PASS)를 만족하도록 역산한 정수값.
+    wave_snap: {
+        id: "wave_snap",
+        name: "파도 물어뜯기",
+        damage: 168,
+        etherCost: 0,
+        type: "physical",
+        targetType: "single",
+        description: "삼킨 파도의 힘으로 물어뜯는다.",
+    },
+    wave_surge: {
+        id: "wave_surge",
+        name: "역류 파편",
+        damage: 120,
+        etherCost: 0,
+        type: "physical",
+        targetType: "single",
+        description: "휘몰아치는 역류로 방어를 깎아낸다.",
+        statusEffect: { type: "debuff_def", duration: 3, value: 8 },
+    },
+    tide_swallow: {
+        id: "tide_swallow",
+        name: "조수 삼키기",
+        damage: 264,
+        etherCost: 0,
+        type: "magic",
+        targetType: "single",
+        description: "대상을 통째로 삼켜 얼려버린다.",
+        statusEffect: { type: "freeze", duration: 1, value: 0 },
     },
 };
 
@@ -1377,6 +1416,48 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
                 { hpPct: 0.3, announce: "…시간이 마수 주위로 일그러진다!", tint: "#8b5cf6", scaleMul: 1.15 },
             ],
             gimmick: { type: "countdown", every: 3, skillId: "maw_time_bite", warning: "⏳ 태엽이 울린다" },
+        },
+    },
+    // ===== SP2a T4 — 항구 보스 「파도를 삼킨 자」 =====
+    // ghoul(구울) 계열 모델 재사용 — 침수 창고의 정예 「익사한 구울」(ghoul_drowned)이 자라난
+    // 거대판이라는 서사적 연결(스케일 1.6). Lv13 — gear_devourer(Lv15)보다 낮은 챕터 순서.
+    // TTK 양방향 게이트(task-4-report.md 참조): 메트릭 A(파티→보스 TTK, Lv13 파티 근사)
+    // 델타 +1.35%(±10% PASS), 메트릭 B(보스→파티 3턴 사이클 출력) 델타 +13.87%(+10~15% PASS).
+    wave_devourer: {
+        name: "파도를 삼킨 자",
+        model: "/character/Zombie_Female.fbx",
+        level: 13,
+        stats: {
+            hp: 7350,
+            maxHp: 7350,
+            mp: 0,
+            maxMp: 0,
+            atk: 44,
+            def: 20,
+            speed: 19,
+            luck: 13,
+        },
+        skills: ["wave_snap"],
+        statusEffects: [],
+        aiPattern: "aggressive",
+        rewards: {
+            exp: 1900,
+            gold: 2100,
+            // 드롭 없음 — 스토리 보상
+        },
+        scale: 1.6,
+        boss: {
+            phases: [
+                {
+                    hpPct: 0.7,
+                    announce: "…파도가 다시 삼켜진다!",
+                    tint: "#3f8fa3",
+                    aiPattern: "smart",
+                    skills: ["wave_snap", "wave_surge"],
+                },
+                { hpPct: 0.3, announce: "…소용돌이가 걷잡을 수 없이 커진다!", tint: "#2b6b7d", scaleMul: 1.15 },
+            ],
+            gimmick: { type: "countdown", every: 3, skillId: "tide_swallow", warning: "🌊 파도가 삼켜진다" },
         },
     },
     // SP0 Task 4 — 보스 프레임워크 헤드리스 검증 전용 시험 보스 (HP 임계 페이즈 전이 확인용)

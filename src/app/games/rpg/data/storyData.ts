@@ -385,6 +385,43 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         objective: "소용돌이 아래, 침수된 창고를 살펴보자",
         target: { x: 245, z: -15 },
     },
+    // ===== SP2a T4 — 항구 보스 「파도를 삼킨 자」 + 유물① =====
+    // 던전(침수 창고) 최심부 — T3의 PORT_WAREHOUSE_BOSS_ENTRY(198,-42.25,-35) 기준, 인접
+    // 상호작용물(door2 198,-39·switch2 200,-38·정예팩2 201,-42.25,-34)과 3.5m+ 이격을 위해
+    // 트리거 중심을 (195,-37)로 소폭 이동(door2까지 3.61m·switch2 5.10m·elite2 6.71m — 전부
+    // 3.5m+, elite2는 6.71m로 8m에는 못 미치나 좁은 방 구조상 가능한 최대 여유. __navFindWalkable
+    // 드리프트 0.09m + 실텔레포트 착지 dy=0.00 이원 검증 완료 — scratchpad/sp2a-t4-scan5.js).
+    // battle 필드 병기 — cutscene(cs_port2_relic) 우선 발동이라 실제 전투는 컷신의 battle
+    // 스텝이 열지만, 여기 병기해야 패배 후 재도전 시 StoryTriggers의 battleUnwon 게이트가
+    // 동작한다(없으면 재도전 트리거가 영구 스킵 — T5 이월 규약).
+    {
+        id: "port2_boss",
+        stage: "act2_port",
+        near: { x: 195, z: -37, radius: 3 },
+        flagsAll: ["port2_vortex_found"],
+        cutscene: "cs_port2_relic",
+        battle: { id: "port2_boss", templates: ["wave_devourer"] },
+    },
+    // 유물 회수·phen_port2 소등·act2_hill 전이 — cs_port2_relic 자체의 set 스텝이 아니라 별도
+    // 후속 트리거로 분리(1막 finale의 phen_port 소등 전례와 동일 설계). startCutscene은 재도전
+    // 때마다 set 스텝을 선적용하므로, 만약 phen_port2:false를 cs_port2_relic 안에 두면 패배 후
+    // 재접근만으로도(전투 승리 전에) 현상이 꺼져버린다 — defeated_port2_boss_0 플래그로
+    // 게이팅되는 이 트리거에서만 반영해야 "패배 후 재도전 시 현상이 미리 꺼지지 않는다"가 성립.
+    {
+        id: "port2_relic",
+        stage: "act2_port",
+        flagsAll: ["defeated_port2_boss_0"],
+        dialogue: [
+            { speakerId: "lotti", text: "물살이… 멎었어! 소용돌이가 가라앉고 있어. 우리가 해낸 거야!" },
+            { speakerId: "theo", text: "유물이 파도의 힘 그 자체를 붙들고 있었던 모양이에요. 회수합니다 — 파도의 유물, 첫 번째." },
+            { speakerId: "arin", text: "이걸로 하나. …'그분'과 이어진 조각인가는, 왕도로 돌아가면 밝혀지겠지." },
+            { speakerId: "lotti", text: "항구는 이제 괜찮을 거야. 다음은 바람 부는 언덕 쪽이라고 했지? 가자!" },
+        ],
+        nextStage: "act2_hill",
+        objective: "바람 언덕으로 향하자",
+        target: { x: 0, z: -210 },
+        setFlags: { relic_wave: true, phen_port2: false },
+    },
 ];
 
 // ===== 길잡이 마커 경로 (스테이지별) =====
