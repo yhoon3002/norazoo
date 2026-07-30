@@ -349,6 +349,9 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         id: "port2_witness",
         stage: "act2_port",
         near: { x: 231.5, z: -19, radius: 8 }, // 부두 중간(f_porter 230,-30 / f_sailor 233,-8의 중점)
+        // 순서 게이트 — 패스트트래블("항구" 깃발)이 arrival 반경(219,-22 r8) 밖 8.71m에
+        // 착지해 위치 게이트만으론 arrival을 건너뛰고 여기부터 진행 가능했다(T2 리뷰 재현).
+        flagsAll: ["story_port2_arrival"],
         dialogue: [
             { speakerId: "arin", text: "짐꾼도, 뱃사람도 같은 말을 했다. 파도가 멎었던 그 밤이 되풀이됐다고. 그리고 부두 끝에서 이상한 소용돌이를 봤다더군." },
             { speakerId: "theo", text: "두 증언이 겹친다는 건 우연이 아닐 겁니다. 부두 끝의 소용돌이부터 확인해 보죠." },
