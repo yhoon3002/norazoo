@@ -62,6 +62,8 @@ export const NPC_SPEAKERS: Record<string, { icon: string }> = {
     전령: { icon: "📯" },
     // SP2a T5 — cs_lotti_home 신규 화자(목장 오두막에서 발견한 사부의 낡은 조리 노트)
     "조리 노트": { icon: "📓" },
+    // SP2a T6 — cs_hill2_boss 신규 화자(제단 지하의 보스, "태엽을 삼킨 마수" 계열 명명)
+    "새벽을 삼킨 자": { icon: "🌅" },
 };
 
 export type StoryTrigger = {
@@ -484,6 +486,60 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         cutscene: "cs_lotti_home",
         objective: "제단 지하로 이어진 길을 찾자",
         target: { x: 0, z: -210 },
+    },
+    // ===== SP2a T6 — 언덕 보스 「새벽을 삼킨 자」 + 유물② + SP2b 브리지 =====
+    // 던전(제단 지하) 최심부 — HILL_UNDERCROFT_BOSS_ENTRY(69,-54.25,-189) 기준.
+    // 문2(63.5,-190)·스위치2(60.71,-191.71)·정예2(55,-200)와 각각 5.59m·8.72m·
+    // 17.80m 이격(전부 3.5m+, 정예팩 2곳 모두와 8m+ 확보 — T4의 6.71m 미달 전례를
+    // 반영해 처음부터 여유를 뒀다. __navFindWalkable 드리프트 0.00m + 실텔레포트
+    // 착지 dy=0.25m 이원 검증 완료 — scratchpad/sp2a-t6-final-precise.js).
+    // battle 필드 병기 — cutscene(cs_hill2_boss) 우선 발동이라 실제 전투는 컷신의
+    // battle 스텝이 열지만, 여기 병기해야 패배 후 재도전 시 StoryTriggers의
+    // battleUnwon 게이트가 동작한다(없으면 재도전 트리거가 영구 스킵 — T5 이월 규약).
+    {
+        id: "hill2_boss",
+        stage: "act2_hill",
+        near: { x: 69, z: -189, radius: 3 },
+        flagsAll: ["hill2_source_found"],
+        cutscene: "cs_hill2_boss",
+        battle: { id: "hill2_boss", templates: ["dawn_devourer"] },
+    },
+    // 유물 회수·phen_hill 소등·여명 전환 — cs_hill2_relic 자체의 set 스텝(1막 finale·
+    // T4 port2_relic 전례와 동일 설계: defeated_hill2_boss_0로 게이팅되는 별도
+    // 트리거이므로 패배 후 재도전만으로는 선적용되지 않는다 — 승리해야만 발동).
+    // 여명 연출(phen_hill 소등)이 실제로 보이려면 카메라가 던전 자체 조명
+    // 오버라이드가 아니라 지상이어야 하므로, near로 게이트 지상측(8,-204) 인근을
+    // 요구해 "던전을 나와야 발동"하게 했다 — 승리 직후 던전 내부에서 곧장 컷신이
+    // 재생되면 던전 조명(짙은 흙빛)에 가려 소등 연출이 무의미해지는 것을 방지.
+    {
+        id: "hill2_relic",
+        stage: "act2_hill",
+        near: { x: 8, z: -204, radius: 8 },
+        flagsAll: ["defeated_hill2_boss_0"],
+        cutscene: "cs_hill2_relic",
+        objective: "돌아갈 채비를 하자",
+        target: null,
+    },
+    // ===== SP2b 브리지 — SP2a 마감 트리거 =====
+    // act2_hill이 STAGE_ORDER 최종 스테이지라 nextStage가 없다 — 대신 이 트리거가
+    // flags.act2a_done을 세워 SP2b 진입점을 산출한다(브리프 지시). cs_hill2_relic
+    // 재생 직후 같은 자리(지상 게이트 인근)에서 곧장 이어지는 장면이라 근접
+    // 반경을 다시 두지 않았다(같은 지점에서 컷신 종료 후 자연 발동).
+    {
+        id: "act2a_bridge",
+        stage: "act2_hill",
+        flagsAll: ["story_hill2_relic"],
+        dialogue: [
+            { speaker: "전령", text: "실례합니다 — 다시 뵙는군요. 이번엔 서부 숲 쪽에서 급보가 왔습니다." },
+            { speaker: "전령", text: "『밤사이 나무들이 통째로 자리를 옮겼다.』 그곳 파수꾼이 보내온 전갈입니다. …믿기 어려운 얘기지만, 요 며칠 조짐들을 보면 그냥 흘려들을 수도 없었습니다." },
+            { speakerId: "theo", text: "나무가 자리를 옮기다니 — 항구의 파도, 이 언덕의 아침에 이어 벌써 세 번째 재발이군요. 대륙 전역이라던 그 서신, 틀린 말이 아니었나 봅니다." },
+            { speakerId: "arin", text: "…쉴 틈이 없군. 하지만 지금은 아니다. 이 언덕부터 마저 정리한다." },
+            { speakerId: "lotti", text: "맞아, 우선 한숨 돌리자! 그래도… 서부 숲이라니, 이번엔 또 무슨 냄새가 날지 궁금하긴 하네." },
+            { speakerId: "theo", text: "기록해 두겠습니다 — 다음 조사지는 서부의 숲입니다." },
+        ],
+        objective: "서부 숲의 이상 징후는 다음 몫이다 — 지금은 자유로이 언덕을 둘러보자",
+        target: null,
+        setFlags: { act2a_done: true },
     },
 ];
 

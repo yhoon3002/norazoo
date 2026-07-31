@@ -64,6 +64,45 @@ export const DUNGEONS: DungeonDef[] = [
         region: { minX: 190, maxX: 203, minZ: -56, maxZ: -32, yMax: -40 },
         light: { ambient: 0.12, lamp: 0.5, fogColor: "#0a1c22", fogNear: 3, fogFar: 18 },
     },
+    // ===== SP2a T6 — 「제단 지하」(언덕 2막) =====
+    //
+    // 제단(0,-210) 하부는 헤드리스로 개척한 결과 자연 벽으로 구획된 진짜 동굴(단순
+    // 열린 침수 바닥이 아님 — T3 침수 창고보다 지형 굴곡이 큼)이 실재함을 확인했다.
+    // 1m→0.5m 그리드(scratchpad/sp2a-t6-explore1~12.js) + Union-Find 연결성 분석
+    // 결과, 제단 동쪽 x 39~69·z -202~-186 대역에 y≈-53~-56.3의 매끄러운 토굴
+    // 바닥이 이어지며(항구·1막 수로와 같은 절대 고도대), 표층(y≈-14~-33, 실측 gap
+    // 20~36m로 TERRAIN_STEP_MAX 2.1m를 크게 초과)과는 완전히 분리돼 있다. 단
+    // x 57~65·z -184~-188 구간은 표층과 gap=0(개활 협곡/천창)으로 확인돼, 이
+    // 태스크의 던전 콘텐츠(문·정예·보스)는 전부 그 이북(z ≤ -189, gap 26m+
+    // 재확인)에만 배치해 표층에서 직접 낙하 진입할 위험을 원천 차단했다
+    // (scratchpad/sp2a-t6-explore7.js 천창 정밀 스캔).
+    //
+    // Union-Find/BFS 연결성 그래프(0.5m 격자, y밴드 ±4)는 게이트 착지점과 보스
+    // 진입점을 "연결 없음"으로 오판했으나(격자 해상도가 놓친 미세한 y굴곡
+    // 아티팩트), 실제 WASD 왕복 재현(scratchpad/sp2a-t6-realwasd1~5.js,
+    // window.__debugMove)으로 게이트 착지점 → 정예1 → 정예2 → 문1 인근 → 문2
+    // 인근 → 보스 진입점까지 전 구간 순수 도보 도달을 실증했다 — 격자 그래프는
+    // "연결 없음"이 나와도 참고치일 뿐, 최종 판정은 항상 실 WASD로 재확인해야
+    // 한다는 교훈을 T3에 이어 재확인(T3의 "산책로 도달성" 판정과 반대 방향의
+    // 반례 — 거기선 격자가 참이고 리뷰어 우회가 텔레포트 아티팩트였다면, 여기선
+    // 격자가 거짓 음성이고 실제로는 연결돼 있었다. 격자만으로 최종 판정하지
+    // 말라는 두 사례 공통 교훈).
+    //
+    // 게이트 XZ 이격: 지상(8,-204) ↔ 지하(39,-202) = 31.06m — 10m+ 규약 충분 만족.
+    // requireFlag: "hill2_source_found" — T5의 hill2_source 트리거가 세우는 플래그
+    // (브리프 지시). 지상 게이트는 제단(0,-210) 10.00m·hill2_witness(-3.5,-213.8)
+    // 15.11m 이격 — 두 기존 근접점 모두 3.5m+ 통과(scratchpad/sp2a-t6-audit.ts).
+    {
+        id: "hill_undercroft",
+        label: "제단 지하",
+        requireFlag: "hill2_source_found",
+        gates: [
+            { overworld: { x: 8, y: -24.25, z: -204 }, underground: { x: 39, y: -56.25, z: -202 } },
+        ],
+        region: { minX: 35, maxX: 72, minZ: -206, maxZ: -186, yMax: -45 },
+        // 새벽/땅속 테마 — 항구(청록)·1막 수로(녹)와 구분되는 짙은 흙빛-호박 톤.
+        light: { ambient: 0.13, lamp: 0.48, fogColor: "#241a10", fogNear: 3, fogFar: 19 },
+    },
 ];
 
 /** 순수 함수 — XZ 박스 + y 상한 판정. 박스 밖이거나 yMax 이상이면 null. */
@@ -185,9 +224,41 @@ export const DUNGEON_DOORS: DungeonDoorDef[] = [
         door: { pos: { x: 198, y: -43.25, z: -39 }, size: [13, 6, 0.8] },
         switch: { pos: { x: 200, y: -43.25, z: -38 }, label: "침수 창고 통로 2" },
     },
+    // ===== SP2a T6 — 「제단 지하」 문 2개 =====
+    // 좌표는 전부 scratchpad/sp2a-t6-explore11.js·sp2a-t6-final-precise.js
+    // (__navFindWalkable 드리프트 + 실텔레포트 착지 이원 검증) 확정치.
+    //
+    // door1(z=-196): 챔버(정예 2팩이 있는 큰 방, x 49.5~62.5·13.5m 폭 — 0.5m
+    // 그리드 실측 scratchpad/sp2a-t6-explore12.js)의 남쪽 경계. 폭 16(span
+    // [48,64])으로 실측 벽 전체를 여유 있게 덮는다. 스위치1은 챔버 안쪽(문
+    // 기준 진입 방향 앞쪽, T3/sp0 관례)에 배치.
+    // door2(z=-190): 문1 이후 좁아지는 통로 구간의 병목(x 55.5~72 사이 3~4개
+    // 평행 가닥으로 갈라짐 — sp2a-t6-explore12.js z슬라이스). 폭 12(span
+    // [57.5,69.5])로 확인된 가닥 3개(55.5~56.5·63.5~67.5·68.5~72 인접)를
+    // 한 번에 덮는다 — T3 door2가 "동쪽 원거리 베이슨" 잔여 리스크를 남겼던
+    // 전례를 반영해 처음부터 폭을 넉넉히 잡았다(§ task-6-report.md 배치 감사
+    // 참조, 완전 봉쇄 여부는 검증 스크립트 sp2a-t6-hillboss.js에서 실WASD로
+    // 재확인).
+    {
+        id: "hill_undercroft_door1",
+        flag: "door_hill_undercroft_1",
+        door: { pos: { x: 56, y: -54.25, z: -196 }, size: [16, 5, 1.2] },
+        switch: { pos: { x: 49.73, y: -55.25, z: -197 }, label: "제단 지하 통로 1" },
+    },
+    {
+        id: "hill_undercroft_door2",
+        flag: "door_hill_undercroft_2",
+        door: { pos: { x: 63.5, y: -54.25, z: -190 }, size: [12, 5, 1.2] },
+        switch: { pos: { x: 60.71, y: -54.25, z: -191.71 }, label: "제단 지하 통로 2" },
+    },
 ];
 
 /** SP2a T3 — 던전 내부 보스 진입 지점(T4 트리거 인터페이스). 정예팩2(201,-42.25,-34)
  * 바로 북쪽, __navFindWalkable drift 0.00·실텔레포트 착지 확인(dy=0.16,
  * scratchpad/sp2a-t3-boss-verify.js). */
 export const PORT_WAREHOUSE_BOSS_ENTRY: Vec3 = { x: 198, y: -42.25, z: -35 };
+
+/** SP2a T6 — 던전 내부 보스 진입 지점. 문2(63.5,-190) 너머 안전 대역(표층 gap
+ * 30.30m — 천창 구간 z>-188과 4m+ 이격). __navFindWalkable drift 0.00·
+ * 실텔레포트 착지 확인(dy=0.25, scratchpad/sp2a-t6-final-precise.js). */
+export const HILL_UNDERCROFT_BOSS_ENTRY: Vec3 = { x: 69, y: -54.25, z: -189 };

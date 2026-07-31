@@ -23,6 +23,9 @@ export const ENEMY_MODEL_BY_TEMPLATE: Record<string, string> = {
     gear_devourer: "/character/Witch.fbx",
     sp0_test_boss: "/character/Zombie_Male.fbx",
     wave_devourer: "/character/Zombie_Female.fbx",
+    // SP2a T6 — 제단 지하(정예·보스) 둘 다 mad_bull 모델 재사용(브리프 지시).
+    bull_altar: "/character/Cow.fbx",
+    dawn_devourer: "/character/Cow.fbx",
 };
 
 // 필드 적 데이터 단일 소스 — FieldScene(렌더링)·FieldPlayer(충돌) 공용
@@ -49,6 +52,12 @@ export const FIELD_ENEMIES: Array<
     // 대비 8.51m+ 이격(sp2a-t3-audit.ts, 위반 0).
     { id: "port_warehouse_e1", pos: new THREE.Vector3(196, -43.25, -54), template: "ghoul_drowned", respawn: 180_000 },
     { id: "port_warehouse_e2", pos: new THREE.Vector3(201, -42.25, -34), template: "ghoul_drowned", respawn: 180_000 },
+    // SP2a T6 — 「제단 지하」(hill_undercroft) 던전 내부 정예 2팩. y는 실텔레포트
+    // 착지값(scratchpad/sp2a-t6-final-precise.js) — 캠프 상호 11.54m(≥8m), 보스
+    // 트리거(69,-189)와 각각 28.18m·17.80m 이격(≥8m — 처음부터 확보, T4의 6.71m
+    // 미달 전례 반영. scratchpad/sp2a-t6-audit.ts 위반 0).
+    { id: "hill_undercroft_e1", pos: new THREE.Vector3(43.5, -53.25, -201), template: "bull_altar", respawn: 180_000 },
+    { id: "hill_undercroft_e2", pos: new THREE.Vector3(55, -54.25, -200), template: "bull_altar", respawn: 180_000 },
     // 파수꾼 퀘스트 전용 무리 (리스폰 없음 — Task 4에서 사용)
     { id: "bounty1", pos: new THREE.Vector3(52, -33.25, -46), templates: ["orc", "orc"] },
     // 웨이브2 토벌 전용 캠프 (리스폰 없음 — bounty1과 동일 규약, 퀘스트 플래그 영구 보존)
@@ -354,6 +363,8 @@ export const ENEMY_ATTACK_PROFILES: Record<string, EnemyAttackProfile> = {
     // SP2a T4 — wave_devourer(파도를 삼킨 자) 전용. gear_devourer와 동일한 3연타 보스 틀,
     // 물빛 링 컬러만 항구 테마로 교체.
     wave_devourer: { chargeMs: 850, hits: [0, 425, 850], parryable: true, ringColor: "#22d3ee" }, // 보스 — 3연타
+    // SP2a T6 — dawn_devourer(새벽을 삼킨 자) 전용. 동일 3연타 보스 틀, 새벽 테마 호박빛 링.
+    dawn_devourer: { chargeMs: 850, hits: [0, 425, 850], parryable: true, ringColor: "#f5a623" }, // 보스 — 3연타
 };
 
 export const DEFAULT_ATTACK_PROFILE: EnemyAttackProfile = {
@@ -672,6 +683,46 @@ export const SKILLS: Record<string, Skill> = {
         targetType: "single",
         description: "대상을 통째로 삼켜 얼려버린다.",
         statusEffect: { type: "freeze", duration: 1, value: 0 },
+    },
+    // ===== SP2a T6 — dawn_devourer(새벽을 삼킨 자) 전용 보스 스킬 3종 =====
+    // 적 전용(character/unlockLevel 없음 — 파티 습득 경로 없음). SP0 이월 저작 규약(보스
+    // 스킬은 적 전용 신설, 파티 스킬 재사용 금지) 준수. gear/wave 재튜닝 웨이브의 비율
+    // 스킴(약공:중공:강제공 = 1:1.4:2.2)을 그대로 채택 — "_snap"이 두 비강제 스킬 중
+    // 더 큰 쪽(gear의 maw_snap>maw_gear_spray, wave의 wave_snap>wave_surge)이라는
+    // 명명 관례와 "약한 쪽이 debuff_def 라이더를 진다"는 관례(maw_gear_spray/wave_surge)를
+    // 그대로 이어 dawn_flare(약·debuff_def)·dawn_snap(중·라이더 없음)으로 배정.
+    // dawn_swallow는 브리프 명시대로 stun 1턴 라이더(강제/기믹 스킬).
+    // TTK 양방향 게이트(task-6-report.md 참조): 메트릭 A(파티→보스 TTK, Lv14 파티 근사)
+    // 델타 +4.00%(±10% PASS), 메트릭 B(보스→파티 3턴 사이클 출력) 델타 +5.93%
+    // (wave_devourer 대비 +5~10% PASS).
+    dawn_flare: {
+        id: "dawn_flare",
+        name: "새벽빛 섬광",
+        damage: 127,
+        etherCost: 0,
+        type: "physical",
+        targetType: "single",
+        description: "눈부신 새벽빛으로 대상의 방어를 흐트러뜨린다.",
+        statusEffect: { type: "debuff_def", duration: 3, value: 8 },
+    },
+    dawn_snap: {
+        id: "dawn_snap",
+        name: "여명 물어뜯기",
+        damage: 178,
+        etherCost: 0,
+        type: "physical",
+        targetType: "single",
+        description: "삼킨 여명의 힘으로 물어뜯는다.",
+    },
+    dawn_swallow: {
+        id: "dawn_swallow",
+        name: "새벽 삼키기",
+        damage: 279,
+        etherCost: 0,
+        type: "magic",
+        targetType: "single",
+        description: "대상의 새벽을 통째로 삼켜 그 자리에 붙들어 놓는다.",
+        statusEffect: { type: "stun", duration: 1, value: 0 },
     },
 };
 
@@ -1249,6 +1300,40 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
             ],
         },
     },
+    // SP2a T6 — 「제단 지하」 정예 템플릿. mad_bull 기반 Lv+2(7→9)·스탯 1.25×
+    // (hp700/atk38/def18/speed15/luck6, ghoul_drowned와 동일한 반올림 방식)·호박
+    // tint 상시(템플릿 고정값이라 전투 내내 착색 — T3 ghoul_drowned와 동일 규약).
+    // 보상은 같은 Lv9인 ghoul_drowned의 exp140/gold90을 그대로 채택하고, 드랍
+    // 테이블은 mad_bull 원본(herb 0.5·monster_core 0.2)에 ghoul→ghoul_drowned가
+    // 적용한 것과 동일한 monster_core +0.15 상향(0.2→0.35)만 반영했다(브리프에
+    // 수치 지정 없어 인접 레벨 템플릿 대조 구간 내 창작 결정 — task-6-report.md 참조).
+    bull_altar: {
+        name: "제단의 들소",
+        model: "/character/Cow.fbx",
+        level: 9,
+        stats: {
+            hp: 700,
+            maxHp: 700,
+            mp: 0,
+            maxMp: 0,
+            atk: 38,
+            def: 18,
+            speed: 15,
+            luck: 6,
+        },
+        skills: ["slash"],
+        statusEffects: [],
+        aiPattern: "aggressive",
+        tint: "#e8a33d",
+        rewards: {
+            exp: 140,
+            gold: 90,
+            items: [
+                { id: "herb", chance: 0.5 },
+                { id: "monster_core", chance: 0.35 },
+            ],
+        },
+    },
     wild_dog: {
         name: "안개 들개",
         model: "/character/Pug.fbx",
@@ -1458,6 +1543,50 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
                 { hpPct: 0.3, announce: "…소용돌이가 걷잡을 수 없이 커진다!", tint: "#2b6b7d", scaleMul: 1.15 },
             ],
             gimmick: { type: "countdown", every: 3, skillId: "tide_swallow", warning: "🌊 파도가 삼켜진다" },
+        },
+    },
+    // ===== SP2a T6 — 언덕 보스 「새벽을 삼킨 자」 =====
+    // mad_bull(들소) 계열 모델 재사용(브리프 지시) — 제단 지하 정예 「제단의 들소」
+    // (bull_altar)가 자라난 거대판이라는 서사적 연결(스케일 1.5, 브리프 명시).
+    // Lv14 — wave_devourer(Lv13)보다 한 챕터 뒤(항구→언덕 순서).
+    // TTK 양방향 게이트(task-6-report.md 참조, sp2a-t6-ttk.ts): 메트릭 A(파티→보스
+    // TTK, Lv14 파티 근사) 델타 +4.00%(±10% PASS), 메트릭 B(보스→파티 3턴 사이클
+    // 출력) 델타 +5.93%(wave_devourer 대비 +5~10% PASS).
+    dawn_devourer: {
+        name: "새벽을 삼킨 자",
+        model: "/character/Cow.fbx",
+        level: 14,
+        stats: {
+            hp: 8250,
+            maxHp: 8250,
+            mp: 0,
+            maxMp: 0,
+            atk: 46,
+            def: 20,
+            speed: 20,
+            luck: 14,
+        },
+        skills: ["dawn_snap"],
+        statusEffects: [],
+        aiPattern: "aggressive",
+        rewards: {
+            exp: 2000,
+            gold: 2200,
+            // 드롭 없음 — 스토리 보상
+        },
+        scale: 1.5,
+        boss: {
+            phases: [
+                {
+                    hpPct: 0.7,
+                    announce: "…새벽이 뒤틀린다!",
+                    tint: "#d98e2b",
+                    aiPattern: "smart",
+                    skills: ["dawn_snap", "dawn_flare"],
+                },
+                { hpPct: 0.3, announce: "…여명이 통째로 삼켜진다!", tint: "#b26a10", scaleMul: 1.15 },
+            ],
+            gimmick: { type: "countdown", every: 3, skillId: "dawn_swallow", warning: "🌅 새벽이 삼켜진다" },
         },
     },
     // SP0 Task 4 — 보스 프레임워크 헤드리스 검증 전용 시험 보스 (HP 임계 페이즈 전이 확인용)

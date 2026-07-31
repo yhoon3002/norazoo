@@ -284,4 +284,51 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
         { type: "say", line: { speakerId: "arin", text: "돌아가면, 사부에게 직접 묻는다. …지금은 이 아래부터다." } },
         { type: "camReset", ms: 1200 },
     ],
+    // ===== SP2a T6 — 언덕 보스 「새벽을 삼킨 자」 진입·격파 컷신 =====
+    // 제단 지하 최심부(HILL_UNDERCROFT_BOSS_ENTRY 69,-54.25,-189 인근) — 조명
+    // 오버라이드(__lightOverride, hill_undercroft: ambient 0.13·lamp 0.48·
+    // fog #241a10 near3 far19) 상태에서 카메라 확정(헤드리스 rAF drawImage
+    // 캡처 — scratchpad/sp2a-t6-cam-probe.js → sp2a-cs_hill2_boss-1/2.png).
+    // 전부 walkable 층(y≈-54.25) 기준 수평 시선(부감 없음). battle 스텝(보스전)
+    // 포함 — 승리해야 잔여 연출(전투 여운)이 재생된다(checkedResume 게이트).
+    // 유물 회수·phen_hill 소등·여명 전환은 여기 두지 않고 별도 컷신(cs_hill2_relic,
+    // 지상 게이트 인근에서 발동)으로 분리했다 — 던전 내부 조명 오버라이드 아래서는
+    // "여명이 넘어간다"는 연출 자체가 보이지 않기 때문(§ storyData.ts hill2_relic
+    // 트리거 주석 참조).
+    cs_hill2_boss: [
+        { type: "cam", pos: { x: 62, y: -52, z: -195 }, lookAt: { x: 69, y: -53.5, z: -189 }, ms: 1600, hold: 900 },
+        { type: "say", line: { speakerId: "theo", text: "…기척이 짙어요. 이 안, 여명이 통째로 갇혀 있습니다." } },
+        { type: "say", line: { speakerId: "lotti", text: "따뜻해… 근데 이상해. 아침 냄새인데, 하나도 반갑지가 않아." } },
+        { type: "cam", pos: { x: 66, y: -52, z: -190 }, lookAt: { x: 61, y: -54, z: -193 }, ms: 1600, hold: 1200 },
+        { type: "say", line: { speaker: "새벽을 삼킨 자", text: "…돌려주지 않는다. 이 아침은, 이미 내 것이다." } },
+        { type: "say", line: { speakerId: "arin", text: "노라의 아침이다. 돌려받겠다 — 무기 들어." } },
+        { type: "fx", popup: { text: "🌅 새벽을 삼킨 자가 모습을 드러낸다", color: "#f5a623" } },
+        { type: "battle", id: "hill2_boss", templates: ["dawn_devourer"] },
+        { type: "say", line: { speakerId: "lotti", text: "…해냈다! 공기가 달라졌어… 이거 진짜 아침 냄새 아니야?" } },
+        { type: "say", line: { speakerId: "theo", text: "여명 자체가 여기 갇혀 있었던 모양이에요. …밖으로 나가서 확인해 보죠." } },
+        { type: "say", line: { speakerId: "arin", text: "돌아간다. 여기 근원이, 노라의 아침을 붙들고 있었다." } },
+        { type: "fx", popup: { text: "…희미하게, 저 위에서 빛이 새어 든다", color: "#f5a623" } },
+        { type: "camReset", ms: 1200 },
+    ],
+    // 여명 전환 — 언덕 존의 「반복되는 하루」가 끝나고 진짜 아침으로 넘어가는 연출.
+    // phen_hill 소등 자체가 이 연출의 본체(fog/디렉셔널/파티클이 실측대로 원복)라
+    // set 스텝을 맨 앞에 두어 컷신 재생 내내 소등 상태가 유지되게 했다 — 재도전
+    // 걱정은 없다(defeated_hill2_boss_0로 게이팅되는 별도 트리거라 승리 전에는
+    // 애초에 재생되지 않는다 — 1막 finale·T4 port2_relic과 동일 안전 설계).
+    // 카메라는 지상 게이트(8,-24.25,-204) 인근 walkable 앵커 기준 수평 시선
+    // (헤드리스 rAF 캡처 — scratchpad/sp2a-t6-cam-probe.js →
+    // sp2a-cs_hill2_relic-1/2.png).
+    cs_hill2_relic: [
+        { type: "set", flags: { phen_hill: false, relic_dawn: true } },
+        { type: "cam", pos: { x: 13, y: -21, z: -207 }, lookAt: { x: 4, y: -24, z: -211 }, ms: 1800, hold: 1000 },
+        { type: "fx", popup: { text: "🌅 여명이, 마침내 아침으로 넘어간다", color: "#f5c96b" } },
+        { type: "say", line: { speakerId: "arin", text: "…시간이 풀렸다. 이 언덕부터." } },
+        { type: "say", line: { speakerId: "theo", text: "반복되던 하루가 끝났어요. 이제 내일이, 진짜 내일로 이어집니다." } },
+        { type: "cam", pos: { x: 5, y: -19, z: -199 }, lookAt: { x: -3, y: -22, z: -213 }, ms: 1800, hold: 1400 },
+        { type: "say", line: { speakerId: "lotti", text: "…이 냄새! 진짜 아침밥 냄새야. 사부님 스튜 생각나네." } },
+        { type: "fx", popup: { text: "🌅✨ 여명의 유물 획득 (2/?)", color: "#a78bfa" } },
+        { type: "say", line: { speakerId: "theo", text: "'그분'의 흔적이 이 유물에도 짙게 남아 있어요. …차곡차곡 기록해 두죠." } },
+        { type: "say", line: { speakerId: "arin", text: "…둘. 노라의 아침을, 두 번째로 되찾았다." } },
+        { type: "camReset", ms: 1200 },
+    ],
 };
