@@ -152,6 +152,43 @@ export function FieldMerchant() {
                 }
             }
 
+            // ── SP2a §④: 존 챕터 완료 귀환 보고(선택 방문) 각 1비트 ──
+            // 유물 플래그 게이트(스테이지 대신) — relic_wave 직후 act2_hill로 전이돼
+            // stage 게이트로는 항구 보고 시점을 특정할 수 없다. 둘 다 밀렸으면
+            // 시간순(항구→언덕)으로 한 번의 E에 하나씩 소화.
+            if (s.flags.relic_wave && !s.flags.cook_report_port2) {
+                useGame.setState((st) => ({
+                    flags: { ...st.flags, cook_report_port2: true },
+                }));
+                s.startDialogue([
+                    {
+                        speaker: "요리사",
+                        text: "항구의 파도가 다시 흐른다는 소문이 온 마을에 돌았네. 자네들이 해낸 게로군.",
+                    },
+                    {
+                        speakerId: "lotti",
+                        text: "바닷바람이 예전 냄새로 돌아왔어요! 다음엔 그 유명하다는 생선구이 재료도 사올게요, 사부님.",
+                    },
+                ]);
+                return;
+            }
+            if (s.flags.relic_dawn && !s.flags.cook_report_hill2) {
+                useGame.setState((st) => ({
+                    flags: { ...st.flags, cook_report_hill2: true },
+                }));
+                s.startDialogue([
+                    {
+                        speaker: "요리사",
+                        text: "언덕 목장의 아침이 돌아왔다지. …그래, 스승님의 조리 노트를 정말 찾았단 말이지. 그 스튜 — 냄새까지 기억나는군.",
+                    },
+                    {
+                        speakerId: "lotti",
+                        text: "노트 글씨가 꼭 사부님 메모처럼 삐뚤빼뚤하던걸요. …언젠가 그 스튜, 같이 끓여봐요.",
+                    },
+                ]);
+                return;
+            }
+
             if (!s.ui.shopOpen) {
                 // 상점 UI는 마우스 조작이 필요하므로 포인터락 해제
                 document.exitPointerLock?.();
