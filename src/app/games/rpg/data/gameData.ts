@@ -396,6 +396,10 @@ export const SKILL_ANIMATIONS: Record<string, string> = {
     lotti_spice: "skill2",
     lotti_fullcourse: "skill2",
     lotti_snack: "skill2",
+    // SP2a T7 — 신규 3종(전부 버프/마법 계열 → 기존 패턴대로 skill2)
+    arin_bulwark: "skill2",
+    theo_tempest: "skill2",
+    lotti_cheer: "skill2",
 };
 
 export const SKILLS: Record<string, Skill> = {
@@ -612,6 +616,49 @@ export const SKILLS: Record<string, Skill> = {
         targetType: "self",
         description: "짬을 내어 챙겨온 간식을 먹고 스스로 원기를 회복한다.",
         statusEffect: { type: "regen", duration: 2, value: 8 },
+    },
+    // ===== SP2a T7 — 파티 신규 스킬 3종(Lv14, 레벨 커브 확장) =====
+    // 각 캐릭터 기존 최고 언락 스킬 대비 +15~25% 상향(arin_bastion buff_def12/Lv5,
+    // theo_collapse dmg170/Lv10, lotti_spice buff_atk10/Lv6 — 라이더 타입이 같은 스킬을
+    // 비교 기준으로 삼음, 근거는 task-7-report.md 참조). 라이더는 전부 기존 statusEffect
+    // 타입(buff_def/buff_atk) 재사용 — "파티 피해감소"는 buff_def가 effectiveStat(def)를
+    // 올려 calcBasicAttackDamage/applyEnemyHitDamage 양쪽에서 실제로 받는 피해를 줄이는
+    // 기존 메커니즘이라 신규 라이더 불필요. 전투 로직 신규 코드 없음(순수 데이터 추가).
+    arin_bulwark: {
+        id: "arin_bulwark",
+        name: "불굴의 방벽",
+        character: "arin",
+        unlockLevel: 14,
+        damage: 0,
+        etherCost: 3,
+        type: "buff",
+        targetType: "all",
+        description: "굳건한 방벽을 세워 파티 전원이 받는 피해를 크게 줄인다.",
+        statusEffect: { type: "buff_def", duration: 3, value: 15 },
+    },
+    theo_tempest: {
+        id: "theo_tempest",
+        name: "번개 폭풍",
+        character: "theo",
+        unlockLevel: 14,
+        damage: 205,
+        etherCost: 5,
+        type: "magic",
+        targetType: "all",
+        description: "거대한 번개 폭풍을 일으켜 적 전체에게 강력한 뇌격 피해를 준다.",
+        element: "lightning",
+    },
+    lotti_cheer: {
+        id: "lotti_cheer",
+        name: "따뜻한 격려",
+        character: "lotti",
+        unlockLevel: 14,
+        damage: 0,
+        etherCost: 3,
+        type: "buff",
+        targetType: "all",
+        description: "든든한 응원으로 파티 전원의 사기를 북돋아 공격력을 크게 끌어올린다.",
+        statusEffect: { type: "buff_atk", duration: 3, value: 12 },
     },
     // ===== SP1 Task 4 — gear_devourer(태엽을 삼킨 마수) 전용 보스 스킬 3종 =====
     // 적 전용(character/unlockLevel 없음 — 파티 습득 경로 없음). SP0 이월 저작 규약(보스 스킬은

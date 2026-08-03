@@ -26,6 +26,14 @@ export const QTE_PLANS: Record<string, number[]> = {
     lotti_spice: [1],
     lotti_fullcourse: [1, 2],
     lotti_snack: [1],
+    // ===== SP2a T7 — 신규 3종(Lv14) — 신규 QTE 타입 금지, 기존 플랜 그대로 재사용 =====
+    // arin_bulwark: arin의 기존 버프 중 가장 복잡한 플랜(arin_bless, Lv10)을 재사용 —
+    // 동일 캐릭터 최고위 버프 계열이라 난이도 상속이 자연스럽다.
+    arin_bulwark: [1, 2],
+    // theo_tempest: theo_collapse(Lv10 광역 마법)와 동일 카테고리(광역/magic) — 플랜 그대로.
+    theo_tempest: [2, 3, 3],
+    // lotti_cheer: lotti_spice와 동일 라이더 타입(buff_atk) — 플랜 그대로.
+    lotti_cheer: [1],
 };
 
 /** ===== 기본 유틸 함수 ===== */
