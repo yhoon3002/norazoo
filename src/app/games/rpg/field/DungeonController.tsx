@@ -168,7 +168,10 @@ export function DungeonController() {
                         popupText={`🌊 ${d.label}로 내려간다`}
                         color="#22d3ee"
                         requireFlag={d.requireFlag}
-                        lockedLine="아직은 그냥 막힌 통로예요. 소용돌이의 정체부터 밝혀야 이 아래도 뭔가 보이겠죠."
+                        lockedLine={
+                            d.lockedLine ??
+                            "아직은 그냥 막힌 통로예요. 소용돌이의 정체부터 밝혀야 이 아래도 뭔가 보이겠죠."
+                        }
                     />,
                     <DungeonGateNode
                         key={`${d.id}_gate${i}_up`}

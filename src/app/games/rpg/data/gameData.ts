@@ -622,7 +622,7 @@ export const SKILLS: Record<string, Skill> = {
     // theo_collapse dmg170/Lv10, lotti_spice buff_atk10/Lv6 — 라이더 타입이 같은 스킬을
     // 비교 기준으로 삼음, 근거는 task-7-report.md 참조). 라이더는 전부 기존 statusEffect
     // 타입(buff_def/buff_atk) 재사용 — "파티 피해감소"는 buff_def가 effectiveStat(def)를
-    // 올려 calcBasicAttackDamage/applyEnemyHitDamage 양쪽에서 실제로 받는 피해를 줄이는
+    // 올려 applyEnemyHitDamage에서 실제로 받는 피해를 줄이는
     // 기존 메커니즘이라 신규 라이더 불필요. 전투 로직 신규 코드 없음(순수 데이터 추가).
     arin_bulwark: {
         id: "arin_bulwark",

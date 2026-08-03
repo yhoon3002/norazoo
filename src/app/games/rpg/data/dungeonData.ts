@@ -25,6 +25,9 @@ export type DungeonDef = {
     light: { ambient: number; lamp: number; fogColor: string; fogNear: number; fogFar: number };
     /** 있으면 이 플래그(flags[requireFlag])가 true여야 게이트 진입(하강) 허용 — SP2a T3 */
     requireFlag?: string;
+    /** requireFlag 미충족 시 보여줄 1줄 안내 대사 — 미지정 시 DungeonController의 공용
+     * 문구("소용돌이의 정체부터…", 항구 전용 표현)로 폴백(SP2a 최종 리뷰 F4). */
+    lockedLine?: string;
 };
 
 export const DUNGEONS: DungeonDef[] = [
@@ -58,6 +61,8 @@ export const DUNGEONS: DungeonDef[] = [
         id: "port_warehouse",
         label: "침수 창고",
         requireFlag: "port2_vortex_found",
+        // [최종 리뷰 F4] 기존 DungeonController 공용 문구를 그대로 이관 — 동작 불변.
+        lockedLine: "아직은 그냥 막힌 통로예요. 소용돌이의 정체부터 밝혀야 이 아래도 뭔가 보이겠죠.",
         gates: [
             { overworld: { x: 245, y: -37.25, z: -19 }, underground: { x: 196, y: -43.25, z: -42 } },
         ],
@@ -96,6 +101,9 @@ export const DUNGEONS: DungeonDef[] = [
         id: "hill_undercroft",
         label: "제단 지하",
         requireFlag: "hill2_source_found",
+        // [최종 리뷰 F4] 항구 전용 "소용돌이" 문구가 언덕 던전에도 그대로 노출되던 것을
+        // 교체 — hill2_source 목표("반복의 근원을 찾아가자" → 목장 조사)와 정합.
+        lockedLine: "반복의 진원부터 찾아야 한다. 목장 쪽을 조사하자.",
         gates: [
             { overworld: { x: 8, y: -24.25, z: -204 }, underground: { x: 39, y: -56.25, z: -202 } },
         ],

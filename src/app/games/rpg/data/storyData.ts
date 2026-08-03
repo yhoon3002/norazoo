@@ -64,6 +64,8 @@ export const NPC_SPEAKERS: Record<string, { icon: string }> = {
     "조리 노트": { icon: "📓" },
     // SP2a T6 — cs_hill2_boss 신규 화자(제단 지하의 보스, "태엽을 삼킨 마수" 계열 명명)
     "새벽을 삼킨 자": { icon: "🌅" },
+    // SP2a 최종 리뷰(F3) — cs_port2_relic 화자 미등록 발견분(항구 보스, 위와 동일 계열)
+    "파도를 삼킨 자": { icon: "🌊" },
 };
 
 export type StoryTrigger = {
@@ -402,7 +404,17 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         id: "port2_boss",
         stage: "act2_port",
         near: { x: 195, z: -37, radius: 3 },
-        flagsAll: ["port2_vortex_found"],
+        // [최종 리뷰 반영 — F1/F2] flagsAll에 두 조건 추가:
+        // ① story_port2_arin — witness/vortex/arin 체인엔 이미 flagsAll 순서 게이트가
+        //    있는데 boss만 없어서, vortex 발동 지점(245,-15)과 던전 게이트(245,-19)가
+        //    4m 거리인 탓에 arin 서신(act2_port 전용 컷신)을 건너뛰고 곧장 보스로 직행하면
+        //    아린 서신이 act2_hill 전이로 영구 사장됐다 — 순서 게이트로 해소.
+        // ② door_port_warehouse_2 — 트리거가 XZ만 보고 y를 안 봐서, 이 XZ 바로 위
+        //    지상 워크웨이(y≈-39.49)에서도 오발화가 재현됐다(sp2a-final-crosslayer-fire3.js).
+        //    문2 스위치는 y가드(DungeonDoor.tsx:88)가 있어 지상에서 조작 불가 — 문2 플래그
+        //    게이트는 실질적으로 "던전 실경로를 다 통과해야 발화"를 강제하는 것과 동치라
+        //    정상 플레이(문을 반드시 여는 경로)에는 영향이 없다.
+        flagsAll: ["port2_vortex_found", "story_port2_arin", "door_port_warehouse_2"],
         cutscene: "cs_port2_relic",
         battle: { id: "port2_boss", templates: ["wave_devourer"] },
     },
@@ -500,7 +512,13 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         id: "hill2_boss",
         stage: "act2_hill",
         near: { x: 69, z: -189, radius: 3 },
-        flagsAll: ["hill2_source_found"],
+        // [최종 리뷰 반영 — F1/F2] port2_boss와 동일한 비대칭 해소(위 주석 참조).
+        // ① story_hill2_lotti — 로티의 오두막 서사(hill2_lotti)를 건너뛰고 곧장 보스로
+        //    직행하면 act2_hill이 STAGE_ORDER 최종 스테이지라 되돌아올 스테이지 전이가
+        //    없어 그 서사가 영구 사장된다.
+        // ② door_hill_undercroft_2 — 제단 지하 상부 표층(y≈-27.8)에서의 XZ-only 오발화
+        //    방지(sp2a-final-crosslayer-fire3.js). 문2 스위치도 y가드로 지상 조작 불가.
+        flagsAll: ["hill2_source_found", "story_hill2_lotti", "door_hill_undercroft_2"],
         cutscene: "cs_hill2_boss",
         battle: { id: "hill2_boss", templates: ["dawn_devourer"] },
     },
