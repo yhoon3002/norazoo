@@ -51,6 +51,16 @@ export const ZONE_PHENOMENA: PhenomenonDef[] = [
         ambientColor: "#e8c890",
         particles: { count: 300, color: "#f5e6c8", size: 0.05, yBand: [-30, -12] },
     },
+    // SP2b T1 — 서부 대삼림 「계절이 뒤엉킨 숲」. west_forest 존 첫 현상(우선순위 충돌 없음).
+    // 사계 혼재 인상 — 연둣빛 포그·낮춘 디렉셔널·이중 톤(신록+단풍) 파티클. yBand는 조사
+    // 아크 4지점 실측 표고(-20.25~-9.25, scratchpad/sp2b-t1-probe2.js)를 감싸는 대역으로 선정.
+    {
+        zone: "west_forest",
+        flag: "phen_forest",
+        fog: { color: "#9fb86a", near: 12, far: 70 },
+        dirIntensity: 2.6,
+        particles: { count: 450, color: "#e8c06a", size: 0.06, yBand: [-25, -5] },
+    },
 ];
 
 /**

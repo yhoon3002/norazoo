@@ -66,6 +66,8 @@ export const NPC_SPEAKERS: Record<string, { icon: string }> = {
     "새벽을 삼킨 자": { icon: "🌅" },
     // SP2a 최종 리뷰(F3) — cs_port2_relic 화자 미등록 발견분(항구 보스, 위와 동일 계열)
     "파도를 삼킨 자": { icon: "🌊" },
+    // SP2b T1 — cs_theo_camp 신규 화자(테오 스승의 옛 연구 캠프에서 발견한 낡은 노트)
+    "낡은 노트": { icon: "📔" },
 };
 
 export type StoryTrigger = {
@@ -110,6 +112,12 @@ export const STAGE_ORDER = [
     // (구세이브 stage 인덱스 불변 — 에필로그 세이브가 자연스럽게 2막 진입).
     "act2_port",
     "act2_hill",
+    // SP2b — 2막 두 번째 묶음(서부·북부 3존: 대삼림·숲길·수변). 뒤에 append만
+    // (act2_hill 이후 구세이브의 스테이지 인덱스 불변 — act2a_done 세이브는 대삼림
+    // 접근로 트리거 대기 상태로 자연히 이어진다).
+    "act2_forest",
+    "act2_woods",
+    "act2_water",
 ] as const;
 
 export function stageAtLeast(current: string, target: string): boolean {
@@ -558,6 +566,96 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         objective: "서부 숲의 이상 징후는 다음 몫이다 — 지금은 자유로이 언덕을 둘러보자",
         target: null,
         setFlags: { act2a_done: true },
+    },
+    // ===== SP2b T1 — 서부 대삼림 챕터 「계절이 뒤엉킨 숲」 조사 아크(체인 4비트) =====
+    // T2/T5(항구·언덕)와 동일 패턴: 전부 nextStage 미지정(진입 트리거만 예외) — 순서 게이트
+    // 전 구간 flagsAll 적용(SP2a 최종 리뷰 규약, 예외 없음).
+    //
+    // [T1 리뷰 수정 — 2026-08] 최초 구현분 4지점 전부가 컨트롤러 육안 확인(사후 확정 샷)에서
+    // 상층/고립 지형에 앉아 있었음이 드러났다(arrival·rift는 지붕형·수풀형 소면적 상층,
+    // camp는 완전 고립된 단일 층으로 8방 연속성 0/12·실텔레포트 착지 아래 지면이 아예 없음).
+    // 원인: navFindWalkable의 preferY 밴드가 "상층에서 얻은 y" 자체를 기준으로 삼아
+    // 드리프트 0을 통과시켜 버림(이원 검증이 상층↔상층 자기 일치만 확인). 재검증은
+    // __navGroundAt을 preferY 없이 반복 호출해 컬럼의 전 층을 나열하고, 각 층의 8~12방
+    // 연속성(navGroundAt 기준)에 더해 실제 자유낙하 텔레포트(고도 40~150 다중 세션) 착지
+    // y까지 대조하는 방식으로 교체(scratchpad/sp2b-fix-*.js). herbalist는 스크린샷 결함
+    // 보고에는 없었으나 동일 감사에서 저장값(-18.75)이 실제 지면(-12.25, 자유낙하 2세션
+    // 일치)과 6.5m 어긋난 지하 포켓임이 드러나 함께 수정(XZ는 원안 유지, Y만 교정).
+    {
+        // 대삼림 접근로 — 원안(GEN_FLAGS 앵커, -217.85,110.15)은 성벽형 원형 계단 플라자
+        // 지붕에 앉아 있었다(navGroundAt 컬럼 3층[-17.70(고립,연속성 1/12@1.5m)/-21.63/
+        // -30.31] 중 최상층을 오검출). 마을→숲 도보 진입로 상, 플라자를 벗어난 실제
+        // 지면(단일 층, 자유낙하 3세션 y=-31.25 일치)으로 9.9m 재배치. herb_witch(NPC,
+        // -212.5,106.5)와 13.4m, GEN_FLAGS와 14.2m — 모두 3.5m+ 확보.
+        id: "forest_arrival",
+        stage: "act2_hill",
+        near: { x: -222, z: 97, radius: 8 },
+        flagsAll: ["act2a_done"],
+        cutscene: "cs_forest_arrival",
+        nextStage: "act2_forest",
+        objective: "약초술사의 증언을 들어보자",
+        target: { x: -211.28, z: 100.55 },
+    },
+    {
+        // 증언 — herb_witch(-212.5,-18.25,106.5) 인근이되 6.07m 이격(기존 사이드퀘스트
+        // NPC 상호작용 반경과 3.5m+ 확보). 굳은 주민이 없는 야외 존이라(항구/언덕의 frozen
+        // villager 증언 대신) 생존 NPC 본인의 목소리로 증언을 대체한다(스펙 §②).
+        // [T1 리뷰 수정] XZ는 원안 유지(도로 위, 스크린샷 결함 없음) — 다만 저장 y=-18.75가
+        // navGroundAt 컬럼에 없는 값이었고, 근접 텔레포트로는 실제 지면보다 6.5m 낮은
+        // 지하 포켓(-21.25)에 꽂히는 것으로 드러나 자유낙하 실측치 y=-12.25로 교정
+        // (별도 세션 2회 일치, 인접 8방 연속성 양호 — 다이얼로그 전용 지점이라 화면
+        // 결함은 없었지만 이원 검증 기준 미달이라 함께 바로잡음).
+        id: "forest_herbalist",
+        stage: "act2_forest",
+        near: { x: -211.28, z: 100.55, radius: 8 },
+        // 순서 게이트 — port2_witness/hill2_witness와 동일 이유(패스트트래블 우회 방지).
+        flagsAll: ["story_forest_arrival"],
+        dialogue: [
+            { speaker: "약초술사", text: "또 와주셨네요! …그런데 요 며칠 이 근방이 심상치 않아요. 화로의 불이 어제는 여름처럼 뜨겁더니, 오늘은 한겨울마냥 손이 다 시려요." },
+            { speaker: "약초술사", text: "숲도 마찬가지예요. 저 안쪽 나무는 단풍이 다 졌는데, 이쪽은 아직 여린 새잎이 돋아 있죠. 계절이 통째로 뒤죽박죽이 됐어요." },
+            { speakerId: "theo", text: "한 자리에 사계가 뒤섞여 있다는 거군요 — 정말 예사롭지 않은 증언이에요. 낱낱이 기록해 두겠습니다." },
+            { speakerId: "arin", text: "경계가 있을 거다. 여름과 겨울이 맞닿는 자리 — 거기서부터 살핀다." },
+            { speakerId: "lotti", text: "이상한 숲이네… 약초술사님, 화로 불씨는 저희가 얼른 정리하고 다시 챙겨드릴게요!" },
+        ],
+        objective: "계절이 뒤섞이는 경계를 찾아가자",
+        target: { x: -198, z: 32 },
+    },
+    {
+        // 진원 — 계절 경계 실측 지점(T2의 vortex/T5의 source 대응).
+        // [T1 리뷰 수정] 원안(-192.3,38.07)은 컬럼 최상층(-20.25, 3m 이상 연속성 0/12)인
+        // 고립된 바위/수풀 더미였다 — 8.3m 옆 실제 지면(단일 연속 평탄대, 자유낙하 y=-25.25,
+        // 반경 3m 전방향 dy=0 확인)으로 재배치.
+        id: "forest_rift",
+        stage: "act2_forest",
+        near: { x: -198, z: 32, radius: 8 },
+        flagsAll: ["story_forest_herbalist"],
+        dialogue: [
+            { speakerId: "lotti", text: "어? 진짜네… 발 하나 차이로 여긴 여름이고, 저긴 눈이 쌓여 있어! 신기하긴 한데… 좀 소름 돋는다." },
+            { speakerId: "theo", text: "경계가 이렇게 뚜렷하다니 자연 현상일 리 없어요. 에테르 파동이 이 한 점에서 사방으로 갈라지고 있습니다 — 여기가 근원이에요." },
+            { speakerId: "arin", text: "…발자국이 있다. 오래되지 않았어. 누군가 먼저 이곳에 있었다." },
+            { speakerId: "theo", text: "이 발자국, 따라가 볼 가치가 있어요." },
+        ],
+        objective: "발자국을 따라 숲 안쪽으로 들어가자",
+        target: { x: -176, z: -46 },
+        // T2(던전 「뿌리 굴」) 게이트 인터페이스 — forest_rift 트리거에서 산출(브리프 지시).
+        setFlags: { forest_rift_found: true },
+    },
+    {
+        // 테오 단서 — 스승의 옛 연구 캠프(T2의 arin/T5의 lotti 대응: 서사 컷신).
+        // [T1 리뷰 수정] 원안(-177.5,-28)은 navGroundAt이 단일 층(-9.31)만 검출하고 그
+        // 층조차 8방 연속성 0/12(실질 완전 고립 — 스크린샷에서 party가 수풀 꼭대기에
+        // 서서 목조 벽에 밀착·서로 겹치는 결함으로 확인). 인근 고가 목조 잔해대는 파편화가
+        // 심해(대부분 후보 3m+에서 연속성 급락) 같은 GEN_POIS 티어의 남쪽 확장부 —
+        // 12.1m 떨어진 진짜 평탄 목조 데크(8/12@1.5m, 자유낙하 3세션 y=-5.25 일치)로
+        // 재배치. GEN_POIS 전망 포인트(-171.5,-35.5)와 11.4m, roamer3와 34.5m — 3.5m+/
+        // 8m+ 모두 확보.
+        id: "forest_theo",
+        stage: "act2_forest",
+        near: { x: -176, z: -46, radius: 8 },
+        flagsAll: ["story_forest_rift"],
+        cutscene: "cs_theo_camp",
+        objective: "계절이 갈라지던 자리로 돌아가, 그 뿌리를 살펴보자",
+        target: { x: -198, z: 32 },
     },
 ];
 

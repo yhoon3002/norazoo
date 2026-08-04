@@ -331,4 +331,50 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
         { type: "say", line: { speakerId: "arin", text: "…둘. 노라의 아침을, 두 번째로 되찾았다." } },
         { type: "camReset", ms: 1200 },
     ],
+    // ===== SP2b T1 — 서부 대삼림 개막·테오 서사 1장(컷신 2종) =====
+    // 카메라는 헤드리스 rAF drawImage 캡처로 실측 확정(scratchpad/sp2b-t1-forest.js →
+    // sp2b-cs_forest_arrival-1/2.png·sp2b-cs_theo_camp-1/2.png). 전부 조사 아크 4지점
+    // walkable 앵커(scratchpad/sp2b-t1-probe2.js) 인근 기준 수평 시선(부감 없음).
+    // [T1 리뷰 수정 — 2026-08] 앵커가 상층/고립 지형으로 확인되어 storyData.ts의 지면
+    // 재배치에 맞춰 카메라도 전부 재앵커(scratchpad/sp2b-fix-*.js 육안 재확인 완료).
+    cs_forest_arrival: [
+        // phen_forest 활성 — 사계 혼재 첫 가동(선점등 규약, 순수 점등이라 선적용 무해)
+        { type: "set", flags: { phen_forest: true } },
+        { type: "cam", pos: { x: -227, y: -29.5, z: 92 }, lookAt: { x: -222, y: -29.7, z: 97 }, ms: 1800, hold: 900 },
+        { type: "say", line: { speakerId: "lotti", text: "우와… 이 나무는 여름 잎인데, 바로 옆은 단풍이 다 들었어! 심지어 저쪽엔 눈까지 쌓여 있잖아?" } },
+        { type: "cam", pos: { x: -226, y: -29, z: 102 }, lookAt: { x: -217, y: -29.7, z: 99 }, ms: 1800, hold: 1400 },
+        { type: "fx", popup: { text: "🍂🌸 한 걸음마다 계절이 바뀐다", color: "#9fb86a" } },
+        { type: "say", line: { speakerId: "theo", text: "한 걸음마다 계절이 바뀌어요. 봄, 여름, 가을, 겨울이 이 숲 안에서 전부 동시에 존재하고 있습니다 — 자연스러운 현상이 아니에요." } },
+        { type: "say", line: { speakerId: "arin", text: "…또 시작인가. 항구의 파도, 언덕의 아침, 이번엔 숲의 계절이다." } },
+        { type: "say", line: { speakerId: "lotti", text: "이번엔 또 뭐가 이상해진 걸까… 그래도 예쁘긴 진짜 예쁘다. 무서운데 예쁜 건 처음이야." } },
+        { type: "say", line: { speakerId: "theo", text: "이 근방에 약초를 캐는 분이 계셨죠. 증언부터 들어보죠 — 숲의 변화를 가장 먼저 알아챘을 겁니다." } },
+        { type: "say", line: { speakerId: "arin", text: "간다." } },
+        { type: "camReset", ms: 1200 },
+    ],
+    // 테오 단서 — 스승의 옛 연구 캠프(T2의 cs_arin_letter/T5의 cs_lotti_home 대응: 서사 컷신).
+    // 에테르 계측 기구 잔해 + 낡은 노트로 테오의 학자 시절과 스승 실종을 처음 개시한다.
+    // frozenData.ts의 "스승이 따로 있다는 뜻이겠죠"(공방 주인 계열 추정)와는 별개의 인물 —
+    // 테오 본인의 개인 서사이며, 두 "스승" 스레드를 이 시점에 명시적으로 잇지 않는다(추후
+    // 회수 여지만 additive로 남긴다). "그분"·빌런은 직접 명명하지 않는다.
+    cs_theo_camp: [
+        { type: "cam", pos: { x: -182, y: -3.5, z: -42 }, lookAt: { x: -176, y: -4.2, z: -46 }, ms: 1800, hold: 900 },
+        { type: "say", line: { speakerId: "theo", text: "…이 자리, 어쩐지 낯이 익어요. 아니, 낯익을 리가 없는데—" } },
+        // [T1 재캡처 수정] 원안(동측 -171,-50)은 데크 융기 열이 시선을 가렸다(확정 샷 실증
+        // — 데크는 서쪽으로 낮아지는 계단형 지붕이라 동측 저각은 근경 융기부가 프레임을 지배,
+        // y 상향(+1.1m)으로도 해소 불가). 1번 캠과 같은 서측(내리막) 사면의 남서 대각으로
+        // 재앵커 — 파티 전신·데크·동편 수림이 한 프레임에 들어온다.
+        { type: "cam", pos: { x: -181, y: -3.0, z: -49 }, lookAt: { x: -176.4, y: -4.5, z: -45.8 }, ms: 1800, hold: 1200 },
+        { type: "fx", popup: { text: "🔭 부서진 에테르 계측 기구", color: "#f5c96b" } },
+        { type: "say", line: { speakerId: "lotti", text: "이게 다 뭐야? 낯선 기계들이 잔뜩이네… 테오, 너 이런 거 알아?" } },
+        { type: "say", line: { speakerId: "theo", text: "에테르 계측 기구예요. 이 조합, 이 배치… 제 스승님 방식 그대로입니다." } },
+        { type: "say", line: { speaker: "낡은 노트", text: "『시간의 결이 뒤엉킨 곳마다 에테르가 고인다.』" } },
+        { type: "say", line: { speakerId: "theo", text: "…스승님 글씨체예요. 몇 해 전, 아무 말 없이 사라지신 스승님의 노트가 — 왜 하필 이런 곳에." } },
+        { type: "say", line: { speakerId: "arin", text: "…처음 듣는 이야기다. 스승이 있었나." } },
+        { type: "say", line: { speakerId: "theo", text: "왕도 학당 시절의 스승님이셨어요. 에테르 연구로는 누구도 따를 자가 없으셨죠 — 그러다 어느 날, 아무 흔적도 없이 사라지셨습니다. 그 뒤로 줄곧, 저 혼자 이유를 찾고 있었어요." } },
+        { type: "say", line: { speakerId: "lotti", text: "그런 얘기, 한 번도 안 했잖아… 혼자 계속 찾아다니느라 힘들었겠다." } },
+        { type: "say", line: { speakerId: "arin", text: "…이제는 혼자가 아니다." } },
+        { type: "say", line: { speakerId: "theo", text: "…고맙습니다, 두 분 다. 이 노트가 스승님이 여기 계셨다는 첫 단서예요. '시간의 결이 뒤엉킨 곳' — 계절이 뒤섞인 이 숲과 무관하지 않겠죠." } },
+        { type: "fx", popup: { text: "📔 스승의 연구 노트를 발견했다", color: "#a78bfa" } },
+        { type: "camReset", ms: 1200 },
+    ],
 };
