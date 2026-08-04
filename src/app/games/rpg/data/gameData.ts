@@ -26,6 +26,8 @@ export const ENEMY_MODEL_BY_TEMPLATE: Record<string, string> = {
     // SP2a T6 — 제단 지하(정예·보스) 둘 다 mad_bull 모델 재사용(브리프 지시).
     bull_altar: "/character/Cow.fbx",
     dawn_devourer: "/character/Cow.fbx",
+    // SP2b T2 — 「뿌리 굴」 정예. zombie 모델 재사용(브리프 지시).
+    zombie_seasoned: "/character/Zombie_Male.fbx",
 };
 
 // 필드 적 데이터 단일 소스 — FieldScene(렌더링)·FieldPlayer(충돌) 공용
@@ -58,6 +60,30 @@ export const FIELD_ENEMIES: Array<
     // 미달 전례 반영. scratchpad/sp2a-t6-audit.ts 위반 0).
     { id: "hill_undercroft_e1", pos: new THREE.Vector3(43.5, -53.25, -201), template: "bull_altar", respawn: 180_000 },
     { id: "hill_undercroft_e2", pos: new THREE.Vector3(55, -54.25, -200), template: "bull_altar", respawn: 180_000 },
+    // SP2b T2 — 「뿌리 굴」(forest_rootcave) 던전 내부 정예 2팩. [2차 재배치 확정치 —
+    // dungeonData.ts DUNGEONS "1차 구현 후 리뷰 수정" 주석 참조]
+    //
+    // ⚠ 진단 스크린샷(sp2b-t2-door1-diag-after.png)이 밝힌 진짜 원인: 문 통과 실패는
+    // 자연 지형 문제가 아니라 정예(zombie_seasoned, aggressive)가 문/스위치/게이트
+    // 바로 옆(당시 0.36~3.0m)에 있어 근접감지(2.5m)·시야(7m)에 걸려 테스트 중
+    // 우발 전투가 반복 난입한 것이었다(기존 gameData.ts 로머 배치 주석의 "상호작용
+    // 반경 겹침 → 강제 전투" 규칙과 동일 계열, 정예에도 동일 적용). 정예를 문/스위치/
+    // 게이트에서 8m+ 이격하도록 재배치했다.
+    //
+    // 이 방(x -184.8~-170.9, ~14m)은 게이트·문1·문2·보스가 이미 양 끝에 걸쳐 있어
+    // 정예 2팩을 서로·모든 상호작용물과 동시에 8m+ 띄우는 것이 기하학적으로
+    // 불가능함을 그리드 탐사로 확인했다(문1↔문2 8m 자체가 이미 8m — 그 사이 어떤
+    // 점도 양쪽에서 8m가 될 수 없음, task-2-report.md "정예 재배치 한계" 절 실측
+    // 근거 전문). 실현 가능한 최댓값으로 재배치: e1은 북쪽 곁가지(branch1)로 옮겨
+    // 게이트·문1 클러스터에서 6.3~8.5m(원래 0.36~3.0m 대비 대폭 개선), e2는 중앙
+    // 통로로 옮기고 스위치2를 문2 바로 옆(-174,-44.5)으로 당겨 e2를 문1/문2/스위치2/
+    // 보스에서 4.0~6.8m 확보(원래 e2 위치 대비 개선). e1↔e2는 5.6m로 기존 8m 기준에
+    // 못 미치나(§ task-2-report.md), 배치 감사 결과 이 이상은 방 실측 크기상
+    // 불가능 — 배터리는 로머 난입 가드(§ sp2b-t2-rootcave.js safeClearCombat)로
+    // 잔여 충돌 위험을 흡수한다. y는 실텔레포트 dy≤0.09 확인값
+    // (scratchpad/sp2b-t2-verify-direct.js).
+    { id: "forest_rootcave_e1", pos: new THREE.Vector3(-178.5, -45.25, -41), template: "zombie_seasoned", respawn: 180_000 },
+    { id: "forest_rootcave_e2", pos: new THREE.Vector3(-177.5, -44.25, -46.5), template: "zombie_seasoned", respawn: 180_000 },
     // 파수꾼 퀘스트 전용 무리 (리스폰 없음 — Task 4에서 사용)
     { id: "bounty1", pos: new THREE.Vector3(52, -33.25, -46), templates: ["orc", "orc"] },
     // 웨이브2 토벌 전용 캠프 (리스폰 없음 — bounty1과 동일 규약, 퀘스트 플래그 영구 보존)
@@ -1377,6 +1403,40 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
             gold: 90,
             items: [
                 { id: "herb", chance: 0.5 },
+                { id: "monster_core", chance: 0.35 },
+            ],
+        },
+    },
+    // SP2b T2 — 「뿌리 굴」(대삼림 2막) 정예 템플릿. zombie 기반 Lv+2(6→8)·스탯
+    // 1.25×(hp525/atk28/def13/speed10/luck4 — SP2a ghoul_drowned/bull_altar와 동일
+    // 반올림 방식: Math.round(base*1.25))·금녹 tint 상시(비주얼은 tint 필드, T3/T6와
+    // 동일 규약). 보상은 이 전투와 같은 Lv8인 기존 witch 템플릿의 exp110/gold75를
+    // 채택(zombie 자체 exp70/gold45 기준 독립 추정치 ×~1.6도 근사 일치 — 인접 레벨
+    // 템플릿 대조 구간 내 창작 결정, T6 bull_altar 사례와 동일 방식). 드랍은 zombie
+    // 원본(tree_sap 0.35 유지) + monster_core +0.15(0.2→0.35, T3/T6와 동일 상향폭).
+    zombie_seasoned: {
+        name: "사계에 물든 좀비",
+        model: "/character/Zombie_Male.fbx",
+        level: 8,
+        stats: {
+            hp: 525,
+            maxHp: 525,
+            mp: 0,
+            maxMp: 0,
+            atk: 28,
+            def: 13,
+            speed: 10,
+            luck: 4,
+        },
+        skills: ["slash"],
+        statusEffects: [],
+        aiPattern: "aggressive",
+        tint: "#c4bc6a",
+        rewards: {
+            exp: 110,
+            gold: 75,
+            items: [
+                { id: "tree_sap", chance: 0.35 },
                 { id: "monster_core", chance: 0.35 },
             ],
         },

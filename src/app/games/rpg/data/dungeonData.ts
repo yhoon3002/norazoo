@@ -111,6 +111,56 @@ export const DUNGEONS: DungeonDef[] = [
         // 새벽/땅속 테마 — 항구(청록)·1막 수로(녹)와 구분되는 짙은 흙빛-호박 톤.
         light: { ambient: 0.13, lamp: 0.48, fogColor: "#241a10", fogNear: 3, fogFar: 19 },
     },
+    // ===== SP2b T2 — 「뿌리 굴」(대삼림 2막) =====
+    //
+    // 대삼림 하부(테오 캠프 목조 데크 -176,-5.25,-46 인근)를 헤드리스로 실측
+    // 개척(scratchpad/sp2b-t2-explore1~10.js·layout1~2.js·crosssec.js). 표층은
+    // 거의 전부 __navGroundAt top===null(걸을 수 없는 험지/절벽)이고, 그 아래
+    // y≈-44.3 평탄면(1m 그리드 다수 지점 정확히 동일값)이 고립된 진짜 동굴로
+    // 존재한다 — 캠프 데크(y≈-5.25)와는 최소 38m 절벽으로 분리(표층↔동굴 전
+    // 경계 실측, 0.1m 정밀 스캔으로 계단/램프 없음 확인 — 도보 우회 불가).
+    //
+    // ⚠ [1차 구현 후 리뷰 수정] 최초 배치는 이 동굴의 서쪽 더 넓은 "belly"
+    // (x -190.5~-174)까지 썼으나, 문1 개방 후 실WASD 통과 배터리가 2회 연속
+    // FAIL했다(scratchpad/sp2b-t2-run3/4.log). 근본원인 진단
+    // (sp2b-t2-door1-diagnose.js — rAF 확정 샷 + 문 메시/environmentMeshes 제거
+    // 확인 + 4방향 개별 트레이스)으로 "문은 정상 개방·제거됨(콜리전 리스트에서도
+    // 빠짐)"을 먼저 확인했고, 그 다음 x -186.2~-185.6 사이 폭 0.6~1.0m의 자연
+    // 틈(Walkable.glb 밴드 양쪽 다 null인 실제 지형 간극, sp2b-t2-boundary-
+    // scan3.js)을 실측했다 — 이 틈 통과는 rAF가 계속 도는데도(rafCount 계속
+    // 증가) 플레이어 이동만 간헐적으로 정지하는 재현성 낮은 현상이라, 문 콜리전
+    // 문제가 아니라 이 좁은 자연 틈 자체의 통행 신뢰성 문제로 판정했다. 서쪽
+    // "belly"(게이트·정예1 옛 위치)를 포기하고 이 틈 동쪽의 넓은 본실만 사용하도록
+    // 전면 재배치했다 — 지상 게이트도 이 틈 위 데크 대신 동쪽 데크(-172,-40)로
+    // 옮겨 XZ 10m+ 규약을 유지한다(§ task-2-report.md "문 레이스 판별" 절 전문).
+    //
+    // 재배치 후 형상: 본실(x -184.8~-181.5, z -46.5~-46.7, y=-44.25 평탄, 문1
+    // 이서 서쪽)에서 문1을 지나면 북쪽 곁가지(정예2, x -178.5, z -41, y=-45.25)로
+    // 이어지고, 동쪽 곁가지(x -176~-170.9, z -41~-45.5, y=-44.25)를 지나 문2 →
+    // 보스 진입점. 전 구간 이 틈 지대(x -186.2~-185.6)를 지나지 않는다 — 실WASD로
+    // 게이트→정예1→문1 왕복(sp2b-t2-door-block-test.js류 기법 재사용) 및 문2→
+    // 보스 구간 재확인 완료(§ task-2-report.md).
+    //
+    // 좌표 전부 "실텔레포트(목표 y 직행) 착지 dy" 이중 확인(scratchpad/sp2b-t2-
+    // verify-direct.js, 별도 세션 2회 반복 재현 다수) — 요청 y와 착지 y가 사실상
+    // 0(≤0.1m)으로 일치. 지상 게이트만 T1 관례대로 자유낙하(고도100) 확인.
+    //
+    // 게이트 XZ 이격: 지상(-172,-40) ↔ 지하(-184.8,-46.7) = 14.45m — 10m+ 규약
+    // 충분 만족. 지상 게이트는 forest_theo 트리거(-176,-46)와 7.21m(≥3.5m) 이격.
+    // requireFlag: "forest_rift_found" — T1의 forest_rift 트리거가 세우는 플래그.
+    {
+        id: "forest_rootcave",
+        label: "뿌리 굴",
+        requireFlag: "forest_rift_found",
+        lockedLine: "대삼림의 계절이 뒤엉킨 자리부터 찾아야 이 아래도 볼 수 있을 겁니다.",
+        gates: [
+            { overworld: { x: -172, y: -6.25, z: -40 }, underground: { x: -184.8, y: -44.25, z: -46.7 } },
+        ],
+        region: { minX: -186, maxX: -169, minZ: -48, maxZ: -40, yMax: -38 },
+        // 심녹 조명 — phen_forest 현상 톤(포그 #9fb86a·파티클 #e8c06a)과 결이 이어지되
+        // 던전 특유의 짙은 채도로 낮춘 심녹.
+        light: { ambient: 0.13, lamp: 0.5, fogColor: "#102819", fogNear: 3, fogFar: 19 },
+    },
 ];
 
 /** 순수 함수 — XZ 박스 + y 상한 판정. 박스 밖이거나 yMax 이상이면 null. */
@@ -259,6 +309,30 @@ export const DUNGEON_DOORS: DungeonDoorDef[] = [
         door: { pos: { x: 63.5, y: -54.25, z: -190 }, size: [12, 5, 1.2] },
         switch: { pos: { x: 60.71, y: -54.25, z: -191.71 }, label: "제단 지하 통로 2" },
     },
+    // ===== SP2b T2 — 「뿌리 굴」 문 2개 =====
+    // [재배치 후 확정치 — 위 DUNGEONS 항목의 "1차 구현 후 리뷰 수정" 주석 참조]
+    // 이 던전은 동서로 긴 굴이라 T3/T6와 달리 문이 "동서 통행"을 막는 방향 —
+    // size[0](x, 두께)를 얇게, size[2](z, 폭)를 넓게 잡는다(장축이 반대인
+    // sp0/T3/T6와 90도 회전된 배치). 실측 폭(0.1m 정밀 스캔)은 문1 인근 ~2.2m·
+    // 문2 인근 ~3.1m — 양쪽 다 z폭 5.0m로 넉넉히 덮는다(T3 근접 우회 전례 반영).
+    // 스위치는 각 문의 진입 방향 쪽(문1은 정예1/게이트 쪽, 문2는 정예2 쪽)에
+    // 배치 — 기존 관례 그대로. 좌표 전부 실텔레포트 dy=0.09 이하 확인
+    // (scratchpad/sp2b-t2-verify-direct.js, 재배치 후 좌표 재검증 포함).
+    {
+        id: "forest_rootcave_door1",
+        flag: "door_forest_rootcave_1",
+        door: { pos: { x: -181.5, y: -44.25, z: -46.5 }, size: [1.2, 6, 5.0] },
+        switch: { pos: { x: -183, y: -44.25, z: -46.6 }, label: "뿌리 굴 통로 1" },
+    },
+    {
+        id: "forest_rootcave_door2",
+        flag: "door_forest_rootcave_2",
+        door: { pos: { x: -173.5, y: -44.25, z: -44.5 }, size: [1.2, 6, 5.0] },
+        // [2차 재배치] 원안(-176,-45.5)은 정예2와 4.03m로 너무 가까웠다 — gameData.ts
+        // FIELD_ENEMIES "2차 재배치 확정치" 주석 참조. 문 바로 옆으로 당겨 정예2와의
+        // 여유를 최대화(문2 서쪽면과 0.5m — sp0/T3 관례상 스위치는 문 인근이 정상).
+        switch: { pos: { x: -174, y: -44.25, z: -44.5 }, label: "뿌리 굴 통로 2" },
+    },
 ];
 
 /** SP2a T3 — 던전 내부 보스 진입 지점(T4 트리거 인터페이스). 정예팩2(201,-42.25,-34)
@@ -270,3 +344,9 @@ export const PORT_WAREHOUSE_BOSS_ENTRY: Vec3 = { x: 198, y: -42.25, z: -35 };
  * 30.30m — 천창 구간 z>-188과 4m+ 이격). __navFindWalkable drift 0.00·
  * 실텔레포트 착지 확인(dy=0.25, scratchpad/sp2a-t6-final-precise.js). */
 export const HILL_UNDERCROFT_BOSS_ENTRY: Vec3 = { x: 69, y: -54.25, z: -189 };
+
+/** SP2b T2 — 던전 내부 보스 진입 지점(T3 트리거 인터페이스). 문2(-173.5,-44.5) 너머
+ * 동쪽 곁가지 — 정예2(-177.5,-44.25,-46.5)와 6.82m 이격(2차 재배치 후 — gameData.ts
+ * FIELD_ENEMIES 주석의 배치 한계 참조, 8m 미달이나 방 실측 한계 내 최댓값). 실텔레포트
+ * 착지 확인 dy=0.00(별도 세션 2회 재현, scratchpad/sp2b-t2-verify-direct.js). */
+export const FOREST_ROOTCAVE_BOSS_ENTRY: Vec3 = { x: -170.9, y: -44.25, z: -44.8 };
