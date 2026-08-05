@@ -60,30 +60,47 @@ export const FIELD_ENEMIES: Array<
     // 미달 전례 반영. scratchpad/sp2a-t6-audit.ts 위반 0).
     { id: "hill_undercroft_e1", pos: new THREE.Vector3(43.5, -53.25, -201), template: "bull_altar", respawn: 180_000 },
     { id: "hill_undercroft_e2", pos: new THREE.Vector3(55, -54.25, -200), template: "bull_altar", respawn: 180_000 },
-    // SP2b T2 — 「뿌리 굴」(forest_rootcave) 던전 내부 정예 2팩. [2차 재배치 확정치 —
-    // dungeonData.ts DUNGEONS "1차 구현 후 리뷰 수정" 주석 참조]
+    // SP2b T2 — 「뿌리 굴」(forest_rootcave) 던전 내부 정예 2팩. [3차 재배치 확정치 —
+    // dungeonData.ts DUNGEONS "1차 구현 후 리뷰 수정"·"2차 리뷰 수정" 주석 참조]
     //
     // ⚠ 진단 스크린샷(sp2b-t2-door1-diag-after.png)이 밝힌 진짜 원인: 문 통과 실패는
     // 자연 지형 문제가 아니라 정예(zombie_seasoned, aggressive)가 문/스위치/게이트
-    // 바로 옆(당시 0.36~3.0m)에 있어 근접감지(2.5m)·시야(7m)에 걸려 테스트 중
-    // 우발 전투가 반복 난입한 것이었다(기존 gameData.ts 로머 배치 주석의 "상호작용
-    // 반경 겹침 → 강제 전투" 규칙과 동일 계열, 정예에도 동일 적용). 정예를 문/스위치/
-    // 게이트에서 8m+ 이격하도록 재배치했다.
+    // 바로 옆(당시 0.36~3.0m)에 있어 FieldEnemyAvatar.tsx의 실제 감지 로직
+    // (SIGHT_RANGE=7·CLOSE_DETECT_RANGE=2.5, 25~27행)에 걸려 테스트 중 우발 전투가
+    // 반복 난입한 것이었다(기존 gameData.ts 로머 배치 주석의 "상호작용 반경 겹침 →
+    // 강제 전투" 규칙과 동일 계열, 정예에도 동일 적용).
     //
-    // 이 방(x -184.8~-170.9, ~14m)은 게이트·문1·문2·보스가 이미 양 끝에 걸쳐 있어
-    // 정예 2팩을 서로·모든 상호작용물과 동시에 8m+ 띄우는 것이 기하학적으로
-    // 불가능함을 그리드 탐사로 확인했다(문1↔문2 8m 자체가 이미 8m — 그 사이 어떤
-    // 점도 양쪽에서 8m가 될 수 없음, task-2-report.md "정예 재배치 한계" 절 실측
-    // 근거 전문). 실현 가능한 최댓값으로 재배치: e1은 북쪽 곁가지(branch1)로 옮겨
-    // 게이트·문1 클러스터에서 6.3~8.5m(원래 0.36~3.0m 대비 대폭 개선), e2는 중앙
-    // 통로로 옮기고 스위치2를 문2 바로 옆(-174,-44.5)으로 당겨 e2를 문1/문2/스위치2/
-    // 보스에서 4.0~6.8m 확보(원래 e2 위치 대비 개선). e1↔e2는 5.6m로 기존 8m 기준에
-    // 못 미치나(§ task-2-report.md), 배치 감사 결과 이 이상은 방 실측 크기상
-    // 불가능 — 배터리는 로머 난입 가드(§ sp2b-t2-rootcave.js safeClearCombat)로
-    // 잔여 충돌 위험을 흡수한다. y는 실텔레포트 dy≤0.09 확인값
-    // (scratchpad/sp2b-t2-verify-direct.js).
+    // [배치 한계 실증 — 리뷰 재지시로 전수 탐색] "그리드 탐사로 확인" 수준의 주장이
+    // 아니라, 본실+곁가지 전역(x -186~-168, z -50~-40, 0.5m 그리드, y=-44.34±1.5밴드
+    // 193점) 스캔 결과를 스크립트로 전수 대조했다(scratchpad/sp2b-t2-e2-search.js,
+    // 원본 데이터 sp2b-t2-e2search-grid.json).
+    //   (a) e1을 branch1(-178.5,-41) 고정 + 상호작용물(게이트·스위치1·문1·스위치2·
+    //       문2) 5개 전부 8m+ 필터 → **0개**. 7m/6m/5m로 완화해도 0개(즉 e1이
+    //       branch1일 때 e2가 상호작용물 전부와 5m 이상 확보되는 지점 자체가 없음).
+    //   (b) e1 고정을 풀고 193×193 전 좌표쌍을 순회해 "e1↔e2 8m+ AND e1↔보스 8m+
+    //       AND e2↔보스 8m+"를 만족하는 쌍 중 "두 정예 중 상호작용물에 더 가까운
+    //       쪽의 최소거리"를 최대화하는 쌍을 탐색 → 최댓값이 1.84m(그 쌍의 위치가
+    //       게이트 바로 옆 -185.5,-45 — 원래 문제였던 배치로 되돌아감). 즉 e-e·
+    //       e-보스 8m를 동시에 채우려 하면 반드시 한쪽이 상호작용물과 2m 미만으로
+    //       붙는다 — 이 방에서 "정예 2팩 서로 8m + 상호작용물 전부 8m"는 수학적으로
+    //       상호 배타적 제약이다(문1↔문2 자체가 8m뿐인 좁은 방 — task-2-report.md
+    //       "정예 재배치 한계 — 전수 탐색" 절 원본 로그 전문).
+    //
+    // 재배치(3차, 상호작용물 최소거리를 최우선 목표로 재탐색): e1 = branch1
+    // (-178.5,-45.25,-41) — 게이트 8.49m·스위치1(-182.3,-44.0, dungeonData.ts
+    // "2차 리뷰 수정" 참조) 4.84m·문1 6.27m(원래 0.36~3.0m 대비 대폭 개선).
+    // e2 = (-178,-44.25,-46.5) — 게이트 6.80m·스위치1 4.97m·문1 3.5m·스위치2
+    // 4.47m·문2 4.92m. e1↔e2 5.52m·e1↔보스 8.50m(≥8m✓)·e2↔보스
+    // 7.30m — 둘 다 8m 관례엔 못 미치지만(e2↔e1·e2↔보스), **FieldEnemyAvatar.tsx의
+    // 감지 로직상 SIGHT_RANGE(7m)를 넘는 거리는 방향/시야각과 무관하게 감지 자체가
+    // 불가능**하므로(playerDist > SIGHT_RANGE → false, :356) e1↔보스 8.50m·e2↔보스
+    // 7.30m는 **보스 트리거 시점 한정으로 구조적으로 정예 난입이 불가**함을
+    // FOREST_ROOTCAVE_BOSS_ENTRY 주석(dungeonData.ts)에 별도 실증했다. e1↔e2
+    // 5.52m는 평상시 던전 진행(문/스위치 조작) 중의 잔여 위험이며, 배터리의 로머
+    // 난입 가드(§ sp2b-t2-rootcave.js safeClearCombat)로 흡수한다. y는 실텔레포트
+    // dy≤0.09 확인값(scratchpad/sp2b-t2-verify-direct.js).
     { id: "forest_rootcave_e1", pos: new THREE.Vector3(-178.5, -45.25, -41), template: "zombie_seasoned", respawn: 180_000 },
-    { id: "forest_rootcave_e2", pos: new THREE.Vector3(-177.5, -44.25, -46.5), template: "zombie_seasoned", respawn: 180_000 },
+    { id: "forest_rootcave_e2", pos: new THREE.Vector3(-178, -44.25, -46.5), template: "zombie_seasoned", respawn: 180_000 },
     // 파수꾼 퀘스트 전용 무리 (리스폰 없음 — Task 4에서 사용)
     { id: "bounty1", pos: new THREE.Vector3(52, -33.25, -46), templates: ["orc", "orc"] },
     // 웨이브2 토벌 전용 캠프 (리스폰 없음 — bounty1과 동일 규약, 퀘스트 플래그 영구 보존)
