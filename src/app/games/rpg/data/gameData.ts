@@ -66,7 +66,7 @@ export const FIELD_ENEMIES: Array<
     // ⚠ 진단 스크린샷(sp2b-t2-door1-diag-after.png)이 밝힌 진짜 원인: 문 통과 실패는
     // 자연 지형 문제가 아니라 정예(zombie_seasoned, aggressive)가 문/스위치/게이트
     // 바로 옆(당시 0.36~3.0m)에 있어 FieldEnemyAvatar.tsx의 실제 감지 로직
-    // (SIGHT_RANGE=7·CLOSE_DETECT_RANGE=2.5, 25~27행)에 걸려 테스트 중 우발 전투가
+    // (SIGHT_RANGE=7·CLOSE_DETECT_RANGE=2.5, 25~26행)에 걸려 테스트 중 우발 전투가
     // 반복 난입한 것이었다(기존 gameData.ts 로머 배치 주석의 "상호작용 반경 겹침 →
     // 강제 전투" 규칙과 동일 계열, 정예에도 동일 적용).
     //
@@ -90,15 +90,21 @@ export const FIELD_ENEMIES: Array<
     // (-178.5,-45.25,-41) — 게이트 8.49m·스위치1(-182.3,-44.0, dungeonData.ts
     // "2차 리뷰 수정" 참조) 4.84m·문1 6.27m(원래 0.36~3.0m 대비 대폭 개선).
     // e2 = (-178,-44.25,-46.5) — 게이트 6.80m·스위치1 4.97m·문1 3.5m·스위치2
-    // 4.47m·문2 4.92m. e1↔e2 5.52m·e1↔보스 8.50m(≥8m✓)·e2↔보스
-    // 7.30m — 둘 다 8m 관례엔 못 미치지만(e2↔e1·e2↔보스), **FieldEnemyAvatar.tsx의
-    // 감지 로직상 SIGHT_RANGE(7m)를 넘는 거리는 방향/시야각과 무관하게 감지 자체가
-    // 불가능**하므로(playerDist > SIGHT_RANGE → false, :356) e1↔보스 8.50m·e2↔보스
-    // 7.30m는 **보스 트리거 시점 한정으로 구조적으로 정예 난입이 불가**함을
-    // FOREST_ROOTCAVE_BOSS_ENTRY 주석(dungeonData.ts)에 별도 실증했다. e1↔e2
-    // 5.52m는 평상시 던전 진행(문/스위치 조작) 중의 잔여 위험이며, 배터리의 로머
-    // 난입 가드(§ sp2b-t2-rootcave.js safeClearCombat)로 흡수한다. y는 실텔레포트
-    // dy≤0.09 확인값(scratchpad/sp2b-t2-verify-direct.js).
+    // 4.47m·문2 4.92m. e1↔e2 5.52m·e1↔보스 8.50m(≥8m✓)·e2↔보스 7.30m.
+    //
+    // [정직한 평가 — 재리뷰 반영] e1↔e2 5.52m·e2↔보스 7.30m는 배치 감사 기준(8m)
+    // 미달이다 — (a) 위 (a)(b) 전수 탐색으로 이 방에서 기하학적으로 불가능함을
+    // 증명했고(경계 최댓값 1.84m), (b) SP2a-T4가 6.71m 미달을 "컷신 중 난입 불가
+    // 실증 + 접근 구간 확률적 조우는 기록 수용"으로 통과시킨 전례를 그대로 준용해
+    // 수용한다. 정적 스폰 거리(8.50m·7.30m)가 SIGHT_RANGE(7m)를 넘는다는 사실만으로
+    // "구조적으로 감지 불가"라 단정하는 것은 과잉 주장이다 — WANDER_RADIUS=4(스폰에서
+    // 최대 ~4.5m 배회)·정예2-스위치2 4.47m 어그로 후 CHASE_FROM_HOME=15 추격으로
+    // 안전 마진이 실제로는 잠식된다. 실제로 실증되는 것은 "보스 트리거 발동(컷신)
+    // 이후의 난입 차단"뿐이며, 그 근거·헤드리스 재현·T3용 설계 전제는
+    // FOREST_ROOTCAVE_BOSS_ENTRY 주석(dungeonData.ts)과 task-2-report.md 부록 B에
+    // 전문 기록했다. e1↔e2 5.52m는 평상시 던전 진행(문/스위치 조작) 중의 잔여
+    // 위험이며, 배터리의 로머 난입 가드(§ sp2b-t2-rootcave.js safeClearCombat)로
+    // 흡수한다. y는 실텔레포트 dy≤0.09 확인값(scratchpad/sp2b-t2-verify-direct.js).
     { id: "forest_rootcave_e1", pos: new THREE.Vector3(-178.5, -45.25, -41), template: "zombie_seasoned", respawn: 180_000 },
     { id: "forest_rootcave_e2", pos: new THREE.Vector3(-178, -44.25, -46.5), template: "zombie_seasoned", respawn: 180_000 },
     // 파수꾼 퀘스트 전용 무리 (리스폰 없음 — Task 4에서 사용)
