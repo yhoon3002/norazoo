@@ -28,6 +28,8 @@ export const ENEMY_MODEL_BY_TEMPLATE: Record<string, string> = {
     dawn_devourer: "/character/Cow.fbx",
     // SP2b T2 — 「뿌리 굴」 정예. zombie 모델 재사용(브리프 지시).
     zombie_seasoned: "/character/Zombie_Male.fbx",
+    // SP2b T3 — 대삼림 보스 「계절을 삼킨 자」. mage 모델 재사용(브리프 지시).
+    season_devourer: "/character/Wizard.fbx",
 };
 
 // 필드 적 데이터 단일 소스 — FieldScene(렌더링)·FieldPlayer(충돌) 공용
@@ -414,6 +416,11 @@ export const ENEMY_ATTACK_PROFILES: Record<string, EnemyAttackProfile> = {
     wave_devourer: { chargeMs: 850, hits: [0, 425, 850], parryable: true, ringColor: "#22d3ee" }, // 보스 — 3연타
     // SP2a T6 — dawn_devourer(새벽을 삼킨 자) 전용. 동일 3연타 보스 틀, 새벽 테마 호박빛 링.
     dawn_devourer: { chargeMs: 850, hits: [0, 425, 850], parryable: true, ringColor: "#f5a623" }, // 보스 — 3연타
+    // SP2b T3 — season_devourer(계절을 삼킨 자) 전용. 모델은 mage(Wizard.fbx, 비패리 원거리
+    // 캐스팅)이지만, 보스는 gear/wave/dawn 전례대로 동일 3연타 패리형 보스 틀을 그대로
+    // 따른다(모델과 무관하게 보스 공격 프로필은 항상 이 3연타 규약 — 필드 mage 템플릿의
+    // 비패리 프로필과는 별개). 금녹(사계 혼재) 테마 링 컬러.
+    season_devourer: { chargeMs: 850, hits: [0, 425, 850], parryable: true, ringColor: "#9acd32" }, // 보스 — 3연타
 };
 
 export const DEFAULT_ATTACK_PROFILE: EnemyAttackProfile = {
@@ -819,6 +826,47 @@ export const SKILLS: Record<string, Skill> = {
         targetType: "single",
         description: "대상의 새벽을 통째로 삼켜 그 자리에 붙들어 놓는다.",
         statusEffect: { type: "stun", duration: 1, value: 0 },
+    },
+    // ===== SP2b T3 — season_devourer(계절을 삼킨 자) 전용 보스 스킬 3종 =====
+    // 적 전용(character/unlockLevel 없음 — 파티 습득 경로 없음). SP0 이월 저작 규약(보스
+    // 스킬은 적 전용 신설, 파티 스킬 재사용 금지) 준수. 브리프 명명(season_snap/season_veil/
+    // season_swallow)을 그대로 채택 — wave/dawn의 "약한 쪽이 debuff_def 라이더를 진다" 관례를
+    // 이어 season_veil(약·장막=시야를 가려 방어를 흐트러뜨림)에 배정, season_snap은 라이더
+    // 없는 중공, season_swallow는 브리프 명시대로 burn 1턴 라이더(강제/기믹 스킬 — 기존
+    // StatusEffect "burn" 타입 재사용, 다른 보스들의 stun/freeze 1턴과 동일한 "강제 스킬은
+    // 1턴 라이더" 관례). gear/wave/dawn 재튜닝 웨이브의 비율 스킴(약공:중공:강제공 =
+    // 1:1.4:2.2)을 그대로 채택.
+    // TTK 양방향 게이트(task-3-report.md 참조, sp2b-t3-ttk.ts): 메트릭 A(파티→보스 TTK,
+    // Lv15 파티 근사) 델타 +7.69%(dawn_devourer 대비, ±10% PASS), 메트릭 B(보스→파티 3턴
+    // 사이클 출력) 델타 +7.35%(dawn_devourer 대비, +5~10% PASS).
+    season_veil: {
+        id: "season_veil",
+        name: "계절의 장막",
+        damage: 137,
+        etherCost: 0,
+        type: "physical",
+        targetType: "single",
+        description: "짙은 계절의 장막으로 대상의 방어를 흐트러뜨린다.",
+        statusEffect: { type: "debuff_def", duration: 3, value: 8 },
+    },
+    season_snap: {
+        id: "season_snap",
+        name: "계절 물어뜯기",
+        damage: 192,
+        etherCost: 0,
+        type: "physical",
+        targetType: "single",
+        description: "삼킨 계절의 힘으로 물어뜯는다.",
+    },
+    season_swallow: {
+        id: "season_swallow",
+        name: "계절 삼키기",
+        damage: 301,
+        etherCost: 0,
+        type: "magic",
+        targetType: "single",
+        description: "대상의 계절을 통째로 삼켜 뒤엉킨 한여름으로 태워버린다.",
+        statusEffect: { type: "burn", duration: 1, value: 30 },
     },
 };
 
@@ -1717,6 +1765,53 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
                 { hpPct: 0.3, announce: "…여명이 통째로 삼켜진다!", tint: "#b26a10", scaleMul: 1.15 },
             ],
             gimmick: { type: "countdown", every: 3, skillId: "dawn_swallow", warning: "🌅 새벽이 삼켜진다" },
+        },
+    },
+    // ===== SP2b T3 — 대삼림 보스 「계절을 삼킨 자」 =====
+    // mage 모델(Wizard.fbx) 변형 — 브리프 명시(스케일 1.5·Lv15). 사계가 뒤엉킨 「계절이
+    // 뒤엉킨 숲」의 진원 자체가 사람 형상으로 응결된 존재라는 서사(cs_forest_boss).
+    // 페이즈: 70%(격노, smart, 금녹 틴트 phen_forest 포그 색 재사용 #9fb86a)/30%(scaleMul
+    // 1.15, 틴트 심화). 기믹 season_swallow(매 3턴, burn 1턴 라이더) — 브리프 warning 문구
+    // "🍂 계절이 삼켜진다" 그대로.
+    // TTK 양방향 게이트(task-3-report.md 참조, sp2b-t3-ttk.ts): 메트릭 A(파티→보스 TTK,
+    // Lv15 파티 근사) 델타 +7.69%(dawn_devourer 대비, ±10% PASS), 메트릭 B(보스→파티 3턴
+    // 사이클 출력) 델타 +7.35%(dawn_devourer 대비, +5~10% PASS).
+    season_devourer: {
+        name: "계절을 삼킨 자",
+        model: "/character/Wizard.fbx",
+        level: 15,
+        stats: {
+            hp: 9450,
+            maxHp: 9450,
+            mp: 0,
+            maxMp: 0,
+            atk: 48,
+            def: 20,
+            speed: 21,
+            luck: 15,
+        },
+        skills: ["season_snap"],
+        statusEffects: [],
+        aiPattern: "aggressive",
+        preferredAttack: "shoot",
+        rewards: {
+            exp: 2100,
+            gold: 2300,
+            // 드롭 없음 — 스토리 보상
+        },
+        scale: 1.5,
+        boss: {
+            phases: [
+                {
+                    hpPct: 0.7,
+                    announce: "…계절이 뒤엉켜 격노한다!",
+                    tint: "#9fb86a",
+                    aiPattern: "smart",
+                    skills: ["season_snap", "season_veil"],
+                },
+                { hpPct: 0.3, announce: "…사계가 한데 뒤섞여 몰아친다!", tint: "#6b7a3f", scaleMul: 1.15 },
+            ],
+            gimmick: { type: "countdown", every: 3, skillId: "season_swallow", warning: "🍂 계절이 삼켜진다" },
         },
     },
     // SP0 Task 4 — 보스 프레임워크 헤드리스 검증 전용 시험 보스 (HP 임계 페이즈 전이 확인용)

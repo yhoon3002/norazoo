@@ -377,4 +377,52 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
         { type: "fx", popup: { text: "📔 스승의 연구 노트를 발견했다", color: "#a78bfa" } },
         { type: "camReset", ms: 1200 },
     ],
+    // ===== SP2b T3 — 대삼림 보스 「계절을 삼킨 자」 진입·격파 + 유물③ 회수 컷신 =====
+    // 뿌리 굴 최심부(FOREST_ROOTCAVE_BOSS_ENTRY -170.9,-44.25,-44.8 인근) — 조명
+    // 오버라이드(__lightOverride, forest_rootcave: ambient 0.13·lamp 0.5·
+    // fog #102819 near3 far19) 상태에서 카메라 확정(헤드리스 rAF drawImage
+    // 캡처 — scratchpad/sp2b-t3-cambattle.js → sp2b-cs_forest_boss-1/2.png).
+    // 전부 walkable 층(y≈-44.34) 기준 수평 시선(부감 없음, 그리드 실측 —
+    // scratchpad/sp2b-t3-bossroom.js). battle 스텝(보스전) 포함 — 승리해야 잔여
+    // 연출이 재생된다(checkedResume 게이트). 유물 회수·phen_forest 소등은 여기 두지
+    // 않고 별도 컷신(cs_forest_relic, 지상 게이트 인근에서 발동)으로 분리했다 —
+    // 던전 내부 조명 오버라이드 아래서는 "사계가 제철로 돌아온다"는 연출 자체가
+    // 보이지 않기 때문(§ storyData.ts forest_relic 트리거 주석 참조, hill2_relic
+    // 전례 동일 이유).
+    cs_forest_boss: [
+        { type: "cam", pos: { x: -176, y: -42, z: -45.5 }, lookAt: { x: -171, y: -43.5, z: -44.8 }, ms: 1600, hold: 900 },
+        { type: "say", line: { speakerId: "theo", text: "…기척이 짙어요. 이 안, 사계가 통째로 갇혀 있습니다." } },
+        { type: "say", line: { speakerId: "lotti", text: "이상해… 여름 냄새랑 겨울 냄새가 동시에 나. 코가 어떻게 반응해야 할지 모르겠어." } },
+        { type: "cam", pos: { x: -175.5, y: -42, z: -44 }, lookAt: { x: -170.9, y: -43.5, z: -44.8 }, ms: 1600, hold: 1200 },
+        { type: "say", line: { speaker: "계절을 삼킨 자", text: "…돌려주지 않는다. 이 계절은, 이미 내 것이다." } },
+        { type: "say", line: { speakerId: "arin", text: "노라의 계절이다. 돌려받겠다 — 무기 들어." } },
+        { type: "fx", popup: { text: "🍂 계절을 삼킨 자가 모습을 드러낸다", color: "#9acd32" } },
+        { type: "battle", id: "forest_boss", templates: ["season_devourer"] },
+        { type: "say", line: { speakerId: "lotti", text: "…해냈다! 공기가 한 갈래로 정리되는 것 같아!" } },
+        { type: "say", line: { speakerId: "theo", text: "계절 자체가 여기 갇혀 있었던 모양이에요. …밖으로 나가서 확인해 보죠." } },
+        { type: "say", line: { speakerId: "arin", text: "돌아간다. 여기 근원이, 노라의 계절을 붙들고 있었다." } },
+        { type: "fx", popup: { text: "…희미하게, 저 위에서 바람이 새어 든다", color: "#9acd32" } },
+        { type: "camReset", ms: 1200 },
+    ],
+    // 사계 원복 — 대삼림의 「계절이 뒤엉킨 숲」이 끝나고 제철 하나로 돌아오는 연출.
+    // phen_forest 소등 자체가 이 연출의 본체(fog/디렉셔널/파티클이 실측대로 원복)라
+    // set 스텝을 맨 앞에 두어 컷신 재생 내내 소등 상태가 유지되게 했다 — 재도전
+    // 걱정은 없다(defeated_forest_boss_0로 게이팅되는 별도 트리거라 승리 전에는
+    // 애초에 재생되지 않는다 — hill2_relic·T4 port2_relic과 동일 안전 설계).
+    // 카메라는 지상 게이트(-172,-6.25,-40) 인근 walkable 앵커 기준 수평 시선
+    // (헤드리스 rAF 캡처 — scratchpad/sp2b-t3-cambattle.js →
+    // sp2b-cs_forest_relic-1/2.png).
+    cs_forest_relic: [
+        { type: "set", flags: { phen_forest: false, relic_season: true } },
+        { type: "cam", pos: { x: -177, y: -3, z: -44 }, lookAt: { x: -172, y: -6, z: -40 }, ms: 1800, hold: 1000 },
+        { type: "fx", popup: { text: "🍂 사계가, 마침내 제철로 돌아온다", color: "#9fb86a" } },
+        { type: "say", line: { speakerId: "arin", text: "…시간이 풀렸다. 이 숲부터." } },
+        { type: "say", line: { speakerId: "theo", text: "뒤엉켰던 계절이 끝났어요. 이제 이 숲도, 제 몫의 계절 하나로 이어집니다." } },
+        { type: "cam", pos: { x: -170, y: -2.5, z: -37 }, lookAt: { x: -176, y: -5, z: -42 }, ms: 1800, hold: 1400 },
+        { type: "say", line: { speakerId: "lotti", text: "…이 냄새! 이제야 계절 하나가 또렷해. 그래도 아까 그 뒤섞인 풍경, 사실 예쁘긴 했는데." } },
+        { type: "fx", popup: { text: "🍂✨ 계절의 유물 획득 (3/?)", color: "#a78bfa" } },
+        { type: "say", line: { speakerId: "theo", text: "'그분'의 흔적이 이 유물에도 짙게 남아 있어요. …차곡차곡 기록해 두죠." } },
+        { type: "say", line: { speakerId: "arin", text: "…셋. 노라의 계절을, 세 번째로 되찾았다." } },
+        { type: "camReset", ms: 1200 },
+    ],
 };

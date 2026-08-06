@@ -68,6 +68,8 @@ export const NPC_SPEAKERS: Record<string, { icon: string }> = {
     "파도를 삼킨 자": { icon: "🌊" },
     // SP2b T1 — cs_theo_camp 신규 화자(테오 스승의 옛 연구 캠프에서 발견한 낡은 노트)
     "낡은 노트": { icon: "📔" },
+    // SP2b T3 — cs_forest_boss 신규 화자(뿌리 굴 최심부의 보스, "…을 삼킨 자" 계열 명명)
+    "계절을 삼킨 자": { icon: "🍂" },
 };
 
 export type StoryTrigger = {
@@ -656,6 +658,83 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         cutscene: "cs_theo_camp",
         objective: "계절이 갈라지던 자리로 돌아가, 그 뿌리를 살펴보자",
         target: { x: -198, z: 32 },
+    },
+    // ===== SP2b T3 — 대삼림 보스 「계절을 삼킨 자」 + 유물③ =====
+    // 던전(뿌리 굴) 최심부 — T2의 FOREST_ROOTCAVE_BOSS_ENTRY(-170.9,-44.25,-44.8) 그대로
+    // 채택(port2_boss처럼 근접 상호작용물 회피를 위해 옮길 필요가 없었다 — T2가 이미 이
+    // 정확한 지점을 기준으로 문2/스위치2를 배치해 뒀다, task-2-report.md §A.4/B 참조).
+    // 실텔레포트 dy=0.00(2세션, T2 기확인) — 이 태스크에서도 sp2b-t3-seasonboss.js
+    // coord_check로 재확인(회귀 없음).
+    // battle 필드 병기 — cutscene(cs_forest_boss) 우선 발동이라 실제 전투는 컷신의 battle
+    // 스텝이 열지만, 여기 병기해야 패배 후 재도전 시 StoryTriggers의 battleUnwon 게이트가
+    // 동작한다(없으면 재도전 트리거가 영구 스킵 — T4/T6 이월 규약).
+    {
+        id: "forest_boss",
+        stage: "act2_forest",
+        near: { x: -170.9, z: -44.8, radius: 3 },
+        // 순서 게이트(SP2a 최종 리뷰 규약 — 예외 없음) — port2_boss/hill2_boss와 동일한
+        // 3중 게이트: ① forest_rift_found(조사 아크에서 산출된 던전 게이트 플래그,
+        // requireFlag와 동일 조건이라 여기서도 병기해 조사 아크를 건너뛰고 던전에
+        // 곧장 진입하는 경로까지 봉쇄) ② story_forest_theo — 테오의 스승 단서 컷신을
+        // 건너뛰고 곧장 보스로 직행하면 그 서사가 영구 사장된다(port2/hill2와 동일 이유)
+        // ③ door_forest_rootcave_2 — 문2 스위치는 y가드(DungeonDoor.tsx:88)가 있어
+        // 지상에서 조작 불가하므로, 이 플래그 게이트는 실질적으로 "던전 실경로를 다
+        // 통과해야 발화"를 강제하는 것과 동치(port2/hill2 최종 리뷰 F2 이월 규약).
+        flagsAll: ["forest_rift_found", "story_forest_theo", "door_forest_rootcave_2"],
+        cutscene: "cs_forest_boss",
+        battle: { id: "forest_boss", templates: ["season_devourer"] },
+    },
+    // 유물 회수·phen_forest 소등 — cs_forest_relic 자체의 set 스텝(hill2_relic 전례와
+    // 동일 설계: defeated_forest_boss_0로 게이팅되는 별도 트리거이므로 패배 후 재도전만
+    // 으로는 선적용되지 않는다 — 승리해야만 발동). nextStage는 여기 두지 않는다 —
+    // act2_forest는 STAGE_ORDER상 act2_woods 앞이라 act2a_bridge 같은 "무좌표 브리지"가
+    // 필요 없지만(다음 존이 이미 존재), 사계 연출 자체(제철로 돌아옴)와 다음 존행 전언을
+    // 한 컷신에 욱여넣지 않고 분리해 각각 명확한 완결감을 준다(브리프 지시).
+    // near는 forest_rootcave 지상 게이트 좌표를 그대로 재사용(hill2_relic이 hill_undercroft
+    // 지상 게이트 좌표(8,-204)를 그대로 재사용한 것과 동일 패턴) — T2가 이미 이원 검증
+    // (__navFindWalkable + 자유낙하 2세션)을 마친 지점이라 신규 좌표 리스크가 없다.
+    // GEN_POIS.west_forest 전망 포인트(-171.5,-6.25,-35.5)와 4.53m — 3.5m+ 확보
+    // (sp2b-t3-seasonboss.js audit 섹션).
+    // radius=3(hill2_relic의 8이 아니라 forest_boss와 동일한 좁은 반경) — StoryTrigger의
+    // near는 XZ만 보고 y를 보지 않는데, 이 던전은 지상 게이트와 지하 보스방이 거의 같은
+    // XZ 기둥에 있어(문2/스위치2/보스 진입점 전부 지상 게이트(-172,-40)에서 4.7~4.9m —
+    // hill_undercroft는 지상↔지하가 62.8m 떨어져 있어 이 문제가 없었다) radius=8이면
+    // cs_forest_boss가 끝나자마자(플레이어가 아직 지하 보스방에 서 있는 채로) 오발화할
+    // 위험이 있다(실측: sp2b-t3-seasonboss.js 초안에서 발견). 3m로 좁히면 게이트 정확한
+    // 착지점(드리프트 0m)은 여전히 잡히면서 지하 위험 반경(4.7m+) 전부를 배제한다.
+    {
+        id: "forest_relic",
+        stage: "act2_forest",
+        near: { x: -172, z: -40, radius: 3 },
+        flagsAll: ["defeated_forest_boss_0"],
+        cutscene: "cs_forest_relic",
+        objective: "숲을 나서기 전, 하나로 돌아온 계절을 둘러보자",
+        target: null,
+    },
+    // 다음 존행 전언 — forest_relic과 동일 지상 지점에서 발동(cs_forest_relic 재생 중엔
+    // StoryTriggers.tsx:25 "컷신 재생 중엔 트리거 보류" 가드로 동시 발화가 원천 차단되므로,
+    // 같은 near를 공유해도 안전하다 — cs_forest_relic이 set 스텝으로 relic_season을
+    // 선적용해도, 그 순간 g.cutscene이 이미 true라 이 트리거는 컷신이 끝난 뒤에야
+    // 평가된다). act2_forest가 STAGE_ORDER 최종 스테이지가 아니라(act2_woods가 이미
+    // 뒤에 있음) act2a_bridge와 달리 nextStage를 곧장 여기서 지정한다. act2_woods 콘텐츠는
+    // 아직 없어(다음 태스크 몫) target은 act2a_bridge 전례대로 null.
+    // radius=3 — forest_relic과 동일 사유(위 주석 참조, 지하 보스방과의 XZ 근접 오발화 방지).
+    {
+        id: "forest_to_woods",
+        stage: "act2_forest",
+        near: { x: -172, z: -40, radius: 3 },
+        flagsAll: ["relic_season"],
+        dialogue: [
+            { speaker: "전령", text: "실례합니다 — 다시 뵙는군요. 이번엔 북쪽 숲길 쪽에서 급보가 왔습니다." },
+            { speaker: "전령", text: "『눈 위 발자국이 거꾸로 파인다.』 그쪽을 오가는 사냥꾼이 보내온 전갈입니다. …이 숲의 계절만큼이나, 믿기 어려운 얘기더군요." },
+            { speakerId: "theo", text: "발자국이 거꾸로라니 — 대삼림의 계절, 바람 언덕의 아침에 이어 이번엔 시간의 방향 자체가 뒤집힌 걸까요. 기록해 두겠습니다." },
+            { speakerId: "arin", text: "…쉴 틈이 없군. 그래도 이 숲부터, 매듭은 지었다." },
+            { speakerId: "lotti", text: "그러게! 계절이 하나로 돌아온 것만 해도 어디야. 다음은 북쪽 숲길이라니… 이번엔 또 뭘 보게 될지." },
+            { speakerId: "theo", text: "다음 조사지는 북부 숲길입니다." },
+        ],
+        nextStage: "act2_woods",
+        objective: "북부 숲길의 이상 징후는 다음 몫이다 — 지금은 자유로이 대삼림을 둘러보자",
+        target: null,
     },
 ];
 
