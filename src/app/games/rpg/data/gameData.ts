@@ -30,6 +30,10 @@ export const ENEMY_MODEL_BY_TEMPLATE: Record<string, string> = {
     zombie_seasoned: "/character/Zombie_Male.fbx",
     // SP2b T3 — 대삼림 보스 「계절을 삼킨 자」. mage 모델 재사용(브리프 지시).
     season_devourer: "/character/Wizard.fbx",
+    // SP2b T4 — 숲길 정예 「되감긴 마녀」. witch 모델 재사용(브리프 지시).
+    witch_rewound: "/character/Witch.fbx",
+    // SP2b T4 — 숲길 보스 「길을 삼킨 자」. frost_witch 모델 재사용(브리프 지시).
+    path_devourer: "/character/Witch.fbx",
 };
 
 // 필드 적 데이터 단일 소스 — FieldScene(렌더링)·FieldPlayer(충돌) 공용
@@ -109,6 +113,13 @@ export const FIELD_ENEMIES: Array<
     // 흡수한다. y는 실텔레포트 dy≤0.09 확인값(scratchpad/sp2b-t2-verify-direct.js).
     { id: "forest_rootcave_e1", pos: new THREE.Vector3(-178.5, -45.25, -41), template: "zombie_seasoned", respawn: 180_000 },
     { id: "forest_rootcave_e2", pos: new THREE.Vector3(-178, -44.25, -46.5), template: "zombie_seasoned", respawn: 180_000 },
+    // SP2b T4 — 북부 숲길(north_woods) 「시간이 거꾸로 흐르는 길」 추적로 정예 1팩(던전 없는
+    // 경량 챕터라 2팩이 아니라 1팩 — 브리프 지시). y는 실텔레포트 착지값(scratchpad/
+    // sp2b-t4-verify2.js) — 보스 트리거(-160,-300)와 12.65m(≥8m), 기존 상호작용물·로머/정예
+    // 캠프와도 전부 13.5m+/51m+ 확보(위반 0). [재배치] 1차 좌표(-96,-292)는 이원 검증은
+    // 통과했지만 육안 확인에서 GEN_POIS 전망 포인트 옆 개발 지형으로 드러나 서측 재배치
+    // (storyData.ts 체인 헤더 주석 참조).
+    { id: "north_woods_elite1", pos: new THREE.Vector3(-172, -32.25, -304), template: "witch_rewound", respawn: 180_000 },
     // 파수꾼 퀘스트 전용 무리 (리스폰 없음 — Task 4에서 사용)
     { id: "bounty1", pos: new THREE.Vector3(52, -33.25, -46), templates: ["orc", "orc"] },
     // 웨이브2 토벌 전용 캠프 (리스폰 없음 — bounty1과 동일 규약, 퀘스트 플래그 영구 보존)
@@ -421,6 +432,12 @@ export const ENEMY_ATTACK_PROFILES: Record<string, EnemyAttackProfile> = {
     // 따른다(모델과 무관하게 보스 공격 프로필은 항상 이 3연타 규약 — 필드 mage 템플릿의
     // 비패리 프로필과는 별개). 금녹(사계 혼재) 테마 링 컬러.
     season_devourer: { chargeMs: 850, hits: [0, 425, 850], parryable: true, ringColor: "#9acd32" }, // 보스 — 3연타
+    // SP2b T4 — path_devourer(길을 삼킨 자) 전용. 동일 3연타 보스 틀, 한랭 테마 링 컬러
+    // (phen_woods 포그색 #7a8fa6를 그대로 재사용 — season_devourer가 phen_forest 포그색을
+    // 재사용한 전례와 동일 관례). witch_rewound(정예)는 이름 휴리스틱에 걸리지 않아
+    // DEFAULT_ATTACK_PROFILE로 자동 폴백(zombie_seasoned/bull_altar 등 기존 정예 전례와 동일
+    // — enemyActionsSlice.ts profileFor 참조, 별도 엔트리 불필요).
+    path_devourer: { chargeMs: 850, hits: [0, 425, 850], parryable: true, ringColor: "#7a8fa6" }, // 보스 — 3연타
 };
 
 export const DEFAULT_ATTACK_PROFILE: EnemyAttackProfile = {
@@ -867,6 +884,47 @@ export const SKILLS: Record<string, Skill> = {
         targetType: "single",
         description: "대상의 계절을 통째로 삼켜 뒤엉킨 한여름으로 태워버린다.",
         statusEffect: { type: "burn", duration: 1, value: 30 },
+    },
+    // ===== SP2b T4 — path_devourer(길을 삼킨 자) 전용 보스 스킬 3종 =====
+    // 적 전용(character/unlockLevel 없음 — 파티 습득 경로 없음). SP0 이월 저작 규약(보스
+    // 스킬은 적 전용 신설, 파티 스킬 재사용 금지) 준수. 브리프 명명(path_snap/path_veil/
+    // path_swallow)을 그대로 채택 — 다만 라이더 배치는 gear/wave/dawn/season의 "약한 비강제
+    // 스킬이 debuff_def를 진다" 관례를 따르지 않는다. 스펙 §③이 명시적으로 라이더를 기믹
+    // 스킬(path_swallow, every 3) 자체에 못 박았기 때문("기믹 path_swallow — 단일 강타 +
+    // debuff_def 2턴, 시간이 되감겨 단련이 풀린다") — path_veil/path_snap은 라이더 없는
+    // 순수 데미지 스킬. 비율 스킴(약:중:강제 ≈ 1:1.4:2.2, gear/wave/dawn/season 재튜닝
+    // 웨이브 계승)은 유지.
+    // TTK 양방향 게이트(task-4-report.md 참조, sp2b-t4-ttk.ts) — season_devourer와 동일
+    // Lv15 파티로 비교(동레벨 병행 존이라 챕터 승급 비교가 아님, T3의 dawn→season 비교와
+    // 다른 전제): 메트릭 A(파티→보스 TTK) 델타 +2.38%(season 대비, ±10% PASS), 메트릭 B
+    // (보스→파티 3턴 사이클 출력) 델타 +1.93%(season 대비, +0~5% PASS).
+    path_veil: {
+        id: "path_veil",
+        name: "서리 장막",
+        damage: 140,
+        etherCost: 0,
+        type: "physical",
+        targetType: "single",
+        description: "짙은 서리 장막을 두르고 매섭게 할퀸다.",
+    },
+    path_snap: {
+        id: "path_snap",
+        name: "길 물어뜯기",
+        damage: 196,
+        etherCost: 0,
+        type: "physical",
+        targetType: "single",
+        description: "삼킨 길의 힘으로 물어뜯는다.",
+    },
+    path_swallow: {
+        id: "path_swallow",
+        name: "길 삼키기",
+        damage: 307,
+        etherCost: 0,
+        type: "magic",
+        targetType: "single",
+        description: "대상의 발걸음을 통째로 삼켜 시간을 되감아, 단련을 풀어헤친다.",
+        statusEffect: { type: "debuff_def", duration: 2, value: 8 },
     },
 };
 
@@ -1512,6 +1570,45 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
             ],
         },
     },
+    // SP2b T4 — 북부 숲길(추적로) 정예 템플릿. witch 기반 Lv+2(8→10)·스탯 1.25×
+    // (hp600/atk35/def10/speed23/luck13 — Math.round(base*1.25), zombie_seasoned/bull_altar와
+    // 동일 반올림 방식) + mp도 동일 배율로 스케일(60→75, 다른 두 정예는 원본 mp가 이미 0이라
+    // 이 규칙이 처음 적용되는 사례 — "스탯 1.25×" 산식을 mp에도 예외 없이 적용한 것뿐이며,
+    // fireball/lightning 스킬 실사용에 mp 소비 검증이 걸리지 않는다는 점(enemyActionsSlice.ts에
+    // enemy mp 게이팅 로직 없음)도 확인했다). 한랭(서리) tint 상시(T3 zombie_seasoned와 동일
+    // 규약 — tint 필드, 비주얼은 phen_woods 계열이되 정확히 같은 값은 아님).
+    // 보상은 같은 Lv10인 frost_witch의 exp160/gold110을 채택(zombie_seasoned가 인접 레벨
+    // witch 템플릿의 보상을 채택한 전례와 동일 방식 — 창작 결정, task-4-report.md 참조).
+    // 드랍은 witch 원본(frost_moss 0.4 유지) + monster_core +0.15(0.25→0.4, T2/T3/T6와 동일
+    // 상향폭).
+    witch_rewound: {
+        name: "되감긴 마녀",
+        model: "/character/Witch.fbx",
+        level: 10,
+        stats: {
+            hp: 600,
+            maxHp: 600,
+            mp: 75,
+            maxMp: 75,
+            atk: 35,
+            def: 10,
+            speed: 23,
+            luck: 13,
+        },
+        skills: ["fireball", "lightning"],
+        statusEffects: [],
+        aiPattern: "smart",
+        preferredAttack: "shoot",
+        tint: "#9fb4c7",
+        rewards: {
+            exp: 160,
+            gold: 110,
+            items: [
+                { id: "frost_moss", chance: 0.4 },
+                { id: "monster_core", chance: 0.4 },
+            ],
+        },
+    },
     wild_dog: {
         name: "안개 들개",
         model: "/character/Pug.fbx",
@@ -1812,6 +1909,55 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
                 { hpPct: 0.3, announce: "…사계가 한데 뒤섞여 몰아친다!", tint: "#6b7a3f", scaleMul: 1.15 },
             ],
             gimmick: { type: "countdown", every: 3, skillId: "season_swallow", warning: "🍂 계절이 삼켜진다" },
+        },
+    },
+    // ===== SP2b T4 — 숲길 보스 「길을 삼킨 자」 =====
+    // frost_witch 모델(Witch.fbx) 변형 — 브리프 명시(스케일 1.45·Lv15). 던전 없는 경량
+    // 챕터의 야외 정점 보스 — 「시간이 거꾸로 흐르는 길」의 진원이 사람 형상으로 응결된
+    // 존재라는 서사(cs_woods_boss). 페이즈: 70%(격노, smart, phen_woods 포그색 재사용
+    // #7a8fa6)/30%(scaleMul 1.15, 틴트 심화). 기믹 path_swallow(매 3턴, debuff_def 2턴
+    // 라이더) — 브리프 warning 문구 "🌫 길이 삼켜진다" 그대로.
+    // TTK 양방향 게이트(task-4-report.md 참조, sp2b-t4-ttk.ts): season_devourer와 동일
+    // Lv15 파티 비교(동레벨 병행 존) — 메트릭 A(파티→보스 TTK) 델타 +2.38%(±10% PASS),
+    // 메트릭 B(보스→파티 3턴 사이클 출력) 델타 +1.93%(+0~5% PASS). hp9700(season 9450
+    // 대비 +2.6%)·atk48/def20(season과 동일 — 동레벨 병행 존이라 2차 스탯은 그대로 두고
+    // hp·스킬 데미지만 미세 조정해 게이트를 맞췄다)로 역산.
+    path_devourer: {
+        name: "길을 삼킨 자",
+        model: "/character/Witch.fbx",
+        level: 15,
+        stats: {
+            hp: 9700,
+            maxHp: 9700,
+            mp: 0,
+            maxMp: 0,
+            atk: 48,
+            def: 20,
+            speed: 21,
+            luck: 15,
+        },
+        skills: ["path_snap"],
+        statusEffects: [],
+        aiPattern: "aggressive",
+        preferredAttack: "shoot",
+        rewards: {
+            exp: 2200,
+            gold: 2400,
+            // 드롭 없음 — 스토리 보상
+        },
+        scale: 1.45,
+        boss: {
+            phases: [
+                {
+                    hpPct: 0.7,
+                    announce: "…길이 뒤틀리며 격노한다!",
+                    tint: "#7a8fa6",
+                    aiPattern: "smart",
+                    skills: ["path_snap", "path_veil"],
+                },
+                { hpPct: 0.3, announce: "…시간이 온통 거꾸로 휘몰아친다!", tint: "#4a5a6b", scaleMul: 1.15 },
+            ],
+            gimmick: { type: "countdown", every: 3, skillId: "path_swallow", warning: "🌫 길이 삼켜진다" },
         },
     },
     // SP0 Task 4 — 보스 프레임워크 헤드리스 검증 전용 시험 보스 (HP 임계 페이즈 전이 확인용)

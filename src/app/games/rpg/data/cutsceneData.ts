@@ -425,4 +425,73 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
         { type: "say", line: { speakerId: "arin", text: "…셋. 노라의 계절을, 세 번째로 되찾았다." } },
         { type: "camReset", ms: 1200 },
     ],
+    // ===== SP2b T4 — 북부 숲길 「시간이 거꾸로 흐르는 길」 개막(컷신 3종) =====
+    // 던전 없는 경량 챕터 — 전 구간 조명 오버라이드 없이(야외) phen_woods 상태에서 카메라
+    // 확정(헤드리스 rAF drawImage 캡처 — scratchpad/sp2b-t4-cambattle.js →
+    // sp2b-cs_woods_arrival-1/2.png·sp2b-cs_woods_boss-1/2.png·sp2b-cs_woods_relic-1/2/3.png).
+    // 전부 체인 6지점 실측 앵커(scratchpad/sp2b-t4-verify1.js) 인근 기준 수평 시선(부감 없음).
+    cs_woods_arrival: [
+        // phen_woods 활성 — 역류 눈발 첫 가동(선점등 규약, 순수 점등이라 선적용 무해)
+        { type: "set", flags: { phen_woods: true } },
+        { type: "cam", pos: { x: -144, y: -30.8, z: -176 }, lookAt: { x: -140, y: -31.1, z: -172 }, ms: 1800, hold: 900 },
+        { type: "say", line: { speakerId: "lotti", text: "…추워. 근데 눈이 왜 이렇게 조용히 쌓여 있지? 바람 한 점 없는데." } },
+        { type: "cam", pos: { x: -136, y: -30.6, z: -168 }, lookAt: { x: -140, y: -31.0, z: -172 }, ms: 1800, hold: 1400 },
+        { type: "fx", popup: { text: "❄️👣 발자국이, 파인 게 아니라 메워진다", color: "#7a8fa6" } },
+        { type: "say", line: { speakerId: "theo", text: "…발자국이에요. 그런데 방향이 이상해요 — 눈 위에 파여야 할 자국이, 오히려 메워지고 있습니다. 마치 누군가 뒷걸음질로 시간을 되감듯이." } },
+        { type: "say", line: { speakerId: "arin", text: "…또인가. 대삼림의 계절에 이어, 이번엔 이 길의 시간이다." } },
+        { type: "say", line: { speakerId: "lotti", text: "발자국이 저절로 없어진다니, 꼭 누가 지우개로 지우는 것 같아. 오싹한데… 그래도 가보자!" } },
+        { type: "say", line: { speakerId: "theo", text: "이 근방에 사냥꾼 한 분이 계셨죠. 가장 먼저 이 길의 이상을 알아챘을 겁니다 — 증언부터 들어보죠." } },
+        { type: "say", line: { speakerId: "arin", text: "간다." } },
+        { type: "camReset", ms: 1200 },
+    ],
+    // ===== SP2b T4 — 숲길 보스 「길을 삼킨 자」 진입·격파 컷신 =====
+    // 정점 공터(woods_boss 트리거 근점 -160,-32.25,-300 인근 — 재배치 후 확정치, storyData.ts
+    // 체인 헤더 주석 참조) — 야외라 조명 오버라이드 없음(phen_woods 활성 상태 그대로).
+    // battle 스텝(보스전) 포함 — 승리해야 잔여 연출(전투 여운)이 재생된다(checkedResume
+    // 게이트). giveGold 없음(harness-notes 규약 — battle 컷신 giveGold 금지).
+    cs_woods_boss: [
+        { type: "cam", pos: { x: -155, y: -31.8, z: -293 }, lookAt: { x: -160, y: -32.25, z: -300 }, ms: 1600, hold: 900 },
+        { type: "say", line: { speakerId: "theo", text: "…기척이 짙어요. 이 앞, 길의 시간이 통째로 거슬러 흐르고 있습니다." } },
+        { type: "say", line: { speakerId: "lotti", text: "발밑이 이상해… 걸을수록 오히려 뒤로 밀리는 기분이야." } },
+        { type: "cam", pos: { x: -166, y: -31.6, z: -304 }, lookAt: { x: -160, y: -32.25, z: -300 }, ms: 1600, hold: 1200 },
+        { type: "say", line: { speaker: "길을 삼킨 자", text: "…돌려주지 않는다. 이 길은, 이미 내 것이다." } },
+        { type: "say", line: { speakerId: "arin", text: "노라의 길이다. 돌려받겠다 — 무기 들어." } },
+        { type: "fx", popup: { text: "🌫 길을 삼킨 자가 모습을 드러낸다", color: "#7a8fa6" } },
+        { type: "battle", id: "woods_boss", templates: ["path_devourer"] },
+        { type: "say", line: { speakerId: "lotti", text: "…해냈다! 발걸음이 다시 앞으로 나아가는 게 느껴져!" } },
+        { type: "say", line: { speakerId: "theo", text: "이 길의 시간 자체가 여기 갇혀 있었던 모양이에요. …밖으로 나가서 확인해 보죠." } },
+        { type: "say", line: { speakerId: "arin", text: "돌아간다. 여기 근원이, 노라의 길을 붙들고 있었다." } },
+        { type: "fx", popup: { text: "…희미하게, 저 앞쪽 눈발이 걷힌다", color: "#7a8fa6" } },
+        { type: "camReset", ms: 1200 },
+    ],
+    // 길 원복 — 숲길의 「시간이 거꾸로 흐르는 길」이 끝나고 시간이 제 방향으로 흐르는 연출 +
+    // 빌런 첫 실루엣(스펙 §③ — 직접 명명 금지, "대사 없이" 조건은 실루엣 프레임 자체에 캐릭터
+    // 대사를 얹지 않는 것으로 충족: fx 팝업은 정경 묘사일 뿐 DialogueLine이 아니다. cs_gorge_descent
+    // 의 "…저 멀리, 거대한 그림자가 꿈틀거린다" 전례와 동일 기법). phen_woods 소등 자체가
+    // 이 연출의 본체라 set 스텝을 맨 앞에 두어 컷신 재생 내내 소등 상태가 유지되게 했다 —
+    // 재도전 걱정은 없다(defeated_woods_boss_0로 게이팅되는 별도 트리거라 승리 전에는 애초에
+    // 재생되지 않는다 — hill2_relic·forest_relic과 동일 안전 설계). 마지막 cam 스텝은 짧은
+    // ms(500)로 "한 프레임" 스침을 표현 — 길 끝(정예 방향 너머, -176,-312) 향한 구도, 노인의
+    // 정체는 직접 명명하지 않는다(정체 공개는 SP2c 협곡 몫).
+    cs_woods_relic: [
+        { type: "set", flags: { phen_woods: false, relic_path: true } },
+        { type: "cam", pos: { x: -155, y: -31.5, z: -293 }, lookAt: { x: -160, y: -32.25, z: -300 }, ms: 1800, hold: 1000 },
+        { type: "fx", popup: { text: "🌫 되감기던 길이, 마침내 앞으로 흐른다", color: "#7a8fa6" } },
+        { type: "say", line: { speakerId: "arin", text: "…시간이 풀렸다. 이 길부터." } },
+        { type: "say", line: { speakerId: "theo", text: "거꾸로 걷던 발자국이 끝났어요. 이제 이 길도, 앞으로 걷는 하나의 방향으로 이어집니다." } },
+        { type: "cam", pos: { x: -166, y: -31.3, z: -305 }, lookAt: { x: -156, y: -32, z: -292 }, ms: 1800, hold: 1400 },
+        { type: "say", line: { speakerId: "lotti", text: "…이 냄새! 눈 냄새가 이제야 맡아져. 아까까진 아예 아무 냄새도 안 났었나 봐." } },
+        { type: "fx", popup: { text: "🌫✨ 길의 유물 획득 (4/?)", color: "#a78bfa" } },
+        { type: "say", line: { speakerId: "theo", text: "'그분'의 흔적이 이 유물에도 짙게 남아 있어요. …차곡차곡 기록해 두죠." } },
+        { type: "say", line: { speakerId: "arin", text: "…넷. 노라의 길을, 네 번째로 되찾았다." } },
+        // 빌런 실루엣 1프레임 — 짧은 cam 스텝(플래시) + 정경 묘사 fx(대사 없음) + 테오의 반응.
+        // 카메라를 파티 위치(-160,-300)에서 살짝 옆으로 물려(-156,-296) 길 저편(-176,-312)을
+        // 향하게 해 파티원 모델에 시야가 가리지 않게 한다(원안은 카메라가 파티 한가운데
+        // 있어 프레임 절반이 캐릭터 뒤통수에 가려졌다 — 확정 샷 육안 확인으로 발견·수정).
+        { type: "cam", pos: { x: -156, y: -31.6, z: -296 }, lookAt: { x: -176, y: -32.5, z: -312 }, ms: 500, hold: 350 },
+        { type: "fx", popup: { text: "…길 끝, 낡은 코트를 두른 뒷모습이 한순간 스친다", color: "#4a5a6b" } },
+        { type: "say", line: { speakerId: "theo", text: "…방금, 누가 있었죠?" } },
+        { type: "say", line: { speakerId: "arin", text: "…아무도 없다. …헛것을 봤겠지. 가자." } },
+        { type: "camReset", ms: 1200 },
+    ],
 };

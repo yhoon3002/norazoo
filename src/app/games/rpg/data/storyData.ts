@@ -70,6 +70,8 @@ export const NPC_SPEAKERS: Record<string, { icon: string }> = {
     "낡은 노트": { icon: "📔" },
     // SP2b T3 — cs_forest_boss 신규 화자(뿌리 굴 최심부의 보스, "…을 삼킨 자" 계열 명명)
     "계절을 삼킨 자": { icon: "🍂" },
+    // SP2b T4 — cs_woods_boss 신규 화자(숲길 정점 공터의 야외 보스, "…을 삼킨 자" 계열 명명)
+    "길을 삼킨 자": { icon: "👣" },
 };
 
 export type StoryTrigger = {
@@ -734,6 +736,147 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         ],
         nextStage: "act2_woods",
         objective: "북부 숲길의 이상 징후는 다음 몫이다 — 지금은 자유로이 대삼림을 둘러보자",
+        target: null,
+    },
+    // ===== SP2b T4 — 북부 숲길 「시간이 거꾸로 흐르는 길」 추적 아크(체인 4비트) + 야외 보스
+    // + 유물④ + 빌런 복선(경량 챕터 — 던전 없음, 스펙 §③) =====
+    // T2/T5/T1과 동일 패턴: 전부 nextStage 미지정(woods_to_water 전이 예외) — 순서 게이트
+    // 전 구간 flagsAll 적용(SP2a 최종 리뷰 규약, 예외 없음). 좌표 6지점(arrival·증언·trace1·
+    // trace2·boss·정예) 전부 신규 실측 개척 — __navFindWalkable drift 0.00m(전 지점) + 12방
+    // 연속성 12/12(전 지점) + 실텔레포트/자유낙하(고도80) 별도 세션 2회 착지 y 일치(이원 검증
+    // 완료 — scratchpad/sp2b-t4-scan1.js 광역 그리드 선탐사 + sp2b-t4-verify1.js 1차 검증).
+    // [재배치] trace1·trace2·boss·정예 1차 좌표(-128,-240 / -116,-268 / -108,-292 / -96,-292)는
+    // 이원 검증(드리프트·층·연속성·자유낙하)은 전부 통과했지만, 카메라 확정 샷 육안 확인
+    // (사후 필수 절차)에서 실제로는 포장도로·건물·밀밭이 인접한 개발 지형임이 드러났다
+    // (scratchpad/sp2b-t4-diag3~diag6-*.png — 특히 boss 지점은 GEN_POIS 전망 포인트 옆이라
+    // 오히려 그 인공 구조물에 바짝 붙어 있었다). "정점 공터"라는 스펙 문구와 배치되어
+    // 서측으로 재탐사·재배치(trace1 -148,-256 / trace2 -148,-276 / boss -160,-300 / 정예
+    // -172,-304 — scratchpad/sp2b-t4-verify2.js로 재검증, 상호작용물 13.6m+·로머/정예 51m+로
+    // 여유 폭 대폭 확대). hunter_trig(-139.5,-211)는 불변 — questData.ts 기존 사냥꾼 NPC
+    // 앵커 인접이라 애초에 "사냥꾼의 야영지" 인상이 자연스러워 이동 대상이 아니다.
+    // 배치 감사(상호작용물 3.5m+·로머/정예 캠프 8m+·보스↔정예 8m+, 위반 0 — 동 스크립트).
+    {
+        // 숲길 진입 — 남측 경계(west_forest→north_woods 접경) 초입 도보 지면. GEN_FLAGS
+        // 존 체크포인트(-144.5,-219.5)·roamer_c(리지, -128.5,-137.8, 별도 층 y=-13.75)와
+        // 각각 47.9m·36.1m 이격(3.5m+/8m+ 충분). 자유낙하 2세션 y=-31.25 일치.
+        id: "woods_arrival",
+        stage: "act2_woods",
+        near: { x: -140, z: -172, radius: 8 },
+        cutscene: "cs_woods_arrival",
+        objective: "사냥꾼의 증언을 들어보자",
+        target: { x: -139.5, z: -211 },
+    },
+    {
+        // 증언 — 사냥꾼 NPC(questData.ts lost_hunter, -139.5,-31.25,-215.5) 인근이되 4.50m
+        // 이격(binding 규약 "증언 트리거는 3.5m+ 이격" 충족 — herb_witch/f_shepherd 등
+        // 기존 사이드퀘스트 NPC 근접 패턴과 동일). 순서 게이트 — port2_witness/hill2_witness/
+        // forest_herbalist와 동일 이유(패스트트래블로 arrival을 건너뛰고 여기부터 진행 가능한
+        // 우회 방지).
+        id: "woods_hunter",
+        stage: "act2_woods",
+        near: { x: -139.5, z: -211, radius: 8 },
+        flagsAll: ["story_woods_arrival"],
+        dialogue: [
+            { speaker: "사냥꾼", text: "말도 안 되는 걸 봤어. 낡은 코트를 걸친 노인이, 길을 거슬러 걷고 있었어. 발자국이 노인 앞에서 생겨나더군." },
+            { speaker: "사냥꾼", text: "처음엔 내가 잘못 봤나 했지. 근데 아니야 — 눈 위에 파였던 발자국이, 그 노인이 걸을 때마다 도로 메워지고 있었어." },
+            { speakerId: "theo", text: "발자국이 메워진다는 건… 그 사람 주변에서만 시간이 거꾸로 흐른다는 뜻일지도 몰라요. 예사롭지 않은 증언이에요, 낱낱이 기록해 두겠습니다." },
+            { speakerId: "arin", text: "노인이라. …방향을 안다면, 쫓을 수 있다." },
+            { speakerId: "lotti", text: "발자국을 거꾸로 쫓으라니 뭔가 이상한 술래잡기 같아… 그래도 서두르자, 사냥꾼 아저씨도 걱정되니까!" },
+        ],
+        objective: "거꾸로 난 발자국을 따라가 보자",
+        target: { x: -148, z: -256 },
+    },
+    {
+        // 흔적 1구간 — 회수꾼 소환 잔재(진원 방향으로의 첫 단서, T1의 rift·T5의 source 대응).
+        id: "woods_trace1",
+        stage: "act2_woods",
+        near: { x: -148, z: -256, radius: 8 },
+        flagsAll: ["story_woods_hunter"],
+        dialogue: [
+            { speakerId: "theo", text: "여기, 땅에 그을린 자국이… 소환진이에요. 그것도 아주 정교한 — 뭔가를 '되찾아오기' 위한 술식 같습니다." },
+            { speakerId: "arin", text: "회수용 소환이라. …노인이 무언가를 찾고 있다는 뜻인가." },
+            { speakerId: "lotti", text: "되찾는다는 거… 좋은 건지 나쁜 건지 감이 안 잡히네. 일단 더 따라가 보자!" },
+            { speakerId: "theo", text: "이 흔적, 발자국과 이어져요. 조금만 더 가면 뭔가 더 나올 것 같습니다." },
+        ],
+        objective: "흔적을 더 따라가 보자",
+        target: { x: -148, z: -276 },
+    },
+    {
+        // 흔적 2구간 — 떨어진 태엽 부품(공방 각인, "그분" 스레드 교차 — 직접 명명 금지).
+        // T2(던전)의 rift_found 대응 게이트 플래그(woods_trace_found)를 여기서 산출(브리프 지시).
+        id: "woods_trace2",
+        stage: "act2_woods",
+        near: { x: -148, z: -276, radius: 8 },
+        flagsAll: ["story_woods_trace1"],
+        dialogue: [
+            { speakerId: "lotti", text: "어? 여기 뭔가 떨어져 있어— 톱니바퀴 조각이야!" },
+            { speakerId: "theo", text: "…잠깐만요. 이 톱니 옆에 새겨진 문양 — 낯익은 공방의 각인이에요. 분명 어딘가에서 본 적 있습니다." },
+            { speakerId: "arin", text: "공방의 각인이 여기까지. …노인과 무관하지 않겠군." },
+            { speakerId: "theo", text: "이 부품, 떨어진 지 얼마 안 된 것 같아요. 노인이 지나간 지 오래되지 않았다는 뜻이겠죠. 기록해 두겠습니다." },
+            { speakerId: "arin", text: "기척이 느껴진다. …이 앞이다." },
+        ],
+        objective: "정점 공터의 기척을 살피자",
+        target: { x: -160, z: -300 },
+        setFlags: { woods_trace_found: true },
+    },
+    // ===== 숲길 보스 「길을 삼킨 자」 =====
+    // 정점 공터 — 재배치 후 위치(-160,-32.25,-300), GEN_POIS 전망 포인트와도 47.1m 이격
+    // (재배치 사유는 위 체인 헤더 주석 참조 — 육안 확인 결과 원안이 도로/POI 인접
+    // 개발 지형이었다). 야외 보스라 던전이 없어 문 병기가 불가 — 대신 체인 전 구간의
+    // story_* 플래그를 전부 flagsAll에 병기해(순서 게이트만으로 스킵 경로 봉쇄, 플랜
+    // Global Constraints 지시) door 병기를 대체한다. battle 필드 병기 — cutscene
+    // (cs_woods_boss) 우선 발동이라 실제 전투는 컷신의 battle 스텝이 열지만, 여기
+    // 병기해야 패배 후 재도전 시 StoryTriggers의 battleUnwon 게이트가 동작한다
+    // (없으면 재도전 트리거가 영구 스킵 — T4/T6 이월 규약).
+    {
+        id: "woods_boss",
+        stage: "act2_woods",
+        near: { x: -160, z: -300, radius: 3 },
+        flagsAll: [
+            "story_woods_arrival",
+            "story_woods_hunter",
+            "story_woods_trace1",
+            "story_woods_trace2",
+            "woods_trace_found",
+        ],
+        cutscene: "cs_woods_boss",
+        battle: { id: "woods_boss", templates: ["path_devourer"] },
+    },
+    // 유물 회수·phen_woods 소등 — cs_woods_relic 자체의 set 스텝(hill2_relic·forest_relic
+    // 전례와 동일 설계: defeated_woods_boss_0로 게이팅되는 별도 트리거이므로 패배 후
+    // 재도전만으로는 선적용되지 않는다 — 승리해야만 발동). near는 보스 트리거와 동일
+    // 지점을 재사용 — 야외 단일 층이라(forest_rootcave 같은 지상/지하 XZ 중첩 위험이
+    // 없음, sp2b-t4-verify2.js 층 스캔에서 단일 층만 확인) hill2_relic처럼 radius=8로
+    // 넉넉히 잡아도 안전하다.
+    {
+        id: "woods_relic",
+        stage: "act2_woods",
+        near: { x: -160, z: -300, radius: 8 },
+        flagsAll: ["defeated_woods_boss_0"],
+        cutscene: "cs_woods_relic",
+        objective: "숲길을 나서기 전, 되찾은 길을 둘러보자",
+        target: null,
+    },
+    // 다음 존행 전언 — woods_relic과 동일 지상 지점에서 발동(forest_relic/forest_to_woods와
+    // 동일 안전 근거: "컷신 재생 중엔 트리거 보류" 가드로 동시 발화가 원천 차단된다).
+    // act2_woods가 STAGE_ORDER 최종 스테이지가 아니므로(act2_water가 이미 뒤에 있음)
+    // act2a_bridge와 달리 nextStage를 곧장 여기서 지정한다. act2_water 콘텐츠는 아직
+    // 없어(다음 태스크 몫) target은 forest_to_woods 전례대로 null.
+    {
+        id: "woods_to_water",
+        stage: "act2_woods",
+        near: { x: -160, z: -300, radius: 8 },
+        flagsAll: ["relic_path"],
+        dialogue: [
+            { speaker: "전령", text: "실례합니다 — 다시 뵙는군요. 이번엔 북동 수변 쪽에서 급보가 왔습니다." },
+            { speaker: "전령", text: "『수로의 물이 하늘로 오른다.』 그곳 강태공이 보내온 전갈입니다. …발자국에 이어 이번엔 물줄기라니, 이 대륙 어디까지 뒤집힐는지 모르겠습니다." },
+            { speakerId: "theo", text: "물이 거슬러 오른다니 — 대삼림의 계절, 숲길의 시간에 이어 이번엔 물의 흐름 자체가 뒤집힌 걸까요. 기록해 두겠습니다." },
+            { speakerId: "arin", text: "…쉴 틈이 없군. 그래도 이 숲길부터, 매듭은 지었다." },
+            { speakerId: "lotti", text: "그러게! 길이 제대로 돌아온 것만 해도 다행이야. 근데 그… 아까 그 뒷모습, 다들 진짜 못 봤어?" },
+            { speakerId: "theo", text: "…글쎄요. 착각이었을지도 모르지만, 저는 분명— 아뇨, 지금은 넘어가죠. 다음 조사지는 북동 수변입니다." },
+        ],
+        nextStage: "act2_water",
+        objective: "북동 수변의 이상 징후는 다음 몫이다 — 지금은 자유로이 숲길을 둘러보자",
         target: null,
     },
 ];

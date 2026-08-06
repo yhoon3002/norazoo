@@ -61,6 +61,26 @@ export const ZONE_PHENOMENA: PhenomenonDef[] = [
         dirIntensity: 2.6,
         particles: { count: 450, color: "#e8c06a", size: 0.06, yBand: [-25, -5] },
     },
+    // SP2b T4 — 북부 숲길 「시간이 거꾸로 흐르는 길」. north_woods 존 첫 현상(우선순위 충돌 없음).
+    // 색·근원거리·dirIntensity는 브리프 명시값 그대로(#7a8fa6/10/60·1.8). 파티클 "역류"(아래→위로
+    // 솟는 설정)는 데이터로 불가 — ZonePhenomenon.tsx의 PhenomenonParticles(L21-66)를 실사 확인한
+    // 결과, 이 파티클 시스템엔 애초에 "속도" 필드 자체가 없다(마운트 시 1회 BufferGeometry를
+    // 생성해 yBand 안에 균등 난수 배치하고 이후 프레임마다 위치를 갱신하지 않는 완전 정적 부유 —
+    // 주석 원문 "정적으로(회전·낙하 없음) 부유"). 즉 "속도 부호를 뒤집는" 여지 자체가 없어
+    // 스펙 §③의 "구현 시 확인, 불가면 색·밀도로 대체" 조항의 대체안을 채택한다(코드 수정 금지
+    // 규약 준수 — 프레임워크 신규 0).
+    // 대체 연출: 밀도를 서부 대삼림보다 높이고(450→500) 한랭한 창백 안개색(#dce6ef)을 써
+    // "역류하는 눈발이 허공에 멎어 있다"는 인상을 노린다. yBand는 추적로 체인 6지점 실측
+    // 착지 y(-34.25~-31.25, scratchpad/sp2b-t4-verify1.js·-verify2.js — trace1/trace2/boss/
+    // 정예 재배치 후 최종치)를 여유 있게 감싸는 대역으로 선정(T1 west_forest 전례와 동일
+    // 방식 — 실측 트레일 y범위를 감싸는 대역).
+    {
+        zone: "north_woods",
+        flag: "phen_woods",
+        fog: { color: "#7a8fa6", near: 10, far: 60 },
+        dirIntensity: 1.8,
+        particles: { count: 500, color: "#dce6ef", size: 0.055, yBand: [-36, -27] },
+    },
 ];
 
 /**
