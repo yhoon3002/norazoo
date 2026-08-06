@@ -81,6 +81,19 @@ export const ZONE_PHENOMENA: PhenomenonDef[] = [
         dirIntensity: 1.8,
         particles: { count: 500, color: "#dce6ef", size: 0.055, yBand: [-36, -27] },
     },
+    // SP2b T5 — 북동 수변 「물이 하늘로 흐르는 수로」. ne_water 존 첫 현상(우선순위 충돌 없음).
+    // 값 전부 스펙 §④ 명시치 그대로(청벽 포그 #5a7f8f/12/65·dirIntensity 2.0·파티클
+    // 400/#bfe4f0/0.05 — 상승하는 물방울 톤). yBand는 조사 아크 4지점 실측 표고
+    // (scratchpad/sp2b-t5-verify1.js: 수로 수면 -39.36·강태공 하부 선착장 -47.25·수문
+    // 관리소 내부 -12.25)를 감싸는 대역으로 선정 — ne_water는 수변 존이라 T1/T4보다 표고
+    // 편차가 커(다층: 수로 수면↔선착장↔실내 바닥) 여유를 넉넉히 잡았다.
+    {
+        zone: "ne_water",
+        flag: "phen_water",
+        fog: { color: "#5a7f8f", near: 12, far: 65 },
+        dirIntensity: 2.0,
+        particles: { count: 400, color: "#bfe4f0", size: 0.05, yBand: [-48, -11] },
+    },
 ];
 
 /**

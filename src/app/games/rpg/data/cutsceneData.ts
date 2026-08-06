@@ -494,4 +494,50 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
         { type: "say", line: { speakerId: "arin", text: "…아무도 없다. …헛것을 봤겠지. 가자." } },
         { type: "camReset", ms: 1200 },
     ],
+    // ===== SP2b T5 — 북동 수변 개막·테오 서사 2장(컷신 2종) =====
+    // 카메라는 헤드리스 rAF drawImage 캡처로 실측 확정(scratchpad/sp2b-t5-cambattle.js →
+    // sp2b-cs_water_arrival-1/2.png·sp2b-cs_theo_master-1/2.png). 전부 체인 4지점 실측 앵커
+    // (scratchpad/sp2b-t5-verify1.js) 인근 기준 수평 시선(부감 없음). woods_to_water 전언에서
+    // 이미 "강태공"이라는 이름이 나왔으므로, 이 컷신에서 그 이름을 곧장 받아 쓴다.
+    cs_water_arrival: [
+        // phen_water 활성 — 상승 수류 첫 가동(선점등 규약, 순수 점등이라 선적용 무해)
+        { type: "set", flags: { phen_water: true } },
+        // [카메라 재조정] 원안은 수로를 가로질러 보는 구도라 인접 건물 벽/기둥이 프레임을
+        // 지배했다(확정 샷 실증 — scratchpad/sp2b-cs_water_arrival-1/2.png 1차본). 이 수로는
+        // 동서로 뻗은 좁은 물길이라(scratchpad/sp2b-t5-grid1.json z~-261.5 라인, x 144~264
+        // 구간 y 일정) 수로를 "따라" 보는 구도로 교체 — 동쪽으로 뻗은 물길 자체가 배경이 된다.
+        { type: "cam", pos: { x: 128, y: -38.9, z: -262 }, lookAt: { x: 170, y: -39.3, z: -260 }, ms: 1800, hold: 900 },
+        { type: "say", line: { speakerId: "lotti", text: "어? 물줄기가… 아래가 아니라 위로 흘러? 실개천이 하늘로 오르는 것처럼 보여!" } },
+        { type: "cam", pos: { x: 146, y: -38.7, z: -257.5 }, lookAt: { x: 138, y: -39.3, z: -263 }, ms: 1800, hold: 1400 },
+        { type: "fx", popup: { text: "💧⬆ 수로의 물이, 실개천처럼 하늘로 오른다", color: "#5a7f8f" } },
+        { type: "say", line: { speakerId: "theo", text: "…흐름이 반대예요. 이 수로 전체가 중력을 거슬러 위로 흐르고 있습니다 — 자연스러운 현상이 아니에요." } },
+        { type: "say", line: { speakerId: "arin", text: "또인가. 숲길의 시간에 이어, 이번엔 이 물줄기다." } },
+        { type: "say", line: { speakerId: "lotti", text: "물이 하늘로 오른다니… 신기하긴 한데, 그 강태공 어르신은 낚시도 못 하시겠다. 얼른 찾아뵙자!" } },
+        { type: "say", line: { speakerId: "theo", text: "전갈을 보내온 강태공이란 분, 이 근방 어딘가에 계실 거예요. 증언부터 들어보죠." } },
+        { type: "say", line: { speakerId: "arin", text: "간다." } },
+        { type: "camReset", ms: 1200 },
+    ],
+    // 테오 단서 2장 — 수문 관리소에 남은 스승의 두 번째 연구 노트(T1의 cs_theo_camp 대응:
+    // 서사 컷신). 빌런 스레드와의 교차점("탑을 세운 이") — 직접 명명하지 않는다(스펙 지시).
+    // 스승의 행방은 여기서도 해결하지 않는다 — SP2c 이후 과제로 열어 둔다.
+    cs_theo_master: [
+        // [카메라 재조정 2차] 1차본(177,-277.8)은 실측 워커블 맵상 벽 클리핑은 없었으나
+        // player(176,-276)와의 거리 2.3m가 지나치게 가까워 로티 한 명이 프레임을 가득 채워
+        // 아린·테오가 통째로 가려졌다(확정 샷 실증 — 컴패니언 좌표 진단 결과 테오
+        // (175.07,-275.07)·로티(174.24,-274.24)가 플레이어 기준 대각선 후방에 늘어서 있음을
+        // 확인, scratchpad/sp2b-t5-diag-party.js). 북측 문간 알코브(워커블 확인 지점,
+        // 176.5/-280·178.5/-280)까지 물러나 파티 전원과의 거리를 4.9~5.1m로 늘렸다.
+        { type: "cam", pos: { x: 176.5, y: -11.6, z: -279.5 }, lookAt: { x: 175.3, y: -12.3, z: -275 }, ms: 1800, hold: 900 },
+        { type: "say", line: { speakerId: "lotti", text: "여기, 다 낡았네… 그래도 누가 지내던 흔적은 남아 있는 것 같아." } },
+        { type: "cam", pos: { x: 178.5, y: -11.6, z: -279.3 }, lookAt: { x: 175.5, y: -12.3, z: -275.2 }, ms: 1800, hold: 1200 },
+        { type: "fx", popup: { text: "📔 관리소에 남겨진 낡은 노트", color: "#f5c96b" } },
+        { type: "say", line: { speaker: "낡은 노트", text: "『탑을 세운 이가 찾아왔다. 시간을 되감는 법을 물었다. 나는 거절했고, 그는 슬퍼 보였다.』" } },
+        { type: "say", line: { speakerId: "theo", text: "…스승님 필체예요. 다시 뵙는군요, 이런 곳에서. 날짜는 없지만 — 지난번 노트보다 앞선 기록 같습니다." } },
+        { type: "say", line: { speakerId: "arin", text: "'탑을 세운 이'라니. …짚이는 자가 없지 않다." } },
+        { type: "say", line: { speakerId: "theo", text: "시간을 되감는 법을 물었고, 스승님은 거절하셨다… 그 뒤로 종적을 감추셨다면 — 이 기록이 마지막에 가까울지도 모르겠어요." } },
+        { type: "say", line: { speakerId: "lotti", text: "…그때 무서우셨겠다. 근데 끝까지 알려주지 않으셨다니, 역시 대단하신 분이야." } },
+        { type: "say", line: { speakerId: "arin", text: "행방은, 아직 모른다. …하지만 이 노트가 갈 길을 알려줄지도." } },
+        { type: "say", line: { speakerId: "theo", text: "기록해 두겠습니다. 스승님의 흔적, 여기서 끝이 아닐 거예요." } },
+        { type: "camReset", ms: 1200 },
+    ],
 };

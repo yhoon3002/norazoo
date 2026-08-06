@@ -879,6 +879,97 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         objective: "북동 수변의 이상 징후는 다음 몫이다 — 지금은 자유로이 숲길을 둘러보자",
         target: null,
     },
+    // ===== SP2b T5 — 북동 수변 챕터 「물이 하늘로 흐르는 수로」 조사 아크(체인 4비트) +
+    // 테오 서사 2장(스펙 §④) =====
+    // 진입 게이트는 T1(대삼림)이 아니라 T4(숲길)의 stage 전환 패턴을 따른다 — 위
+    // woods_to_water가 이미 nextStage: "act2_water"를 지정해 둬(woods_arrival이 forest_to_woods
+    // 이후 곧장 stage: "act2_woods"에서 발동한 것과 동일 구조) water_arrival은 별도 flagsAll
+    // 없이 stage 일치만으로 발동한다.
+    //
+    // 좌표 4지점 전부 신규 실측 개척(scratchpad/sp2b-t5-scan1.js 광역 그리드 4m 선탐사 →
+    // sp2b-t5-scout1.js·-scout2.js 육안 정찰(팔로우캠) → sp2b-t5-verify1.js 이원 검증 —
+    // __navFindWalkable drift 0.00m(전 지점) + __navGroundAt preferY 없이 컬럼 전 층 나열 +
+    // 직접텔레포트/자유낙하(고도80, 별도 세션 2회) y 일치, 전부 재현). ne_water는 수변 존이라
+    // 표고가 다층(수로 수면 y≈-39.36 · 강태공 하부 선착장 y≈-47.25 · 수문 관리소 내부
+    // y≈-12.25) — 전 지점 y 명시(binding 규약).
+    //   - water_fisher(229,-257): 컬럼 2층[-39.49(수로 수면)/-46.56→직접텔레포트·자유낙하
+    //     둘 다 -47.25로 수렴 = 강태공 NPC 정박 y와 정확히 일치] 중 하부 선착장 선택,
+    //     12/12방 연속(완전 평탄) — 강태공(NPC, 233.5,-47.25,-261.5)과 6.36m 이격(3.5m+ 규약).
+    //   - water_gate(108,-236): 단일 층 -39.36~-39.42, 12/12방 연속 — 그물 격자 수문
+    //     장치 시각 확인(scratchpad/sp2b-t5-scout-gate_west1.png).
+    //   - water_theo(176,-276): 컬럼 3층[-12.32(실내 바닥)/-35.32(하부 — T6 던전 후보지로
+    //     열어 둠, forest_rift_found↔forest_theo 근접 배치 전례와 동일 논리)/-39.49(수로)].
+    //     12방 중 4/12만 연속이나 이는 T1 forest_theo의 "고립 소면적 상층" 결함과는 다르다 —
+    //     막힌 8방향은 실내 벽체가 navmesh 광선을 차단한 것이 정상(육안 확정 —
+    //     scratchpad/sp2b-t5-scout-gate_break.png, 석조 복도·문간 2개). 직접텔레포트
+    //     dy=0.07·자유낙하 y=-12.25 이중 일치로 "상층 자기일치 오검출"이 아님을 재확인.
+    //   배치 감사(상호작용물 3.5m+·로머 캠프 8m+, 위반 0 — sp2b-t5-verify1.js 로그).
+    //   체인 지점 간 거리: arrival→fisher 89.09m · fisher→gate 122.81m · gate→theo 78.89m
+    //   (fisher→gate가 T1/T4 전례 최장(~81m)보다 길다 — 증언에서 "수문 쪽으로 갈수록
+    //   심해진다"는 방향성 단서를 주고, 존 반대편 수문 장치까지 실제로 걸어가 찾게 하는
+    //   의도된 탐색 구간. 8m+/3.5m+ 배치 규약 위반은 없다).
+    {
+        // 진입 — 서측 수로(갈대밭 너머 수로, GEN_POIS 전망 포인트(124.5,-42.25,-261.5)와
+        // 15.51m 이격). woods_to_water 전언에서 이미 "강태공"이라는 이름이 나왔으므로,
+        // 도착 컷신에서 곧장 그 이름으로 목적지를 짚는다(1막 전언 정보를 기억하는 디테일).
+        id: "water_arrival",
+        stage: "act2_water",
+        near: { x: 140, z: -261, radius: 8 }, // y=-39.36(수로 수면, near는 XZ만 판정 — comment 참조)
+        cutscene: "cs_water_arrival",
+        objective: "강태공의 증언을 들어보자",
+        target: { x: 229, z: -257 },
+    },
+    {
+        // 증언 — 강태공(NPC, questData.ts reed_hermit, 233.5,-47.25,-261.5) 인근이되 6.36m
+        // 이격(binding 규약 "증언 트리거는 3.5m+ 이격" 충족 — herb_witch/lost_hunter 등
+        // 기존 사이드퀘스트 NPC 근접 패턴과 동일). 순서 게이트 — forest_herbalist/woods_hunter와
+        // 동일 이유(패스트트래블로 arrival을 건너뛰고 여기부터 진행 가능한 우회 방지).
+        id: "water_fisher",
+        stage: "act2_water",
+        near: { x: 229, z: -257, radius: 8 }, // y=-47.25(강태공 하부 선착장, near는 XZ만 판정)
+        flagsAll: ["story_water_arrival"],
+        dialogue: [
+            { speaker: "강태공", text: "찌가 물을 거슬러 떠오르질 않나… 낚시가 안 돼." },
+            { speaker: "강태공", text: "동트기 전부터 그랬다네. 수문 쪽으로 갈수록 더 심해지는 것 같더군 — 그쪽은 나도 잘 안 가지만." },
+            { speakerId: "theo", text: "흐름 자체가 역전됐다는 거군요. 예사롭지 않은 증언이에요. 낱낱이 기록해 두겠습니다." },
+            { speakerId: "arin", text: "수문 쪽이라. …근원이 거기 있겠군." },
+            { speakerId: "lotti", text: "낚시가 안 되면 어르신 끼니는 어쩌나… 우리가 얼른 원인을 찾아야겠다!" },
+        ],
+        objective: "수문 이상 지점을 찾아가자",
+        target: { x: 108, z: -236 },
+    },
+    {
+        // 진원 — 수문 이상 지점(T5의 rift/trace2 대응). T2(대삼림 뿌리 굴)의 forest_rift_found
+        // 전례처럼, 이 트리거의 좌표가 곧 T6 던전의 물리적 게이트 좌표가 되는 것은 아니다 —
+        // T1에서도 forest_rift(-198,32)와 실제 forest_rootcave 게이트(-172,-40)는 별개
+        // 지점이었고, 던전은 결국 forest_theo(캠프) 인근에 배치됐다. 여기서도 동일 논리로
+        // water_gate_found만 산출하고, 실제 던전 배치는 T6이 water_theo(관리소, 하부에
+        // -35.32 별도 층 확인됨) 인근을 검토하도록 열어 둔다.
+        id: "water_gate",
+        stage: "act2_water",
+        near: { x: 108, z: -236, radius: 8 }, // y=-39.36(수문 지면, near는 XZ만 판정)
+        flagsAll: ["story_water_fisher"],
+        dialogue: [
+            { speakerId: "lotti", text: "저기 봐— 수문이야! 근데 물살이 완전히 거꾸로 빨려 들어가고 있어!" },
+            { speakerId: "theo", text: "이 수문, 원래는 수위를 조절하는 장치일 텐데… 지금은 반대로 물을 빨아올리고 있어요. 이 근방 이상 전체의 근원이 여기일 가능성이 높습니다." },
+            { speakerId: "arin", text: "…사람 손이 닿은 흔적이다. 오래되지 않았어." },
+            { speakerId: "theo", text: "관리소 기록을 확인해 볼 가치가 있겠어요. 이 근방에 수문 관리소가 있을 겁니다." },
+        ],
+        objective: "수문 관리소를 살펴보자",
+        target: { x: 176, z: -276 },
+        // T6(미니 던전 「수문 하부」) 게이트 인터페이스 — water_gate 트리거에서 산출(브리프 지시).
+        setFlags: { water_gate_found: true },
+    },
+    {
+        // 테오 서사 2장 — 수문 관리소에 남은 스승의 연구 노트(T1의 forest_theo 대응: 서사
+        // 컷신). frozenData.ts의 "공방 주인 계열 스승" 스레드와는 잇지 않는다(T1 cs_theo_camp
+        // 주석과 동일 — 별개 인물).
+        id: "water_theo",
+        stage: "act2_water",
+        near: { x: 176, z: -276, radius: 8 }, // y=-12.25(수문 관리소 내부, near는 XZ만 판정)
+        flagsAll: ["story_water_gate"],
+        cutscene: "cs_theo_master",
+    },
 ];
 
 // ===== 길잡이 마커 경로 (스테이지별) =====
