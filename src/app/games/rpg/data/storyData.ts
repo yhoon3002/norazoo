@@ -72,6 +72,8 @@ export const NPC_SPEAKERS: Record<string, { icon: string }> = {
     "계절을 삼킨 자": { icon: "🍂" },
     // SP2b T4 — cs_woods_boss 신규 화자(숲길 정점 공터의 야외 보스, "…을 삼킨 자" 계열 명명)
     "길을 삼킨 자": { icon: "👣" },
+    // SP2b T6 — cs_water_boss 신규 화자(수문 하부 최심부의 보스, "…을 삼킨 자" 계열 명명)
+    "흐름을 삼킨 자": { icon: "🌊" },
 };
 
 export type StoryTrigger = {
@@ -976,6 +978,74 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         // setStory 패치는 필드가 있을 때만 갱신).
         objective: "수문이 뒤틀리던 자리로 돌아가, 그 아래를 살펴보자",
         target: { x: 108, z: -236 },
+    },
+    // ===== SP2b T6 — 수변 보스 「흐름을 삼킨 자」 + 유물⑤ + SP2c 브리지 =====
+    // 던전(수문 하부) 최심부 — dungeonData.ts의 WATER_UNDERFLOW_BOSS_ENTRY(108,-44.25,-242)
+    // 그대로 채택(forest_boss/woods_boss와 동일 패턴). 실텔레포트 dy=-0.69·자유낙하(고도80,
+    // 별도 세션 2회) y=-44.25 일치(scratchpad/sp2b-t6-verify3.js — T3의 coord_check 재확인
+    // 관례를 이 태스크 자체 검증으로 겸함).
+    // battle 필드 병기 — cutscene(cs_water_boss) 우선 발동이라 실제 전투는 컷신의 battle
+    // 스텝이 열지만, 여기 병기해야 패배 후 재도전 시 StoryTriggers의 battleUnwon 게이트가
+    // 동작한다(없으면 재도전 트리거가 영구 스킵 — T3/T4/T6 이월 규약).
+    {
+        id: "water_boss",
+        stage: "act2_water",
+        // radius=3 — forest_boss와 동일 사유(지상 게이트(108,-236)와 보스 진입점(108,-242)이
+        // 같은 X 기둥에 6.0m 이격뿐이라, 반경이 넓으면 cs_water_boss가 끝나자마자 플레이어가
+        // 아직 지하 보스방에 서 있는 채로 오발화할 위험이 있다 — forest 던전(4.92m 이격)과
+        // 동일 구조적 근접, dungeonData.ts WATER_UNDERFLOW_BOSS_ENTRY 주석 참조).
+        near: { x: 108, z: -242, radius: 3 },
+        // 순서 게이트(SP2a 최종 리뷰 규약 — 예외 없음) — forest_boss/woods_boss와 동일한
+        // 3중 게이트: ① water_gate_found(조사 아크에서 산출된 던전 게이트 플래그,
+        // requireFlag와 동일 조건이라 여기서도 병기해 조사 아크를 건너뛰고 던전에
+        // 곧장 진입하는 경로까지 봉쇄) ② story_water_theo — 테오의 스승 서사 2장 컷신을
+        // 건너뛰고 곧장 보스로 직행하면 그 서사가 영구 사장된다(forest/woods와 동일 이유)
+        // ③ door_water_underflow_2 — 문2 스위치는 y가드(DungeonDoor.tsx:88)가 있어
+        // 지상에서 조작 불가하므로, 이 플래그 게이트는 실질적으로 "던전 실경로를 다
+        // 통과해야 발화"를 강제하는 것과 동치(forest/hill 최종 리뷰 F2 이월 규약).
+        flagsAll: ["water_gate_found", "story_water_theo", "door_water_underflow_2"],
+        cutscene: "cs_water_boss",
+        battle: { id: "water_boss", templates: ["flow_devourer"] },
+    },
+    // 유물 회수·phen_water 소등 — cs_water_relic 자체의 set 스텝(forest_relic/woods_relic
+    // 전례와 동일 설계: defeated_water_boss_0로 게이팅되는 별도 트리거이므로 패배 후
+    // 재도전만으로는 선적용되지 않는다 — 승리해야만 발동). near는 water_underflow 지상
+    // 게이트 좌표(=water_gate 트리거 좌표 재사용, dungeonData.ts 참조)를 그대로 재사용
+    // (forest_relic이 forest_rootcave 지상 게이트 좌표를 그대로 재사용한 것과 동일 패턴).
+    // radius=3 — forest_relic과 동일 사유(지상 게이트와 지하 보스방의 XZ 근접 오발화 방지).
+    {
+        id: "water_relic",
+        stage: "act2_water",
+        near: { x: 108, z: -236, radius: 3 },
+        flagsAll: ["defeated_water_boss_0"],
+        cutscene: "cs_water_relic",
+        objective: "수변을 나서기 전, 하늘로 거슬러 오르던 물줄기를 둘러보자",
+        target: null,
+    },
+    // ===== SP2c 브리지 — SP2b 마감 트리거 =====
+    // act2_water가 현재 STAGE_ORDER 최종 스테이지라 nextStage가 없다 — 대신 이 트리거가
+    // flags.act2b_done을 세워 SP2c 진입점을 산출한다(브리프 지시, act2a_bridge와 동일
+    // 구조). flagsAll은 water_relic의 자동 "story_water_relic"이 아니라 cs_water_relic
+    // 자신의 set 스텝이 세우는 "relic_flow"를 쓴다 — forest_to_woods(relic_season)·
+    // woods_to_water(relic_path)와 동일 관례(컷신이 실제로 재생을 마치고 현상을 소등한
+    // 뒤에야 발화하도록 보장). near를 다시 두지 않아도 water_relic과 동일 지점에서 "컷신
+    // 재생 중엔 트리거 보류" 가드로 동시 발화가 원천 차단된다(forest_to_woods와 동일
+    // 안전 근거).
+    {
+        id: "act2b_bridge",
+        stage: "act2_water",
+        flagsAll: ["relic_flow"],
+        dialogue: [
+            { speaker: "전령", text: "실례합니다 — 다시 뵙는군요. 이번엔 남부 해안 쪽에서 급보가 왔습니다." },
+            { speaker: "전령", text: "『밀물이 그친 자리에 낯선 배 한 척이 정박해 있다.』 그곳 어민이 보내온 전갈입니다. …대삼림·숲길·수변까지, 이 정도면 대륙 전역이 맞나 봅니다." },
+            { speakerId: "theo", text: "정박한 배라… 지금까지와는 결이 다른 단서일지도 모르겠어요. 스승님의 행방도, 그 뒷모습의 정체도 — 남쪽에서 실마리가 풀릴 수도 있겠습니다." },
+            { speakerId: "arin", text: "…쉴 틈이 없군. 하지만 지금은 아니다. 이 수변부터 마저 정리한다." },
+            { speakerId: "lotti", text: "그러게, 벌써 세 곳째야! 그래도 물줄기가 제자리로 돌아온 것만 해도 다행이지. 다음은 남부 해안이라니… 이번엔 또 무슨 일이 기다릴까." },
+            { speakerId: "theo", text: "기록해 두겠습니다 — 다음 조사지는 남부 해안입니다." },
+        ],
+        objective: "남부 해안의 이상 징후는 다음 몫이다 — 지금은 자유로이 수변을 둘러보자",
+        target: null,
+        setFlags: { act2b_done: true },
     },
 ];
 

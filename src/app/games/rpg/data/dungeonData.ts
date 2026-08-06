@@ -184,6 +184,59 @@ export const DUNGEONS: DungeonDef[] = [
         // 던전 특유의 짙은 채도로 낮춘 심녹.
         light: { ambient: 0.13, lamp: 0.5, fogColor: "#102819", fogNear: 3, fogFar: 19 },
     },
+    // ===== SP2b T6 — 「수문 하부」(수변 2막) =====
+    //
+    // water_gate 트리거(108,-236, T5 산출 — story_water_fisher 이후) 인근 침수 바닥
+    // 하부를 헤드리스로 실측 개척(scratchpad/sp2b-t6-explore1~8.js·verify1/3.js). 표층은
+    // 수로 수면(y≈-39.36~-39.49, 12/12방 연속)이고, 그 아래 y≈-44.25 평탄면이 대형
+    // 침수 바닥으로 존재함을 확인했다 — 직접텔레포트/자유낙하(고도80, 별도 세션 2회)
+    // 전 지점이 정확히 y=-44.25로 수렴(port_warehouse의 "물리 충돌 재지면"과 동일 패턴,
+    // forest_rootcave와 우연히 같은 절대고도).
+    //
+    // ⚠ [후보지 재평가] 최초 후보는 water_theo(관리소, 176,-276) 하부 y≈-35.32였다(T5가
+    // "T6 던전 후보지"로 명시 — storyData.ts water_gate/water_theo 주석 참조). 헤드리스로
+    // 정밀 개척한 결과 그 자리는 __navGroundAt(워크어블 내비메시) 레이캐스트는 히트하지만
+    // **실제 물리 충돌면이 없는 순수 시각적 아티팩트**로 판정했다 — 직접텔레포트
+    // dy가 +22~25m(!)로 요청 y(-34~-37 대)가 아니라 건물 실내 바닥(y=-12.25)으로
+    // 재지면됐다(scratchpad/sp2b-t6-verify2.js). port/forest/hill 등 기존 4개 던전은
+    // 전부 dy≤1m로 이 재지면이 "실측 오차 보정" 수준이었던 것과 질적으로 다르다 —
+    // 후보를 이 수문측 침수 바닥으로 전환했다(§ task-6-report.md "후보지 재평가" 절).
+    //
+    // 이 침수 바닥은 대형 개활지라(x 100~140대까지 연속, 문으로 전역 차단 불가능 —
+    // sp2b-t6-explore2~8.js 그리드·doorscan.js 세그먼트 스캔으로 확인) forest_rootcave류의
+    // "좁은 굴"이 아니라 hill_undercroft류의 "넓은 챔버"로 재분류했다. 던전 콘텐츠는
+    // 그중 상대적으로 밀집·연속된 북측 밴드(x 108~140, z -233~-248, 문라인 실폭
+    // 0.25m 스캔: x=119.5→z -248~-233.75(14.25m)·x=111.5→z -247.5~-233.75(13.75m))에
+    // 배치했다. 문은 hill_undercroft 전례(16m/12m 폭)를 따라 이 실폭을 여유 있게
+    // 덮는 z폭 16으로 설정(§ DUNGEON_DOORS 참조).
+    //
+    // [정직한 서술 — 잔여 리스크] 이 밴드는 z<-244 대역에서 더 넓은 침수 바닥(광역
+    // 스캔 explore4.js 확인 — x 100~140대가 z=-261까지 연속)과 약 0.75~2.25m 간격의
+    // 좁은 틈으로 연결된다 — TERRAIN_STEP_MAX(2.1m) 부근이라 실제 도보 통과 가능성을
+    // 배제할 수 없다(실WASD 미검증). 즉 문 근접 우회는 두 문 모두 z폭 16(실폭+2m
+    // 안팎 여유)으로 차단되나, 방을 크게 돌아가는 원거리 우회는 port_warehouse의
+    // "동쪽 원거리 베이시 연결"(§ DUNGEON_DOORS port_warehouse_door2 주석) 잔여
+    // 리스크와 동일 성격으로 남긴다 — 별도 구조적 후속 조치가 필요한 기록된 한계.
+    //
+    // 게이트 XZ 이격: 지상(108,-236, water_gate 트리거 좌표 재사용 — 근접 near 트리거라
+    // E-인터랙터블 충돌 없음) ↔ 지하(134,-237) = 26.02m — 10m+ 규약 충분 만족.
+    // requireFlag: "water_gate_found" — T5의 water_gate 트리거가 세우는 플래그(브리프
+    // 지시). water_theo(objective "그 아래를 살펴보자", target 108,-236)의 "그 아래"를
+    // 물리적으로 회수하는 자리 — forest_rift_found↔실제 forest_rootcave 게이트 위치가
+    // 별개였던 T1/T2 전례(진원 트리거 좌표 ≠ 던전 물리 게이트 좌표)와 동일 논리.
+    {
+        id: "water_underflow",
+        label: "수문 하부",
+        requireFlag: "water_gate_found",
+        lockedLine: "수문이 뒤틀리던 자리부터 찾아야 이 아래도 볼 수 있을 겁니다.",
+        gates: [
+            { overworld: { x: 108, y: -39.36, z: -236 }, underground: { x: 134, y: -44.25, z: -237 } },
+        ],
+        region: { minX: 105, maxX: 138, minZ: -248, maxZ: -232, yMax: -41 },
+        // 청색 조명 — phen_water 현상 톤(포그 #5a7f8f)을 그대로 재사용(path_devourer가
+        // phen_woods 포그를 링/틴트에 재사용한 전례와 동일 관례), 던전 특유의 짙은 채도.
+        light: { ambient: 0.13, lamp: 0.5, fogColor: "#0f2a33", fogNear: 3, fogFar: 19 },
+    },
 ];
 
 /** 순수 함수 — XZ 박스 + y 상한 판정. 박스 밖이거나 yMax 이상이면 null. */
@@ -368,6 +421,30 @@ export const DUNGEON_DOORS: DungeonDoorDef[] = [
         // 범위인 문/스위치 자체의 안전은 검증됐으나, 이 인접성은 T3 몫으로 남김).
         switch: { pos: { x: -174, y: -44.25, z: -44.5 }, label: "뿌리 굴 통로 2" },
     },
+    // ===== SP2b T6 — 「수문 하부」 문 2개 =====
+    // 위 DUNGEONS "water_underflow" 주석 참조 — hill_undercroft류 "넓은 챔버"라 문이
+    // forest_rootcave처럼 얇은 통로를 막는 게 아니라 챔버 전체 폭(북측 밴드 실폭
+    // 0.25m 스캔: 문1 라인 x=119.5→z -248~-233.75(14.25m)·문2 라인 x=111.5→z
+    // -247.5~-233.75(13.75m), scratchpad/sp2b-t6-verify3.js)을 덮는다. hill 전례
+    // (16m/12m z폭)를 따라 두 문 다 z폭 16(중심 z=-239, span -231~-247)으로
+    // 여유 있게 설정 — 근접 우회 차단(남측 원거리 우회 잔여 리스크는 위 DUNGEONS
+    // 주석 "정직한 서술" 절 참조). 스위치는 진입 방향(정예1→문1→정예2→문2→보스,
+    // 게이트 하강점 134,-237이 동쪽 시작점) 쪽인 동쪽에 배치, 정예와 3.5m+ 이격
+    // (scratchpad/sp2b-t6-verify3.js: switch1↔elite1 5.32m·switch2↔elite2 6.10m).
+    // y=-43.25는 이 지점의 실제 물리 재지면값(직접텔레포트 dy=0.09·자유낙하 일치,
+    // 챔버 본류 y=-44.25보다 1m 얕은 국소 턱 — 걸을 수 있는 연속 지대, 6/12방 연속).
+    {
+        id: "water_underflow_door1",
+        flag: "door_water_underflow_1",
+        door: { pos: { x: 119.5, y: -44.25, z: -239 }, size: [1.5, 6, 16] },
+        switch: { pos: { x: 120.5, y: -43.25, z: -234 }, label: "수문 하부 통로 1" },
+    },
+    {
+        id: "water_underflow_door2",
+        flag: "door_water_underflow_2",
+        door: { pos: { x: 111.5, y: -44.25, z: -239 }, size: [1.5, 6, 16] },
+        switch: { pos: { x: 112.5, y: -43.25, z: -234 }, label: "수문 하부 통로 2" },
+    },
 ];
 
 /** SP2a T3 — 던전 내부 보스 진입 지점(T4 트리거 인터페이스). 정예팩2(201,-42.25,-34)
@@ -413,3 +490,15 @@ export const HILL_UNDERCROFT_BOSS_ENTRY: Vec3 = { x: 69, y: -54.25, z: -189 };
  * (문2 스위치와는 3.11m로 더 가까우니 스위치 조작 구간도 동일하게 유의 — 위
  * forest_rootcave_door2 주석 참조.) */
 export const FOREST_ROOTCAVE_BOSS_ENTRY: Vec3 = { x: -170.9, y: -44.25, z: -44.8 };
+
+/** SP2b T6 — 던전 내부 보스 진입 지점(T6 water_boss 트리거 인터페이스). 문2(111.5,-239)
+ * 서쪽, 챔버 서단. __navFindWalkable drift 0.00·직접텔레포트 dy=-0.69·자유낙하(고도80,
+ * 별도 세션 2회) y=-44.25 일치 확인(scratchpad/sp2b-t6-verify3.js).
+ *
+ * 정적 스폰 거리: 정예2(116,-44.25,-239)와 8.54m·정예1(124,-44.25,-238)과 16.49m·
+ * 스위치2(112.5,-43.25,-234)와 9.18m — 전부 8m+(FieldEnemyAvatar.tsx SIGHT_RANGE=7)
+ * 확보(위반 0, forest_rootcave의 5.52m/7.30m 미달 전례와 달리 이 챔버는 애초에 여유
+ * 공간이 있어 정적 거리 자체로 8m+ 규약을 만족한다 — 별도 "정직한 평가" 절 불필요).
+ * water_boss 트리거는 문2 플래그(door_water_underflow_2) 병기로 게이팅할 것(SP2a
+ * 최종 리뷰 신설 규약 — 던전 내부 스토리 트리거는 문 플래그 병기 필수). */
+export const WATER_UNDERFLOW_BOSS_ENTRY: Vec3 = { x: 108, y: -44.25, z: -242 };

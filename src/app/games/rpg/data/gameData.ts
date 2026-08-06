@@ -34,6 +34,10 @@ export const ENEMY_MODEL_BY_TEMPLATE: Record<string, string> = {
     witch_rewound: "/character/Witch.fbx",
     // SP2b T4 — 숲길 보스 「길을 삼킨 자」. frost_witch 모델 재사용(브리프 지시).
     path_devourer: "/character/Witch.fbx",
+    // SP2b T6 — 수변 정예 「역류하는 닌자」. ninja 모델 재사용(브리프 지시).
+    ninja_upstream: "/character/Ninja_Female.fbx",
+    // SP2b T6 — 수변 보스 「흐름을 삼킨 자」. ninja 모델 재사용(브리프 지시).
+    flow_devourer: "/character/Ninja_Female.fbx",
 };
 
 // 필드 적 데이터 단일 소스 — FieldScene(렌더링)·FieldPlayer(충돌) 공용
@@ -120,6 +124,15 @@ export const FIELD_ENEMIES: Array<
     // 통과했지만 육안 확인에서 GEN_POIS 전망 포인트 옆 개발 지형으로 드러나 서측 재배치
     // (storyData.ts 체인 헤더 주석 참조).
     { id: "north_woods_elite1", pos: new THREE.Vector3(-172, -32.25, -304), template: "witch_rewound", respawn: 180_000 },
+    // SP2b T6 — 「수문 하부」(water_underflow) 던전 내부 정예 2팩. y는 직접텔레포트·
+    // 자유낙하(고도80, 별도 세션 2회) 이중 일치값(scratchpad/sp2b-t6-verify3.js) —
+    // 게이트 하강점(134,-237) 10.05m(e1)·18.11m(e2), 문1 스위치(120.5,-234)
+    // e1과 5.32m·e2와 6.73m, 문2 스위치(112.5,-234) e2와 6.10m, 보스 진입점(108,-242)
+    // e1과 16.49m·e2와 8.54m — 전부 3.5m+/8m+ 규약 만족(위반 0, forest_rootcave의
+    // 5.52m 미달 전례와 달리 이 챔버는 애초 여유 공간이 있어 "정직한 평가" 절 불필요).
+    // e1↔e2 = 8.06m(≥8m).
+    { id: "water_underflow_e1", pos: new THREE.Vector3(124, -44.25, -238), template: "ninja_upstream", respawn: 180_000 },
+    { id: "water_underflow_e2", pos: new THREE.Vector3(116, -44.25, -239), template: "ninja_upstream", respawn: 180_000 },
     // 파수꾼 퀘스트 전용 무리 (리스폰 없음 — Task 4에서 사용)
     { id: "bounty1", pos: new THREE.Vector3(52, -33.25, -46), templates: ["orc", "orc"] },
     // 웨이브2 토벌 전용 캠프 (리스폰 없음 — bounty1과 동일 규약, 퀘스트 플래그 영구 보존)
@@ -438,6 +451,12 @@ export const ENEMY_ATTACK_PROFILES: Record<string, EnemyAttackProfile> = {
     // DEFAULT_ATTACK_PROFILE로 자동 폴백(zombie_seasoned/bull_altar 등 기존 정예 전례와 동일
     // — enemyActionsSlice.ts profileFor 참조, 별도 엔트리 불필요).
     path_devourer: { chargeMs: 850, hits: [0, 425, 850], parryable: true, ringColor: "#7a8fa6" }, // 보스 — 3연타
+    // SP2b T6 — flow_devourer(흐름을 삼킨 자) 전용. 동일 3연타 보스 틀, 청은 테마 링 컬러
+    // (phen_water 포그색 #5a7f8f를 그대로 재사용 — path_devourer가 phen_woods 포그를
+    // ringColor·phase1 tint 양쪽에 그대로 재사용한 전례와 동일 관례). ninja_upstream(정예)은
+    // 이름 휴리스틱에 걸리지 않아 DEFAULT_ATTACK_PROFILE로 자동 폴백(zombie_seasoned/
+    // witch_rewound 등 기존 정예 전례와 동일 — enemyActionsSlice.ts profileFor 참조).
+    flow_devourer: { chargeMs: 850, hits: [0, 425, 850], parryable: true, ringColor: "#5a7f8f" }, // 보스 — 3연타
 };
 
 export const DEFAULT_ATTACK_PROFILE: EnemyAttackProfile = {
@@ -925,6 +944,46 @@ export const SKILLS: Record<string, Skill> = {
         targetType: "single",
         description: "대상의 발걸음을 통째로 삼켜 시간을 되감아, 단련을 풀어헤친다.",
         statusEffect: { type: "debuff_def", duration: 2, value: 8 },
+    },
+    // ===== SP2b T6 — flow_devourer(흐름을 삼킨 자) 전용 보스 스킬 3종 =====
+    // 적 전용(character/unlockLevel 없음 — 파티 습득 경로 없음). SP0 이월 저작 규약(보스
+    // 스킬은 적 전용 신설, 파티 스킬 재사용 금지) 준수. 브리프 명명(flow_snap/flow_veil/
+    // flow_swallow)을 그대로 채택 — 라이더 배치는 path_devourer(T4)와 동일하게 스펙
+    // §④가 명시적으로 라이더를 기믹 스킬(flow_swallow, every 3) 자체에 못 박았다
+    // ("기믹 flow_swallow — 단일 강타 + poison 2턴, 역류하는 물의 침식") — flow_veil/
+    // flow_snap은 라이더 없는 순수 데미지. 비율 스킴(약:중:강제 = 1:1.4:2.2, gear~path
+    // 재튜닝 웨이브 계승, 이번엔 정확히 150:210:330으로 딱 맞아떨어짐)도 유지.
+    // TTK 양방향 게이트(task-6-report.md 참조, sp2b-t6-ttk.ts): path_devourer(T4 기준
+    // 보스, Lv15 파티) 대비 메트릭 A(파티→보스 TTK, Lv16 파티) 델타 +6.98%(+5~10%
+    // PASS), 메트릭 B(보스→파티 3턴 사이클 출력, Lv16 파티 avgDef) 델타 +7.30%
+    // (+5~10% PASS).
+    flow_veil: {
+        id: "flow_veil",
+        name: "역류의 장막",
+        damage: 150,
+        etherCost: 0,
+        type: "physical",
+        targetType: "single",
+        description: "역류하는 물의 장막으로 대상을 휘감아 할퀸다.",
+    },
+    flow_snap: {
+        id: "flow_snap",
+        name: "흐름 물어뜯기",
+        damage: 210,
+        etherCost: 0,
+        type: "physical",
+        targetType: "single",
+        description: "삼킨 흐름의 힘으로 물어뜯는다.",
+    },
+    flow_swallow: {
+        id: "flow_swallow",
+        name: "흐름 삼키기",
+        damage: 330,
+        etherCost: 0,
+        type: "magic",
+        targetType: "single",
+        description: "대상을 역류하는 물살에 통째로 삼켜 서서히 침식시킨다.",
+        statusEffect: { type: "poison", duration: 2, value: 20 },
     },
 };
 
@@ -1609,6 +1668,41 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
             ],
         },
     },
+    // SP2b T6 — 수변(water_underflow 던전) 정예 템플릿. ninja 기반 Lv+2(9→11)·스탯
+    // 1.25×(hp650/mp25/atk38/def13/speed33/luck15 — Math.round(base*1.25), witch_rewound와
+    // 동일하게 mp도 배율 적용. atk 37.5→38·def 12.5→13·speed 32.5→33는 JS Math.round의
+    // .5-올림 규칙 그대로)·청은(steel-blue) tint 상시(T2/T4와 동일 규약 — tint 필드,
+    // phen_water 상승 수류 테마 결이되 정확히 같은 값은 아님). 보상은 같은 Lv11인
+    // clockwork_soldier의 exp180/gold120을 채택(zombie_seasoned/witch_rewound가 인접
+    // 레벨 템플릿의 보상을 채택한 전례와 동일 방식 — 창작 결정). 드랍은 ninja 원본
+    // (silver_ore 0.2 유지) + monster_core +0.15(0.25→0.4, T2/T3/T4/T6와 동일 상향폭).
+    ninja_upstream: {
+        name: "역류하는 닌자",
+        model: "/character/Ninja_Female.fbx",
+        level: 11,
+        stats: {
+            hp: 650,
+            maxHp: 650,
+            mp: 25,
+            maxMp: 25,
+            atk: 38,
+            def: 13,
+            speed: 33,
+            luck: 15,
+        },
+        skills: ["slash", "ice_shard"],
+        statusEffects: [],
+        aiPattern: "smart",
+        tint: "#6fa8bf",
+        rewards: {
+            exp: 180,
+            gold: 120,
+            items: [
+                { id: "silver_ore", chance: 0.2 },
+                { id: "monster_core", chance: 0.4 },
+            ],
+        },
+    },
     wild_dog: {
         name: "안개 들개",
         model: "/character/Pug.fbx",
@@ -1958,6 +2052,58 @@ export const ENEMY_TEMPLATES: Record<string, Omit<Enemy, "id">> = {
                 { hpPct: 0.3, announce: "…시간이 온통 거꾸로 휘몰아친다!", tint: "#4a5a6b", scaleMul: 1.15 },
             ],
             gimmick: { type: "countdown", every: 3, skillId: "path_swallow", warning: "🌫 길이 삼켜진다" },
+        },
+    },
+    // ===== SP2b T6 — 수변 보스 「흐름을 삼킨 자」 =====
+    // ninja 모델(Ninja_Female.fbx) 변형 — 브리프 명시(스케일 1.55·Lv16). 「물이 하늘로
+    // 흐르는 수로」의 진원이 사람 형상으로 응결된 존재라는 서사(cs_water_boss). ninja
+    // 원본은 preferredAttack 필드가 없는 근접형(base 템플릿 그대로, mage/witch 계열
+    // 보스만 "shoot"를 쓰는 기존 관례 — season/path_devourer 참조)이라 이 보스도
+    // preferredAttack 생략(wave_devourer/dawn_devourer와 동일 관례). 페이즈:
+    // 70%(격노, smart, phen_water 포그색 재사용 #5a7f8f)/30%(scaleMul 1.15, 틴트
+    // 심화). 기믹 flow_swallow(매 3턴, poison 2턴 라이더) — 브리프 warning 문구
+    // "🌊 흐름이 삼켜진다" 그대로.
+    // TTK 양방향 게이트(task-6-report.md 참조, sp2b-t6-ttk.ts): path_devourer(T4 기준
+    // 보스, Lv15 파티) 대비 메트릭 A(파티→보스 TTK, Lv16 파티) 델타 +6.98%(+5~10%
+    // PASS), 메트릭 B(보스→파티 3턴 사이클 출력, Lv16 파티 avgDef) 델타 +7.30%
+    // (+5~10% PASS). hp10900(path 9700 대비 +12.4% — 챕터 승급 Lv15→16 반영, T3의
+    // dawn(Lv14)→season(Lv15) 승급 폭과 동일 성격)·atk50/def20(atk+2, def는 3개 보스
+    // 공통 20 유지)로 역산.
+    flow_devourer: {
+        name: "흐름을 삼킨 자",
+        model: "/character/Ninja_Female.fbx",
+        level: 16,
+        stats: {
+            hp: 10900,
+            maxHp: 10900,
+            mp: 0,
+            maxMp: 0,
+            atk: 50,
+            def: 20,
+            speed: 22,
+            luck: 16,
+        },
+        skills: ["flow_snap"],
+        statusEffects: [],
+        aiPattern: "aggressive",
+        rewards: {
+            exp: 2300,
+            gold: 2500,
+            // 드롭 없음 — 스토리 보상
+        },
+        scale: 1.55,
+        boss: {
+            phases: [
+                {
+                    hpPct: 0.7,
+                    announce: "…흐름이 뒤엉켜 격노한다!",
+                    tint: "#5a7f8f",
+                    aiPattern: "smart",
+                    skills: ["flow_snap", "flow_veil"],
+                },
+                { hpPct: 0.3, announce: "…역류가 하늘 끝까지 치솟는다!", tint: "#33505c", scaleMul: 1.15 },
+            ],
+            gimmick: { type: "countdown", every: 3, skillId: "flow_swallow", warning: "🌊 흐름이 삼켜진다" },
         },
     },
     // SP0 Task 4 — 보스 프레임워크 헤드리스 검증 전용 시험 보스 (HP 임계 페이즈 전이 확인용)

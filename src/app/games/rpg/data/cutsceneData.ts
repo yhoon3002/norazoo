@@ -540,4 +540,52 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
         { type: "say", line: { speakerId: "theo", text: "기록해 두겠습니다. 스승님의 흔적, 여기서 끝이 아닐 거예요." } },
         { type: "camReset", ms: 1200 },
     ],
+    // ===== SP2b T6 — 수변 보스 「흐름을 삼킨 자」 진입·격파 + 유물⑤ 회수 컷신 =====
+    // 수문 하부 최심부(WATER_UNDERFLOW_BOSS_ENTRY 108,-44.25,-242 인근) — 조명
+    // 오버라이드(__lightOverride, water_underflow: ambient 0.13·lamp 0.5·
+    // fog #0f2a33 near3 far19) 상태에서 카메라 확정(헤드리스 rAF drawImage
+    // 캡처 — scratchpad/sp2b-t6-flowboss.js → sp2b-cs_water_boss-1/2.png). 전부
+    // walkable 층(y≈-44.25) 기준 수평 시선(부감 없음, dungeonData.ts
+    // WATER_UNDERFLOW_BOSS_ENTRY 실측 참조). battle 스텝(보스전) 포함 — 승리해야
+    // 잔여 연출이 재생된다(checkedResume 게이트). giveGold 없음(harness-notes 규약 —
+    // battle 컷신 giveGold 금지). 유물 회수·phen_water 소등은 여기 두지 않고 별도
+    // 컷신(cs_water_relic, 지상 게이트 인근에서 발동)으로 분리했다 — 던전 내부 조명
+    // 오버라이드 아래서는 "물줄기가 제 길로 돌아온다"는 연출 자체가 보이지 않기
+    // 때문(§ storyData.ts water_relic 트리거 주석 참조, forest_relic/hill2_relic
+    // 전례 동일 이유).
+    cs_water_boss: [
+        { type: "cam", pos: { x: 114, y: -42, z: -243 }, lookAt: { x: 108, y: -43.5, z: -242 }, ms: 1600, hold: 900 },
+        { type: "say", line: { speakerId: "theo", text: "…기척이 짙어요. 이 안, 역류하는 흐름이 통째로 뭉쳐 있습니다." } },
+        { type: "say", line: { speakerId: "lotti", text: "물비린내가 이상해… 아래도 위도 아니고, 사방에서 밀려오는 느낌이야." } },
+        { type: "cam", pos: { x: 112, y: -42, z: -238 }, lookAt: { x: 108, y: -43.5, z: -242 }, ms: 1600, hold: 1200 },
+        { type: "say", line: { speaker: "흐름을 삼킨 자", text: "…돌려주지 않는다. 이 흐름은, 이미 내 것이다." } },
+        { type: "say", line: { speakerId: "arin", text: "노라의 흐름이다. 돌려받겠다 — 무기 들어." } },
+        { type: "fx", popup: { text: "🌊 흐름을 삼킨 자가 모습을 드러낸다", color: "#5a7f8f" } },
+        { type: "battle", id: "water_boss", templates: ["flow_devourer"] },
+        { type: "say", line: { speakerId: "lotti", text: "…해냈다! 물살이 원래 방향으로 돌아가는 게 느껴져!" } },
+        { type: "say", line: { speakerId: "theo", text: "이 흐름 자체가 여기 갇혀 있었던 모양이에요. …밖으로 나가서 확인해 보죠." } },
+        { type: "say", line: { speakerId: "arin", text: "돌아간다. 여기 근원이, 노라의 흐름을 붙들고 있었다." } },
+        { type: "fx", popup: { text: "…희미하게, 저 위에서 물소리가 가라앉는다", color: "#5a7f8f" } },
+        { type: "camReset", ms: 1200 },
+    ],
+    // 물길 원복 — 수변의 「물이 하늘로 흐르는 수로」가 끝나고 물이 제 길로 돌아오는 연출.
+    // phen_water 소등 자체가 이 연출의 본체(fog/디렉셔널/파티클이 실측대로 원복)라
+    // set 스텝을 맨 앞에 두어 컷신 재생 내내 소등 상태가 유지되게 했다 — 재도전
+    // 걱정은 없다(defeated_water_boss_0로 게이팅되는 별도 트리거라 승리 전에는
+    // 애초에 재생되지 않는다 — forest_relic·hill2_relic과 동일 안전 설계). 카메라는
+    // 지상 게이트(108,-39.36,-236) 인근 walkable 앵커 기준 수평 시선 — 배터리
+    // (sp2b-t6-flowboss.js) rAF 확정 샷으로 사후 육안 확인.
+    cs_water_relic: [
+        { type: "set", flags: { phen_water: false, relic_flow: true } },
+        { type: "cam", pos: { x: 113, y: -37.4, z: -239 }, lookAt: { x: 108, y: -39.4, z: -236 }, ms: 1800, hold: 1000 },
+        { type: "fx", popup: { text: "💧⬇ 거슬러 오르던 물줄기가, 마침내 제 길로 흐른다", color: "#5a7f8f" } },
+        { type: "say", line: { speakerId: "arin", text: "…시간이 풀렸다. 이 수변부터." } },
+        { type: "say", line: { speakerId: "theo", text: "하늘로 치솟던 물줄기가 끝났어요. 이제 이 수로도, 아래로 흐르는 하나의 방향으로 이어집니다." } },
+        { type: "cam", pos: { x: 103, y: -37.4, z: -233 }, lookAt: { x: 109, y: -39.4, z: -237 }, ms: 1800, hold: 1400 },
+        { type: "say", line: { speakerId: "lotti", text: "…이 소리! 물 흐르는 소리가 이제야 제대로 들려. 아까까진 아예 소리가 이상했었나 봐." } },
+        { type: "fx", popup: { text: "💧✨ 흐름의 유물 획득 (5/?)", color: "#a78bfa" } },
+        { type: "say", line: { speakerId: "theo", text: "'그분'의 흔적이 이 유물에도 짙게 남아 있어요. …차곡차곡 기록해 두죠." } },
+        { type: "say", line: { speakerId: "arin", text: "…다섯. 노라의 흐름을, 다섯 번째로 되찾았다." } },
+        { type: "camReset", ms: 1200 },
+    ],
 };
