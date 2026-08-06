@@ -929,7 +929,7 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         near: { x: 229, z: -257, radius: 8 }, // y=-47.25(강태공 하부 선착장, near는 XZ만 판정)
         flagsAll: ["story_water_arrival"],
         dialogue: [
-            { speaker: "강태공", text: "찌가 물을 거슬러 떠오르질 않나… 낚시가 안 돼." },
+            { speaker: "강태공", text: "찌가 물을 거슬러 떠오르질 않나… 낚시가 안 돼" },
             { speaker: "강태공", text: "동트기 전부터 그랬다네. 수문 쪽으로 갈수록 더 심해지는 것 같더군 — 그쪽은 나도 잘 안 가지만." },
             { speakerId: "theo", text: "흐름 자체가 역전됐다는 거군요. 예사롭지 않은 증언이에요. 낱낱이 기록해 두겠습니다." },
             { speakerId: "arin", text: "수문 쪽이라. …근원이 거기 있겠군." },
@@ -969,6 +969,13 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         near: { x: 176, z: -276, radius: 8 }, // y=-12.25(수문 관리소 내부, near는 XZ만 판정)
         flagsAll: ["story_water_gate"],
         cutscene: "cs_theo_master",
+        // [셀프 리뷰 반영] forest_theo(T1) 전례 — "water_gate_found"를 산출한 자리(수문,
+        // 108/-236)로 되돌아가는 목적지를 남겨 다음 몫(T6 던전)의 방향을 열어 둔다.
+        // 이게 없으면 water_gate의 objective/target("수문 관리소를 살펴보자"→176,-276)이
+        // HUD에 그대로 남아 이미 도착한 지점을 다시 가리키는 상태가 된다(StoryTriggers.tsx
+        // setStory 패치는 필드가 있을 때만 갱신).
+        objective: "수문이 뒤틀리던 자리로 돌아가, 그 아래를 살펴보자",
+        target: { x: 108, z: -236 },
     },
 ];
 
