@@ -544,7 +544,7 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
     // 수문 하부 최심부(WATER_UNDERFLOW_BOSS_ENTRY 108,-44.25,-242 인근) — 조명
     // 오버라이드(__lightOverride, water_underflow: ambient 0.13·lamp 0.5·
     // fog #0f2a33 near3 far19) 상태에서 카메라 확정(헤드리스 rAF drawImage
-    // 캡처 — scratchpad/sp2b-t6-flowboss.js → sp2b-cs_water_boss-1/2.png). 전부
+    // 캡처 — scratchpad/sp2b-t6-cambattle.js → sp2b-cs_water_boss-1/2.png). 전부
     // walkable 층(y≈-44.25) 기준 수평 시선(부감 없음, dungeonData.ts
     // WATER_UNDERFLOW_BOSS_ENTRY 실측 참조). battle 스텝(보스전) 포함 — 승리해야
     // 잔여 연출이 재생된다(checkedResume 게이트). giveGold 없음(harness-notes 규약 —
@@ -574,7 +574,7 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
     // 걱정은 없다(defeated_water_boss_0로 게이팅되는 별도 트리거라 승리 전에는
     // 애초에 재생되지 않는다 — forest_relic·hill2_relic과 동일 안전 설계). 카메라는
     // 지상 게이트(108,-39.36,-236) 인근 walkable 앵커 기준 수평 시선 — 배터리
-    // (sp2b-t6-flowboss.js) rAF 확정 샷으로 사후 육안 확인.
+    // (sp2b-t6-cambattle.js) rAF 확정 샷으로 사후 육안 확인.
     cs_water_relic: [
         { type: "set", flags: { phen_water: false, relic_flow: true } },
         { type: "cam", pos: { x: 113, y: -37.4, z: -239 }, lookAt: { x: 108, y: -39.4, z: -236 }, ms: 1800, hold: 1000 },
