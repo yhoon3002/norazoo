@@ -696,6 +696,13 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         flagsAll: ["forest_rift_found", "story_forest_theo", "door_forest_rootcave_2"],
         cutscene: "cs_forest_boss",
         battle: { id: "forest_boss", templates: ["season_devourer"] },
+        // [최종 리뷰 재리뷰 반영] relic 지점이 게이트 착지점에서 분리되면서(-172,-49,
+        // 지하 오발화 수정) 격파 후 다음 목적지를 가리키는 비콘이 사라졌다 — 보스 트리거
+        // 최초 발화 시 HUD를 신규 relic 지점으로 패치해 핸드오프(StoryTriggers.tsx:94-103,
+        // water_theo 348811d 전례와 동일 메커니즘). 게이트 착지(-172,-40)→센터 9.00m라
+        // 자연 동선으로는 스치지 않는 것이 실측 확인됨(재리뷰 발견).
+        objective: "삼킨 자를 잠재우고, 굴 밖 숲에서 계절을 갈무리하자",
+        target: { x: -172, z: -49 },
     },
     // 유물 회수·phen_forest 소등 — cs_forest_relic 자체의 set 스텝(hill2_relic 전례와
     // 동일 설계: defeated_forest_boss_0로 게이팅되는 별도 트리거이므로 패배 후 재도전만
@@ -711,8 +718,10 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
     // y+3에서 소자유낙하, scratchpad/sp2b-final1b-artifact.js):
     // (-172.5,-45.43,-40) 착지 y=-45.25(dy=0.18) → 레이캐스트 아티팩트가 아니라 실제
     // 물리 충돌 바닥(결함 확정, 판정 근거 § task-7-report.md "최종 리뷰 수정 웨이브").
-    // 신규 지점은 게이트에서 9.00m 남쪽(라이브 광역 그리드 스캔 x[-200,-155]·z[-60,-15]
-    // 기준 최근접 지하점 5.39m+ 이격, scratchpad/sp2b-final2-forest-scan.js) — 문2 스위치
+    // 신규 지점은 게이트에서 9.00m 남쪽 — 지하 워커블 최근접은 3.54m(재리뷰 정정:
+    // 라이브 스캔의 deepPts가 "표층 없는 컬럼"만 수집해 5.39m로 과대 계상됐었음.
+    // 표층 아래 워커블 포함 실최근접은 e2search-grid 기준 3.54m — radius 3 밖 유지,
+    // 단 마진 0.54m로 박빙. scratchpad/sp2b-final2-forest-scan.js) — 문2 스위치
     // (-174,-44.5)와 4.92m·forest_theo 캠프 데크(-176,-46)와 5.00m로 3.5m+ 확보.
     // 이원 검증: __navFindWalkable drift 0.00m·12방 연속성 12/12@1.5m·실텔레포트
     // 자유낙하(고도80, 별도 세션 2회) y=-6.25 수렴(dy=-0.03) — 참고로 1m 옆(-173,-49)은
@@ -1019,6 +1028,11 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         flagsAll: ["water_gate_found", "story_water_theo", "door_water_underflow_2"],
         cutscene: "cs_water_boss",
         battle: { id: "water_boss", templates: ["flow_devourer"] },
+        // [최종 리뷰 재리뷰 반영] forest_boss와 동일 핸드오프 — relic 지점(104,-236)이
+        // 게이트 착지(108,-236)에서 4.00m 분리돼 무표지가 됐으므로 보스 트리거 발화 시
+        // HUD를 신규 지점으로 패치(act2b_done 진입 경로의 유일한 비콘).
+        objective: "삼킨 자를 잠재우고, 수문 밖에서 물길을 갈무리하자",
+        target: { x: 104, z: -236 },
     },
     // 유물 회수·phen_water 소등 — cs_water_relic 자체의 set 스텝(forest_relic/woods_relic
     // 전례와 동일 설계: defeated_water_boss_0로 게이팅되는 별도 트리거이므로 패배 후
@@ -1033,8 +1047,10 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
     // WATER_UNDERFLOW_BOSS_ENTRY와 동일 실바닥) → 레이캐스트 아티팩트가 아니라 실제 물리
     // 충돌 바닥(결함 확정 — 최초 시도(target y+3)는 표층/심층 재스냅 밴드 혼선으로
     // dy=4.08 오판정이 나왔던 것을 좁은 시작고도로 재검증해 바로잡았다, § task-7-report.md).
-    // 신규 지점은 게이트에서 4.00m 서쪽(라이브 광역 그리드 스캔 x[60,180]·z[-280,-190]
-    // 기준 최근접 지하점 9.06m 이격, scratchpad/sp2b-final2-water-scan.js) — water_gate
+    // 신규 지점은 게이트에서 4.00m 서쪽 — 지하 워커블 최근접은 4.47m(재리뷰 정정:
+    // 라이브 스캔 지표가 표층 아래 챔버층을 누락해 9.06m로 과대 계상됐었음. basinoutline
+    // 그리드 기준 실최근접 (108,-238)/(108,-234) 4.47m — radius 3 밖 유지, 마진 1.47m.
+    // scratchpad/sp2b-final2-water-scan.js) — water_gate
     // 장치 자체와 4.00m로 3.5m+ 확보(문1/문2 스위치·물고기잡이 NPC·수문 관리소는 전부
     // 8m+ 더 멀다). 이원 검증: __navFindWalkable drift 0.00m·12방 연속성 12/12@1.5m·
     // 실텔레포트 자유낙하(고도80, 별도 세션 2회) y=-39.25 수렴(dy=0.13,

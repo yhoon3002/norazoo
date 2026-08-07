@@ -409,16 +409,19 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
     // set 스텝을 맨 앞에 두어 컷신 재생 내내 소등 상태가 유지되게 했다 — 재도전
     // 걱정은 없다(defeated_forest_boss_0로 게이팅되는 별도 트리거라 승리 전에는
     // 애초에 재생되지 않는다 — hill2_relic·T4 port2_relic과 동일 안전 설계).
-    // 카메라는 지상 게이트(-172,-6.25,-40) 인근 walkable 앵커 기준 수평 시선
-    // (헤드리스 rAF 캡처 — scratchpad/sp2b-t3-cambattle.js →
-    // sp2b-cs_forest_relic-1/2.png).
+    // 카메라 — [최종 리뷰 재리뷰 반영] 트리거가 (-172,-49)로 이동하면서 옛 게이트
+    // (-172,-40) 조준 캠 2개가 파티 축외(~40°+)가 되어 재조준. 앵커는 게이트/캠프
+    // 데크 인근 walkable 대역 유지, 신규 파티 지점 기준 수평 시선(재캡처
+    // scratchpad/sp2b-final5-relic-recap.js → sp2b-cs_forest_relic-1/2.png 육안 확인).
     cs_forest_relic: [
         { type: "set", flags: { phen_forest: false, relic_season: true } },
-        { type: "cam", pos: { x: -177, y: -3, z: -44 }, lookAt: { x: -172, y: -6, z: -40 }, ms: 1800, hold: 1000 },
+        // cam1은 파티가 아니라 "제철로 돌아온 숲" 전경이 주제(popup 동반 비스타 컷) —
+        // 동측 복원 사면을 정면에 두고 계단 구조물은 좌측 가장자리로 밀었다. 파티 프레이밍은 cam2가 담당.
+        { type: "cam", pos: { x: -177, y: -3, z: -44 }, lookAt: { x: -168, y: -6.5, z: -46 }, ms: 1800, hold: 1000 },
         { type: "fx", popup: { text: "🍂 사계가, 마침내 제철로 돌아온다", color: "#9fb86a" } },
         { type: "say", line: { speakerId: "arin", text: "…시간이 풀렸다. 이 숲부터." } },
         { type: "say", line: { speakerId: "theo", text: "뒤엉켰던 계절이 끝났어요. 이제 이 숲도, 제 몫의 계절 하나로 이어집니다." } },
-        { type: "cam", pos: { x: -170, y: -2.5, z: -37 }, lookAt: { x: -176, y: -5, z: -42 }, ms: 1800, hold: 1400 },
+        { type: "cam", pos: { x: -172, y: -2.6, z: -41.5 }, lookAt: { x: -172.3, y: -5.8, z: -49 }, ms: 1800, hold: 1400 },
         { type: "say", line: { speakerId: "lotti", text: "…이 냄새! 이제야 계절 하나가 또렷해. 그래도 아까 그 뒤섞인 풍경, 사실 예쁘긴 했는데." } },
         { type: "fx", popup: { text: "🍂✨ 계절의 유물 획득 (3/?)", color: "#a78bfa" } },
         { type: "say", line: { speakerId: "theo", text: "'그분'의 흔적이 이 유물에도 짙게 남아 있어요. …차곡차곡 기록해 두죠." } },
