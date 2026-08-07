@@ -369,9 +369,9 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
         { type: "say", line: { speakerId: "theo", text: "에테르 계측 기구예요. 이 조합, 이 배치… 제 스승님 방식 그대로입니다." } },
         { type: "say", line: { speaker: "낡은 노트", text: "『시간의 결이 뒤엉킨 곳마다 에테르가 고인다.』" } },
         { type: "say", line: { speakerId: "theo", text: "…스승님 글씨체예요. 몇 해 전, 아무 말 없이 사라지신 스승님의 노트가 — 왜 하필 이런 곳에." } },
-        { type: "say", line: { speakerId: "arin", text: "…처음 듣는 이야기다. 스승이 있었나." } },
+        { type: "say", line: { speakerId: "arin", text: "…스승이라. 네가 그 이름을 먼저 꺼내는 건 드문 일이다." } },
         { type: "say", line: { speakerId: "theo", text: "왕도 학당 시절의 스승님이셨어요. 에테르 연구로는 누구도 따를 자가 없으셨죠 — 그러다 어느 날, 아무 흔적도 없이 사라지셨습니다. 그 뒤로 줄곧, 저 혼자 이유를 찾고 있었어요." } },
-        { type: "say", line: { speakerId: "lotti", text: "그런 얘기, 한 번도 안 했잖아… 혼자 계속 찾아다니느라 힘들었겠다." } },
+        { type: "say", line: { speakerId: "lotti", text: "그렇게 갑자기 사라지셨다니… 혼자 계속 찾아다니느라 힘들었겠다." } },
         { type: "say", line: { speakerId: "arin", text: "…이제는 혼자가 아니다." } },
         { type: "say", line: { speakerId: "theo", text: "…고맙습니다, 두 분 다. 이 노트가 스승님이 여기 계셨다는 첫 단서예요. '시간의 결이 뒤엉킨 곳' — 계절이 뒤섞인 이 숲과 무관하지 않겠죠." } },
         { type: "fx", popup: { text: "📔 스승의 연구 노트를 발견했다", color: "#a78bfa" } },
@@ -520,6 +520,11 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
     // 테오 단서 2장 — 수문 관리소에 남은 스승의 두 번째 연구 노트(T1의 cs_theo_camp 대응:
     // 서사 컷신). 빌런 스레드와의 교차점("탑을 세운 이") — 직접 명명하지 않는다(스펙 지시).
     // 스승의 행방은 여기서도 해결하지 않는다 — SP2c 이후 과제로 열어 둔다.
+    // [최종 리뷰 Minor 수정] 테오의 두 대사가 "지난번 노트보다 앞선 기록"(순서: 이 노트가
+    // 더 이전)과 "이 기록이 마지막에 가까울지도"(순서: 이 노트가 더 나중/끝자락)로 서로
+    // 엇갈리는 소프트 모순이 있었다 — 앞쪽 대사에서 순서 판단 자체를 보류("아직 가늠이
+    // 안 됩니다")하는 쪽으로 정리해, 뒤쪽 대사의 "마지막에 가까울지도"라는 추정(거절 후
+    // 종적을 감췄다는 내용 자체에서 나온 별개의 추론)과 부딪히지 않게 했다.
     cs_theo_master: [
         // [카메라 재조정 2차] 1차본(177,-277.8)은 실측 워커블 맵상 벽 클리핑은 없었으나
         // player(176,-276)와의 거리 2.3m가 지나치게 가까워 로티 한 명이 프레임을 가득 채워
@@ -532,7 +537,7 @@ export const CUTSCENES: Record<string, CutsceneStep[]> = {
         { type: "cam", pos: { x: 178.5, y: -11.6, z: -279.3 }, lookAt: { x: 175.5, y: -12.3, z: -275.2 }, ms: 1800, hold: 1200 },
         { type: "fx", popup: { text: "📔 관리소에 남겨진 낡은 노트", color: "#f5c96b" } },
         { type: "say", line: { speaker: "낡은 노트", text: "『탑을 세운 이가 찾아왔다. 시간을 되감는 법을 물었다. 나는 거절했고, 그는 슬퍼 보였다.』" } },
-        { type: "say", line: { speakerId: "theo", text: "…스승님 필체예요. 다시 뵙는군요, 이런 곳에서. 날짜는 없지만 — 지난번 노트보다 앞선 기록 같습니다." } },
+        { type: "say", line: { speakerId: "theo", text: "…스승님 필체예요. 다시 뵙는군요, 이런 곳에서. 날짜는 없어서, 지난번 노트와 어느 쪽이 먼저인지는 아직 가늠이 안 됩니다." } },
         { type: "say", line: { speakerId: "arin", text: "'탑을 세운 이'라니. …짚이는 자가 없지 않다." } },
         { type: "say", line: { speakerId: "theo", text: "시간을 되감는 법을 물었고, 스승님은 거절하셨다… 그 뒤로 종적을 감추셨다면 — 이 기록이 마지막에 가까울지도 모르겠어요." } },
         { type: "say", line: { speakerId: "lotti", text: "…그때 무서우셨겠다. 근데 끝까지 알려주지 않으셨다니, 역시 대단하신 분이야." } },

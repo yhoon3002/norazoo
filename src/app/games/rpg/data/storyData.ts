@@ -660,8 +660,17 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
         near: { x: -176, z: -46, radius: 8 },
         flagsAll: ["story_forest_rift"],
         cutscene: "cs_theo_camp",
-        objective: "계절이 갈라지던 자리로 돌아가, 그 뿌리를 살펴보자",
-        target: { x: -198, z: 32 },
+        // [최종 리뷰 수정 — Important 2] 원안 target(-198,32)은 forest_rift 트리거
+        // 자신의 좌표(=이미 지나온 진원 지점)를 그대로 되짚는 죽은 목적지였다 — 그
+        // 자리엔 더 볼 콘텐츠가 없고, T2가 실제 배치한 「뿌리 굴」 던전 지상 게이트는
+        // 전혀 다른 위치(-172,-6.25,-40, dungeonData.ts forest_rootcave 참조 — forest_rift
+        // 좌표와는 별개 지점이라는 건 T1 당시부터 알려진 사실이었으나 target 필드
+        // 갱신이 누락됐었다)다. water_theo(T5, 348811d 전례)와 대칭으로 "게이트 인근으로
+        // 돌아가 그 안을 살펴보자" 구조로 교체 — target을 게이트 좌표로 회수하고,
+        // objective도 게이트(뿌리 굴 입구) 지향 문구로 바꾼다. 게이트는 이 캠프에서
+        // 7.21m — 지척이라 "지척의 입구" 표현이 성립.
+        objective: "노트가 가리킨 뿌리 굴 — 지척의 입구를 찾아 들어가자",
+        target: { x: -172, z: -40 },
     },
     // ===== SP2b T3 — 대삼림 보스 「계절을 삼킨 자」 + 유물③ =====
     // 던전(뿌리 굴) 최심부 — T2의 FOREST_ROOTCAVE_BOSS_ENTRY(-170.9,-44.25,-44.8) 그대로
@@ -694,22 +703,26 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
     // act2_forest는 STAGE_ORDER상 act2_woods 앞이라 act2a_bridge 같은 "무좌표 브리지"가
     // 필요 없지만(다음 존이 이미 존재), 사계 연출 자체(제철로 돌아옴)와 다음 존행 전언을
     // 한 컷신에 욱여넣지 않고 분리해 각각 명확한 완결감을 준다(브리프 지시).
-    // near는 forest_rootcave 지상 게이트 좌표를 그대로 재사용(hill2_relic이 hill_undercroft
-    // 지상 게이트 좌표(8,-204)를 그대로 재사용한 것과 동일 패턴) — T2가 이미 이원 검증
-    // (__navFindWalkable + 자유낙하 2세션)을 마친 지점이라 신규 좌표 리스크가 없다.
-    // GEN_POIS.west_forest 전망 포인트(-171.5,-6.25,-35.5)와 4.53m — 3.5m+ 확보
-    // (sp2b-t3-seasonboss.js audit 섹션).
-    // radius=3(hill2_relic의 8이 아니라 forest_boss와 동일한 좁은 반경) — StoryTrigger의
-    // near는 XZ만 보고 y를 보지 않는데, 이 던전은 지상 게이트와 지하 보스방이 거의 같은
-    // XZ 기둥에 있어(문2/스위치2/보스 진입점 전부 지상 게이트(-172,-40)에서 4.7~4.9m —
-    // hill_undercroft는 지상↔지하가 62.8m 떨어져 있어 이 문제가 없었다) radius=8이면
-    // cs_forest_boss가 끝나자마자(플레이어가 아직 지하 보스방에 서 있는 채로) 오발화할
-    // 위험이 있다(실측: sp2b-t3-seasonboss.js 초안에서 발견). 3m로 좁히면 게이트 정확한
-    // 착지점(드리프트 0m)은 여전히 잡히면서 지하 위험 반경(4.7m+) 전부를 배제한다.
+    //
+    // [최종 리뷰 수정 — Important 1] near를 forest_rootcave 지상 게이트(-172,-40)에서
+    // (-172,-49)로 재배치했다. 원안은 radius=3으로 좁혀 뒀어도 게이트 XZ 기둥 바로
+    // 아래(0.5m!) 뿌리 굴 지하 워커블이 실재해(sp2b-t2-e2search-grid.json, 그리드
+    // 실측) 지하에 있는 상태에서도 오발화할 수 있었다 — 실텔레포트로 재확인(target
+    // y+3에서 소자유낙하, scratchpad/sp2b-final1b-artifact.js):
+    // (-172.5,-45.43,-40) 착지 y=-45.25(dy=0.18) → 레이캐스트 아티팩트가 아니라 실제
+    // 물리 충돌 바닥(결함 확정, 판정 근거 § task-7-report.md "최종 리뷰 수정 웨이브").
+    // 신규 지점은 게이트에서 9.00m 남쪽(라이브 광역 그리드 스캔 x[-200,-155]·z[-60,-15]
+    // 기준 최근접 지하점 5.39m+ 이격, scratchpad/sp2b-final2-forest-scan.js) — 문2 스위치
+    // (-174,-44.5)와 4.92m·forest_theo 캠프 데크(-176,-46)와 5.00m로 3.5m+ 확보.
+    // 이원 검증: __navFindWalkable drift 0.00m·12방 연속성 12/12@1.5m·실텔레포트
+    // 자유낙하(고도80, 별도 세션 2회) y=-6.25 수렴(dy=-0.03) — 참고로 1m 옆(-173,-49)은
+    // navmesh 연속성은 12/12로 더 좋았지만 실제 자유낙하가 dy=-2.52로 어긋나(navmesh와
+    // 실물리 충돌면 괴리 사례) 기각, (-172,-49)를 채택했다(scratchpad/
+    // sp2b-final3-verify-candidates.js·sp2b-final3b-forest-alt.js).
     {
         id: "forest_relic",
         stage: "act2_forest",
-        near: { x: -172, z: -40, radius: 3 },
+        near: { x: -172, z: -49, radius: 3 }, // y=-6.25(자유낙하 실측), near는 XZ만 판정
         flagsAll: ["defeated_forest_boss_0"],
         cutscene: "cs_forest_relic",
         objective: "숲을 나서기 전, 하나로 돌아온 계절을 둘러보자",
@@ -722,11 +735,11 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
     // 평가된다). act2_forest가 STAGE_ORDER 최종 스테이지가 아니라(act2_woods가 이미
     // 뒤에 있음) act2a_bridge와 달리 nextStage를 곧장 여기서 지정한다. act2_woods 콘텐츠는
     // 아직 없어(다음 태스크 몫) target은 act2a_bridge 전례대로 null.
-    // radius=3 — forest_relic과 동일 사유(위 주석 참조, 지하 보스방과의 XZ 근접 오발화 방지).
+    // near — forest_relic과 동일 좌표(위 [최종 리뷰 수정 — Important 1] 주석 참조).
     {
         id: "forest_to_woods",
         stage: "act2_forest",
-        near: { x: -172, z: -40, radius: 3 },
+        near: { x: -172, z: -49, radius: 3 }, // y=-6.25, near는 XZ만 판정
         flagsAll: ["relic_season"],
         dialogue: [
             { speaker: "전령", text: "실례합니다 — 다시 뵙는군요. 이번엔 북쪽 숲길 쪽에서 급보가 왔습니다." },
@@ -1009,14 +1022,27 @@ export const STORY_TRIGGERS: StoryTrigger[] = [
     },
     // 유물 회수·phen_water 소등 — cs_water_relic 자체의 set 스텝(forest_relic/woods_relic
     // 전례와 동일 설계: defeated_water_boss_0로 게이팅되는 별도 트리거이므로 패배 후
-    // 재도전만으로는 선적용되지 않는다 — 승리해야만 발동). near는 water_underflow 지상
-    // 게이트 좌표(=water_gate 트리거 좌표 재사용, dungeonData.ts 참조)를 그대로 재사용
-    // (forest_relic이 forest_rootcave 지상 게이트 좌표를 그대로 재사용한 것과 동일 패턴).
-    // radius=3 — forest_relic과 동일 사유(지상 게이트와 지하 보스방의 XZ 근접 오발화 방지).
+    // 재도전만으로는 선적용되지 않는다 — 승리해야만 발동).
+    //
+    // [최종 리뷰 수정 — Important 1] near를 water_underflow 지상 게이트(=water_gate
+    // 트리거 좌표, 108,-236) 재사용에서 (104,-236)으로 재배치했다. 원안은 radius=3으로
+    // 좁혀 뒀어도 게이트 XZ 기둥 바로 옆(2.0m!) 침수 바닥이 실재해(sp2b-t6-basinoutline.json
+    // 그리드 실측 — (110,-236)·(108,-238)·(108,-234) 전부 deep≈-43.4) 지하에 있는 상태에서도
+    // 오발화할 수 있었다 — 실텔레포트로 재확인(target y+1에서 소자유낙하,
+    // scratchpad/sp2b-final1b-artifact.js): (110,-43.44,-236) 착지 y=-44.25(dy=-0.81,
+    // WATER_UNDERFLOW_BOSS_ENTRY와 동일 실바닥) → 레이캐스트 아티팩트가 아니라 실제 물리
+    // 충돌 바닥(결함 확정 — 최초 시도(target y+3)는 표층/심층 재스냅 밴드 혼선으로
+    // dy=4.08 오판정이 나왔던 것을 좁은 시작고도로 재검증해 바로잡았다, § task-7-report.md).
+    // 신규 지점은 게이트에서 4.00m 서쪽(라이브 광역 그리드 스캔 x[60,180]·z[-280,-190]
+    // 기준 최근접 지하점 9.06m 이격, scratchpad/sp2b-final2-water-scan.js) — water_gate
+    // 장치 자체와 4.00m로 3.5m+ 확보(문1/문2 스위치·물고기잡이 NPC·수문 관리소는 전부
+    // 8m+ 더 멀다). 이원 검증: __navFindWalkable drift 0.00m·12방 연속성 12/12@1.5m·
+    // 실텔레포트 자유낙하(고도80, 별도 세션 2회) y=-39.25 수렴(dy=0.13,
+    // scratchpad/sp2b-final3-verify-candidates.js).
     {
         id: "water_relic",
         stage: "act2_water",
-        near: { x: 108, z: -236, radius: 3 },
+        near: { x: 104, z: -236, radius: 3 }, // y=-39.25(자유낙하 실측), near는 XZ만 판정
         flagsAll: ["defeated_water_boss_0"],
         cutscene: "cs_water_relic",
         objective: "수변을 나서기 전, 하늘로 거슬러 오르던 물줄기를 둘러보자",
